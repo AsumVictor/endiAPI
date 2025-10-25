@@ -47,7 +47,7 @@ export interface UpdateVideoRequest {
 export interface VideoResponse {
   success: boolean;
   message: string;
-  data?: Video | Video[] | VideoProgress[];
+  data?: Video | Video[] | VideoProgress[] | CourseVideoCompletions | VideoWithProgress[];
   error?: string;
 }
 

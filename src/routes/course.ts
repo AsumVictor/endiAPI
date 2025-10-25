@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import expressValidator from 'express-validator';
-const { body, validationResult } = expressValidator;
+const { body, validationResult } = expressValidator as any;
 import { asyncHandler, AppError } from '../utils/errors.ts';
 import { CourseService } from '../services/course.ts';
 import { VideoService } from '../services/video.ts';

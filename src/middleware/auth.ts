@@ -19,7 +19,7 @@ declare global {
  */
 export const authenticateToken = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
@@ -32,7 +32,8 @@ export const authenticateToken = async (
     }
 
     if (!token) {
-      throw new AppError('Access token required', 401);
+      _res.status(401).json({ success: false, error: 'Access token required' });
+      return;
     }
 
     // Verify the token
@@ -57,13 +58,14 @@ export const authenticateToken = async (
  * Middleware to check if user has specific role
  */
 export const requireRole = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       return next(new AppError('Authentication required', 401));
     }
 
     if (!roles.includes(req.user.role)) {
-      return next(new AppError('Insufficient permissions', 403));
+      _res.status(403).json({ success: false, error: 'Insufficient permissions' });
+      return;
     }
 
     next();
@@ -85,7 +87,7 @@ export const requireInstructor = requireRole(['instructor', 'admin']);
  */
 export const optionalAuth = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
@@ -116,7 +118,7 @@ export const optionalAuth = async (
  * Middleware to check if user owns the resource
  */
 export const requireOwnership = (userIdParam: string = 'userId') => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, next: NextFunction): void => {
     if (!req.user) {
       return next(new AppError('Authentication required', 401));
     }

@@ -354,7 +354,7 @@ export class AuthService {
   /**
    * Logout user (invalidate refresh token)
    */
-  static async logout(userId: string, res?: Response): Promise<{ success: boolean; message: string }> {
+  static async logout(_userId: string, res?: Response): Promise<{ success: boolean; message: string }> {
     try {
       // Clear secure HTTP-only cookies if response object is provided
       if (res) {

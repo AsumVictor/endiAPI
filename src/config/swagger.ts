@@ -1,6 +1,5 @@
 // Swagger configuration for API documentation
 import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
 import type { Application } from 'express';
 import config from './index.ts';
 

@@ -2,7 +2,6 @@
 import { supabase } from '../config/database.ts';
 import { AppError } from '../utils/errors.ts';
 import type { 
-  Video,
   VideoProgress,
   CreateVideoRequest, 
   UpdateVideoRequest,
@@ -10,7 +9,6 @@ import type {
   VideoProgressResponse,
   VideoWithProgress,
   VideoWithStats,
-  StudentVideoProgress,
   CourseVideoCompletions
 } from '../models/video.ts';
 
@@ -151,7 +149,7 @@ export class VideoService {
   /**
    * Get video by ID
    */
-  static async getVideoById(videoId: string, userId: string): Promise<VideoResponse> {
+  static async getVideoById(videoId: string, _userId: string): Promise<VideoResponse> {
     try {
       // Get video with lecturer info
       const { data: video, error } = await supabase

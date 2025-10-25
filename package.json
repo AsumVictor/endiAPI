@@ -4,10 +4,10 @@
   "description": "Node.js + Express + TypeScript API Server with Supabase",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
-    "dev:build": "tsc --watch",
+    "dev:build": "tsc --watch -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

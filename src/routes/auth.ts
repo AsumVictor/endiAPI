@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import expressValidator from 'express-validator';
-const { body, validationResult } = expressValidator;
+const { body, validationResult } = expressValidator as any;
 import { asyncHandler, AppError } from '../utils/errors.ts';
 import { AuthService } from '../services/auth.ts';
 import { authenticateToken } from '../middleware/auth.ts';
@@ -355,11 +355,12 @@ router.post('/refresh',
     // Check validation results
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
+       res.status(400).json({
         success: false,
         error: 'Validation failed',
         details: errors.array(),
       });
+      return;
     }
 
     const refreshData: RefreshTokenRequest = req.body;
@@ -493,9 +494,10 @@ router.get('/me',
  */
 router.post('/logout',
   authenticateToken,
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const result = await AuthService.logout(req.user!.id, res);
     res.status(200).json(result);
+    return;
   })
 );
 
@@ -545,10 +547,11 @@ router.get('/verify-email', asyncHandler(async (req: Request, res: Response) => 
   const { token, type, email } = req.query;
   
   if (!token) {
-    return res.status(400).json({
+     res.status(400).json({
       success: false,
       error: 'Verification token is required'
     });
+    return;
   }
 
   try {
@@ -560,17 +563,19 @@ router.get('/verify-email', asyncHandler(async (req: Request, res: Response) => 
     });
 
     if (error) {
-      return res.status(400).json({
+       res.status(400).json({
         success: false,
         error: `Email verification failed: ${error.message}`
       });
+      return;
     }
 
     if (!data.user) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'Invalid verification token'
       });
+      return;
     }
 
     // Success - redirect to frontend with success message
@@ -580,10 +585,11 @@ router.get('/verify-email', asyncHandler(async (req: Request, res: Response) => 
     res.redirect(redirectUrl);
 
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       error: 'Email verification failed'
     });
+    return;
   }
 }));
 
