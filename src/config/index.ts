@@ -27,9 +27,9 @@ export interface Config {
 
 const config: Config = {
   // Server Configuration
-  port: Number(process.env['PORT']) || 8000,
+  port: Number(process.env['PORT']) || 3000,
   nodeEnv: process.env['NODE_ENV'] || 'development',
-  host: process.env['HOST'] || 'localhost',
+  host: process.env['HOST'] || '0.0.0.0',
 
   // JWT Configuration
   jwt: {
