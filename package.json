@@ -4,10 +4,9 @@
   "description": "Node.js + Express + TypeScript API Server with Supabase",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "start": "node dist/server.js",
+    "start": "ts-node src/server.ts",
     "dev": "nodemon src/server.ts",
-    "dev:build": "tsc --watch -p tsconfig.build.json",
+    "build": "echo 'No build needed - use ts-node in production' && exit 1",
     "clean": "rm -rf dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
