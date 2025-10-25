@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeEndelea LMS API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+    <style>
+        .swagger-ui .topbar { display: none }
+        body { margin: 0; }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    
+    <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.onload = function() {
+            console.log('Loading Swagger UI...');
+            
+            fetch('/api-docs.json')
+                .then(response => {
+                    console.log('API spec response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(spec => {
+                    console.log('API spec loaded successfully:', spec);
+                    const ui = SwaggerUIBundle({
+                        spec: spec,
+                        dom_id: '#swagger-ui',
+                        deepLinking: true,
+                        presets: [
+                            SwaggerUIBundle.presets.apis,
+                            SwaggerUIStandalonePreset
+                        ],
+                        plugins: [
+                            SwaggerUIBundle.plugins.DownloadUrl
+                        ],
+                        layout: "StandaloneLayout",
+                        tryItOutEnabled: true,
+                        showExtensions: true,
+                        showCommonExtensions: true,
+                        persistAuthorization: true,
+                        displayRequestDuration: true,
+                        onComplete: function() {
+                            console.log('Swagger UI loaded successfully');
+                        },
+                        onFailure: function(error) {
+                            console.error('Swagger UI failed to load:', error);
+                            document.getElementById('swagger-ui').innerHTML = '<div style="padding: 20px; color: red;">Error initializing Swagger UI. Check console for details.</div>';
+                        }
+                    });
+                    window.ui = ui;
+                })
+                .catch(error => {
+                    console.error('Error loading API spec:', error);
+                    document.getElementById('swagger-ui').innerHTML = `
+                        <div style="padding: 20px; color: red; background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; margin: 20px;">
+                            <h3>Error loading API documentation</h3>
+                            <p>Error: ${error.message}</p>
+                            <p>Please check:</p>
+                            <ul>
+                                <li>Server is running on localhost:8000</li>
+                                <li>API endpoint /api-docs.json is accessible</li>
+                                <li>Browser console for more details</li>
+                            </ul>
+                        </div>
+                    `;
+                });
+        };
+    </script>
+</body>
+</html>

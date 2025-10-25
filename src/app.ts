@@ -1,0 +1,50 @@
+// Main Express application entry point
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import type { Application } from 'express';
+import { errorHandler } from './utils/errors.ts';
+import { corsMiddleware, limiter, requestLogger, securityMiddleware } from './middleware/index.ts';
+import routes from './routes/index.ts';
+import { setupSwagger } from './config/swagger.ts';
+
+// Create Express app
+const app: Application = express();
+
+// Security middleware
+app.use(securityMiddleware);
+
+// CORS middleware
+app.use(corsMiddleware);
+
+// Rate limiting middleware
+app.use(limiter);
+
+// Cookie parsing middleware
+app.use(cookieParser());
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request logging middleware
+app.use(requestLogger);
+
+// Swagger documentation
+setupSwagger(app);
+
+// Routes
+app.use('/api', routes);
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found',
+    path: req.originalUrl
+  });
+});
+
+export default app;
