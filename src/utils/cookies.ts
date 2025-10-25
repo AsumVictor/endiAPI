@@ -14,8 +14,8 @@ export interface CookieOptions {
 export class CookieService {
   private static readonly DEFAULT_OPTIONS: CookieOptions = {
     httpOnly: true,
-    secure: config.nodeEnv === 'production', // Only secure in production
-    sameSite: 'strict',
+    secure: config.nodeEnv === 'development' ? false : true, // Only secure in production
+    sameSite: 'none',
     path: '/',
   };
 
@@ -25,7 +25,8 @@ export class CookieService {
   static setAccessTokenCookie(res: Response, token: string): void {
     const options = {
       ...this.DEFAULT_OPTIONS,
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      // TODO: Change to 15 minutes
+      maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
       name: 'access_token',
     };
 
