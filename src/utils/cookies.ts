@@ -24,10 +24,12 @@ export class CookieService {
    */
   static setAccessTokenCookie(res: Response, token: string): void {
     const options = {
-      ...this.DEFAULT_OPTIONS,
+      httpOnly: true,
+      secure: config.nodeEnv === 'production',
+      sameSite: (config.nodeEnv === 'production' ? 'none' : 'lax') as 'strict' | 'lax' | 'none',
       // TODO: Change to 15 minutes
       maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
-      name: 'access_token',
+      path: '/',
     };
 
     res.cookie('access_token', token, options);
@@ -38,9 +40,11 @@ export class CookieService {
    */
   static setRefreshTokenCookie(res: Response, token: string): void {
     const options = {
-      ...this.DEFAULT_OPTIONS,
+      httpOnly: true,
+      secure: config.nodeEnv === 'production',
+      sameSite: (config.nodeEnv === 'production' ? 'none' : 'lax') as 'strict' | 'lax' | 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      name: 'refresh_token',
+      path: '/',
     };
 
     res.cookie('refresh_token', token, options);
@@ -50,20 +54,26 @@ export class CookieService {
    * Clear access token cookie
    */
   static clearAccessTokenCookie(res: Response): void {
-    res.clearCookie('access_token', {
-      ...this.DEFAULT_OPTIONS,
-      maxAge: 0,
-    });
+    const options = {
+      httpOnly: true,
+      secure: config.nodeEnv === 'production',
+      sameSite: (config.nodeEnv === 'production' ? 'none' : 'lax') as 'strict' | 'lax' | 'none',
+      path: '/',
+    };
+    res.clearCookie('access_token', options);
   }
 
   /**
    * Clear refresh token cookie
    */
   static clearRefreshTokenCookie(res: Response): void {
-    res.clearCookie('refresh_token', {
-      ...this.DEFAULT_OPTIONS,
-      maxAge: 0,
-    });
+    const options = {
+      httpOnly: true,
+      secure: config.nodeEnv === 'production',
+      sameSite: (config.nodeEnv === 'production' ? 'none' : 'lax') as 'strict' | 'lax' | 'none',
+      path: '/',
+    };
+    res.clearCookie('refresh_token', options);
   }
 
   /**

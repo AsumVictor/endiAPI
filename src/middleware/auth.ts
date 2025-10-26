@@ -25,7 +25,7 @@ export const authenticateToken = async (
   try {
     // First try to get token from Authorization header (Bearer token)
     let token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-    
+
     // If no token in header, try to get from HTTP-only cookie
     if (!token) {
       token = req.cookies?.['access_token'];
