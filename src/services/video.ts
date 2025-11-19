@@ -50,10 +50,11 @@ export class VideoService {
         title: data.title,
         description: data.description,
         camera_video_url: data.camera_video_url,
-        thumbnail_url: data.thumbnail_url || null,
-        code_activity: data.code_activity || null,
+        thumbnail_url: data.thumbnail_url ?? null,
+        snapshot_url: data.snapshot_url ?? null,
+        event_url: data.event_url ?? null,
+        transcript_url: data.transcript_url ?? null,
         level: data.level,
-        initial_data: data.initial_data || null,
         ispublic: data.ispublic || false,
         created_at: new Date().toISOString(),
       };
@@ -255,9 +256,10 @@ export class VideoService {
       if (data.description !== undefined) updateData.description = data.description;
       if (data.camera_video_url !== undefined) updateData.camera_video_url = data.camera_video_url;
       if (data.thumbnail_url !== undefined) updateData.thumbnail_url = data.thumbnail_url;
-      if (data.code_activity !== undefined) updateData.code_activity = data.code_activity;
+      if (data.snapshot_url !== undefined) updateData.snapshot_url = data.snapshot_url;
+      if (data.event_url !== undefined) updateData.event_url = data.event_url;
+      if (data.transcript_url !== undefined) updateData.transcript_url = data.transcript_url;
       if (data.level !== undefined) updateData.level = data.level;
-      if (data.initial_data !== undefined) updateData.initial_data = data.initial_data;
       if (data.ispublic !== undefined) updateData.ispublic = data.ispublic;
 
       const { data: updatedVideo, error } = await supabase

@@ -376,53 +376,6 @@ router.delete('/:courseId',
 
 /**
  * @swagger
- * /api/lecturers/{lecturerId}/courses:
- *   get:
- *     summary: Get lecturer's courses
- *     description: Fetch all courses owned by a lecturer. Accessible by lecturer and admin.
- *     tags: [Courses]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: lecturerId
- *         required: true
- *         schema:
- *           type: string
- *         description: Lecturer ID
- *     responses:
- *       200:
- *         description: Courses retrieved successfully
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden
- */
-router.get('/lecturers/:lecturerId/courses',
-  authenticateToken,
-  requireRole(['lecturer', 'admin']),
-  asyncHandler(async (req: Request, res: Response) => {
-    const { lecturerId } = req.params;
-    if (!lecturerId || typeof lecturerId !== 'string') {
-      res.status(400).json({
-        success: false,
-        error: 'Lecturer ID is required',
-      });
-      return
-    }
-
-    // Check if user is accessing their own courses or is admin
-    if (req.user!.role !== 'admin' && req.user!.id !== lecturerId) {
-      throw new AppError('You can only view your own courses', 403);
-    }
-
-    const result = await CourseService.getCoursesByLecturer(lecturerId);
-    res.status(200).json(result);
-  })
-);
-
-/**
- * @swagger
  * /api/courses/{courseId}/students:
  *   get:
  *     summary: Get course students

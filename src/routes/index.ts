@@ -5,7 +5,8 @@ import { asyncHandler } from '../utils/errors.ts';
 import config from '../config/index.ts';
 import authRoutes from './auth.ts';
 import courseRoutes from './course.ts';
-import videoRoutes from './video.ts'; // New import
+import videoRoutes from './video.ts';
+import lecturerRoutes from './lecturer.ts';
 
 const router = Router();
 
@@ -101,6 +102,9 @@ router.get('/auth/status', asyncHandler(async (_req: Request, res: Response) => 
 
 // Mount auth routes
 router.use('/auth', authRoutes);
+
+// Mount lecturer routes
+router.use('/lecturers', lecturerRoutes);
 
 // Mount course routes
 router.use('/courses', courseRoutes);

@@ -16,6 +16,9 @@ const validateCreateVideo = [
   body('description').isLength({ min: 10, max: 2000 }).withMessage('Description must be 10-2000 characters'),
   body('camera_video_url').isURL().withMessage('Video URL must be a valid URL'),
   body('thumbnail_url').optional().isURL().withMessage('Thumbnail URL must be a valid URL'),
+  body('snapshot_url').optional().isURL().withMessage('Snapshot URL must be a valid URL'),
+  body('event_url').optional().isURL().withMessage('Event URL must be a valid URL'),
+  body('transcript_url').optional().isURL().withMessage('Transcript URL must be a valid URL'),
   body('level').isIn(['beginner', 'intermediate', 'advanced']).withMessage('Level must be beginner, intermediate, or advanced'),
   body('ispublic').optional().isBoolean().withMessage('ispublic must be a boolean'),
 ];
@@ -25,6 +28,9 @@ const validateUpdateVideo = [
   body('description').optional().isLength({ min: 10, max: 2000 }).withMessage('Description must be 10-2000 characters'),
   body('camera_video_url').optional().isURL().withMessage('Video URL must be a valid URL'),
   body('thumbnail_url').optional().isURL().withMessage('Thumbnail URL must be a valid URL'),
+  body('snapshot_url').optional().isURL().withMessage('Snapshot URL must be a valid URL'),
+  body('event_url').optional().isURL().withMessage('Event URL must be a valid URL'),
+  body('transcript_url').optional().isURL().withMessage('Transcript URL must be a valid URL'),
   body('level').optional().isIn(['beginner', 'intermediate', 'advanced']).withMessage('Level must be beginner, intermediate, or advanced'),
   body('ispublic').optional().isBoolean().withMessage('ispublic must be a boolean'),
 ];
@@ -54,16 +60,22 @@ const validateUpdateVideo = [
  *         camera_video_url:
  *           type: string
  *           example: "https://example.com/video.mp4"
- *         code_activity:
- *           type: object
- *           example: {"language": "python", "initialCode": "name = 'John'"}
+ *         snapshot_url:
+ *           type: string
+ *           nullable: true
+ *           example: "https://example.com/snapshot.jpg"
+ *         event_url:
+ *           type: string
+ *           nullable: true
+ *           example: "https://example.com/event.json"
+ *         transcript_url:
+ *           type: string
+ *           nullable: true
+ *           example: "https://example.com/transcript.json"
  *         level:
  *           type: string
  *           enum: [beginner, intermediate, advanced]
  *           example: "beginner"
- *         initial_data:
- *           type: object
- *           example: {"duration": 300, "chapters": ["variables"]}
  *         ispublic:
  *           type: boolean
  *           example: true
@@ -130,16 +142,19 @@ const validateUpdateVideo = [
  *               thumbnail_url:
  *                 type: string
  *                 example: "https://example.com/thumbnail.jpg"
- *               code_activity:
- *                 type: object
- *                 example: {"language": "python", "initialCode": "name = 'John'"}
+ *               snapshot_url:
+ *                 type: string
+ *                 example: "https://example.com/snapshot.jpg"
+ *               event_url:
+ *                 type: string
+ *                 example: "https://example.com/event.json"
+ *               transcript_url:
+ *                 type: string
+ *                 example: "https://example.com/transcript.json"
  *               level:
  *                 type: string
  *                 enum: [beginner, intermediate, advanced]
  *                 example: "beginner"
- *               initial_data:
- *                 type: object
- *                 example: {"duration": 300, "chapters": ["variables"]}
  *               ispublic:
  *                 type: boolean
  *                 example: true
@@ -269,6 +284,8 @@ router.get('/:videoId',
       return;
     }
 
+    
+
     const userId = req.user!.id;
     const result = await VideoService.getVideoById(videoId, userId);
     res.status(200).json(result);
@@ -310,9 +327,15 @@ router.get('/:videoId',
  *               thumbnail_url:
  *                 type: string
  *                 example: "https://example.com/new-thumbnail.jpg"
- *               code_activity:
- *                 type: object
- *                 example: {"language": "python", "initialCode": "name = 'Jane'"}
+ *               snapshot_url:
+ *                 type: string
+ *                 example: "https://example.com/new-snapshot.jpg"
+ *               event_url:
+ *                 type: string
+ *                 example: "https://example.com/new-event.json"
+ *               transcript_url:
+ *                 type: string
+ *                 example: "https://example.com/new-transcript.json"
  *               level:
  *                 type: string
  *                 enum: [beginner, intermediate, advanced]

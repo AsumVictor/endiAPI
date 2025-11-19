@@ -6,11 +6,12 @@ export interface Video {
   description: string;
   thumbnail_url: string | null;
   camera_video_url: string;
-  code_activity: any | null; // jsonb
+  snapshot_url: string | null;
+  event_url: string | null;
+  transcript_url: string | null;
   level: 'beginner' | 'intermediate' | 'advanced';
-  created_at: string;
-  initial_data: any | null; // jsonb
   ispublic: boolean;
+  created_at: string;
 }
 
 export interface VideoProgress {
@@ -27,9 +28,10 @@ export interface CreateVideoRequest {
   description: string;
   camera_video_url: string;
   thumbnail_url?: string;
-  code_activity?: any;
+  snapshot_url?: string;
+  event_url?: string;
+  transcript_url?: string;
   level: 'beginner' | 'intermediate' | 'advanced';
-  initial_data?: any;
   ispublic?: boolean;
 }
 
@@ -38,9 +40,10 @@ export interface UpdateVideoRequest {
   description?: string;
   camera_video_url?: string;
   thumbnail_url?: string;
-  code_activity?: any;
+  snapshot_url?: string;
+  event_url?: string;
+  transcript_url?: string;
   level?: 'beginner' | 'intermediate' | 'advanced';
-  initial_data?: any;
   ispublic?: boolean;
 }
 

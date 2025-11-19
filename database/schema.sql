@@ -222,9 +222,10 @@ CREATE TABLE videos (
   description TEXT NOT NULL,
   thumbnail_url TEXT,
   camera_video_url TEXT NOT NULL,
-  code_activity JSONB,
+  snapshot_url TEXT,
+  event_url TEXT,
+  transcript_url TEXT,
   level TEXT NOT NULL CHECK (level IN ('beginner', 'intermediate', 'advanced')),
-  initial_data JSONB,
   ispublic BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -242,7 +243,7 @@ CREATE TABLE video_progress (
 -- Create indexes for videos table
 CREATE INDEX idx_videos_course_id ON videos(course_id);
 CREATE INDEX idx_videos_level ON videos(level);
-CREATE INDEX idx_videos_isPublic ON videos(isPublic);
+CREATE INDEX idx_videos_ispublic ON videos(ispublic);
 CREATE INDEX idx_videos_created_at ON videos(created_at);
 
 -- Create indexes for video_progress table
@@ -257,7 +258,7 @@ ALTER TABLE video_progress ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for videos table
 CREATE POLICY "Anyone can view public videos" ON videos
-    FOR SELECT USING (isPublic = true);
+    FOR SELECT USING ("ispublic" = true);
 
 CREATE POLICY "Lecturers can manage their course videos" ON videos
     FOR ALL USING (
@@ -301,10 +302,11 @@ COMMENT ON TABLE videos IS 'Videos belonging to courses with metadata and conten
 COMMENT ON TABLE video_progress IS 'Student progress tracking for videos';
 COMMENT ON COLUMN videos.course_id IS 'Foreign key reference to courses table';
 COMMENT ON COLUMN videos.camera_video_url IS 'URL to the uploaded video content';
-COMMENT ON COLUMN videos.code_activity IS 'Optional embedded code information (JSONB)';
+COMMENT ON COLUMN videos.snapshot_url IS 'URL to the video snapshot/image';
+COMMENT ON COLUMN videos.event_url IS 'URL to the video event data';
+COMMENT ON COLUMN videos.transcript_url IS 'URL to the video transcript';
 COMMENT ON COLUMN videos.level IS 'Difficulty level: beginner, intermediate, or advanced';
-COMMENT ON COLUMN videos.initial_data IS 'Initial data and configuration for the video (JSONB)';
-COMMENT ON COLUMN videos.isPublic IS 'Whether the video is publicly visible';
+COMMENT ON COLUMN videos.ispublic IS 'Whether the video is publicly visible';
 COMMENT ON COLUMN video_progress.video_id IS 'Foreign key reference to videos table';
 COMMENT ON COLUMN video_progress.student_id IS 'Foreign key reference to students table';
 COMMENT ON COLUMN video_progress.completed IS 'Whether the student has completed the video';
