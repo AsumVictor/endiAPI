@@ -1,8 +1,8 @@
 // Course service
 import { supabase } from '../config/database.ts';
 import { AppError } from '../utils/errors.ts';
-import type { 
-  CreateCourseRequest, 
+import type {
+  CreateCourseRequest,
   UpdateCourseRequest,
   CourseResponse,
   EnrollmentResponse,
@@ -10,7 +10,8 @@ import type {
   BrowseCoursesResponse,
   CourseWithStats,
   CourseDetailsResponse,
-  CourseDetails
+  CourseDetails,
+  LecturerCourseDetails
 } from '../models/course.ts';
 
 export class CourseService {
@@ -888,6 +889,191 @@ export class CourseService {
         total_enrollments: totalEnrollments || 0,
         is_enrolled,
         videos: videosWithProgress,
+      };
+
+      return {
+        success: true,
+        message: 'Course details retrieved successfully',
+        data: courseDetails,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError('Failed to retrieve course details', 500);
+    }
+  }
+
+  /**
+   * Get all courses by lecturer with enrollment metrics
+   */
+  static async getCoursesByLecturerWithMetrics(userId: string): Promise<CourseResponse> {
+    try {
+      // First, get the lecturer record for this user
+      const { data: lecturer, error: lecturerError } = await supabase
+        .from('lecturers')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (lecturerError || !lecturer) {
+        throw new AppError('Lecturer profile not found', 404);
+      }
+
+      const { data: courses, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('lecturer_id', lecturer.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new AppError(`Failed to fetch courses: ${error.message}`, 400);
+      }
+
+      // Get metrics for each course
+      const coursesWithMetrics = await Promise.all(
+        (courses || []).map(async (course) => {
+          // Get total students enrolled
+          const { count: totalStudents } = await supabase
+            .from('course_enrollments')
+            .select('*', { count: 'exact', head: true })
+            .eq('course_id', course.id);
+
+          // Get total videos
+          const { count: totalVideos } = await supabase
+            .from('videos')
+            .select('*', { count: 'exact', head: true })
+            .eq('course_id', course.id);
+
+          return {
+            ...course,
+            total_students: totalStudents || 0,
+            total_videos: totalVideos || 0,
+          };
+        })
+      );
+
+      return {
+        success: true,
+        message: 'Courses retrieved successfully',
+        data: coursesWithMetrics,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError('Failed to retrieve courses', 500);
+    }
+  }
+
+  /**
+   * Get course details by lecturer with videos and enrollment metrics
+   */
+  static async getCourseDetailsByLecturer(courseId: string, userId: string): Promise<CourseDetailsResponse> {
+    try {
+      // First, get the lecturer record for this user
+      const { data: lecturer, error: lecturerError } = await supabase
+        .from('lecturers')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (lecturerError || !lecturer) {
+        throw new AppError('Lecturer profile not found', 404);
+      }
+
+      // Get course with lecturer information
+      const { data: course, error: courseError } = await supabase
+        .from('courses')
+        .select(`
+          *,
+          lecturers!courses_lecturer_id_fkey(
+            id,
+            first_name,
+            last_name,
+            avatar_url
+          )
+        `)
+        .eq('id', courseId)
+        .single();
+
+      if (courseError || !course) {
+        throw new AppError('Course not found', 404);
+      }
+
+      // Verify the lecturer owns this course
+      if (course.lecturer_id !== lecturer.id) {
+        throw new AppError('You can only view details of your own courses', 403);
+      }
+
+      // Get total videos count
+      const { count: totalVideos } = await supabase
+        .from('videos')
+        .select('*', { count: 'exact', head: true })
+        .eq('course_id', courseId);
+
+      // Get total enrollments count
+      const { count: totalEnrollments } = await supabase
+        .from('course_enrollments')
+        .select('*', { count: 'exact', head: true })
+        .eq('course_id', courseId);
+
+      // Get all videos for the course (including private ones since lecturer owns it)
+      const { data: videos, error: videosError } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('course_id', courseId)
+        .order('created_at', { ascending: false });
+
+      if (videosError) {
+        throw new AppError(`Failed to fetch videos: ${videosError.message}`, 400);
+      }
+
+      // Get completion stats for each video
+      const videosWithStats = await Promise.all(
+        (videos || []).map(async (video) => {
+          // Get completion count for this video
+          const { count: completedCount } = await supabase
+            .from('video_progress')
+            .select('*', { count: 'exact', head: true })
+            .eq('video_id', video.id)
+            .eq('completed', true);
+
+          const completionRate = totalEnrollments && totalEnrollments > 0
+            ? (completedCount || 0) / totalEnrollments
+            : 0;
+
+          return {
+            id: video.id,
+            title: video.title,
+            description: video.description,
+            thumbnail_url: video.thumbnail_url,
+            camera_video_url: video.camera_video_url,
+            transcript_url: video.transcript_url,
+            level: video.level,
+            ispublic: video.ispublic,
+            created_at: video.created_at,
+            completed_count: completedCount || 0,
+            completion_rate: Math.round(completionRate * 100),
+          };
+        })
+      );
+
+      const courseDetails: LecturerCourseDetails = {
+        id: course.id,
+        title: course.title,
+        description: course.description,
+        thumbnail_url: course.thumbnail_url,
+        created_at: course.created_at,
+        lecturer: {
+          id: course.lecturers.id,
+          first_name: course.lecturers.first_name,
+          last_name: course.lecturers.last_name,
+          avatar_url: course.lecturers.avatar_url || undefined,
+        },
+        total_videos: totalVideos || 0,
+        total_enrollments: totalEnrollments || 0,
+        videos: videosWithStats,
       };
 
       return {

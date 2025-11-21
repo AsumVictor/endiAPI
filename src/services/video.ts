@@ -1,9 +1,11 @@
 // Video service
 import { supabase } from '../config/database.ts';
 import { AppError } from '../utils/errors.ts';
-import type { 
+import { kafkaProducer } from './kafka-producer.ts';
+import logger from '../utils/logger.ts';
+import type {
   VideoProgress,
-  CreateVideoRequest, 
+  CreateVideoRequest,
   UpdateVideoRequest,
   VideoResponse,
   VideoProgressResponse,
@@ -69,9 +71,29 @@ export class VideoService {
         throw new AppError(`Failed to create video: ${error.message}`, 400);
       }
 
+      // Send video for transcription via Kafka
+      try {
+        await kafkaProducer.sendTranscriptionRequest({
+          video_id: video.id,
+          video_url: video.camera_video_url,
+          metadata: {
+            title: video.title,
+            courseId: courseId,
+            userId: userId,
+          },
+        });
+        logger.info('Video sent for transcription', { videoId: video.id });
+      } catch (kafkaError) {
+        // Log error but don't fail video creation
+        logger.error('Failed to send video for transcription', {
+          videoId: video.id,
+          error: kafkaError,
+        });
+      }
+
       return {
         success: true,
-        message: 'Video created successfully',
+        message: 'Video created successfully and sent for transcription',
         data: video,
       };
     } catch (error) {
@@ -178,6 +200,32 @@ export class VideoService {
       // Only return public videos
       if (!video.ispublic) {
         throw new AppError('Video not found', 404);
+      }
+
+      // check if user has enrolled in the course
+      const courseId = video.course_id;
+
+      // First, get the student record for this user
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('id')
+        .eq('user_id', _userId)
+        .single();
+
+      if (studentError || !student) {
+        throw new AppError('Student profile not found', 404);
+      }
+
+      // Check if student is enrolled in the course
+      const { error: enrolledError } = await supabase
+        .from('course_enrollments')
+        .select('id')
+        .eq('course_id', courseId)
+        .eq('student_id', student.id)
+        .single();
+
+      if (enrolledError) {
+        throw new AppError('You are not authorized to view this video! Please enroll', 403);
       }
 
       // Extract course and lecturer info
@@ -717,5 +765,254 @@ export class VideoService {
       .single();
 
     return !!enrollment;
+  }
+
+  /**
+   * Get all videos by lecturer ID
+   */
+  static async getVideosByLecturer(userId: string): Promise<VideoResponse> {
+    try {
+      // First, get the lecturer record for this user
+      const { data: lecturer, error: lecturerError } = await supabase
+        .from('lecturers')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (lecturerError || !lecturer) {
+        throw new AppError('Lecturer profile not found', 404);
+      }
+
+      // Get all courses by this lecturer
+      const { data: courses, error: coursesError } = await supabase
+        .from('courses')
+        .select('id')
+        .eq('lecturer_id', lecturer.id);
+
+      if (coursesError) {
+        throw new AppError(`Failed to fetch courses: ${coursesError.message}`, 400);
+      }
+
+      if (!courses || courses.length === 0) {
+        return {
+          success: true,
+          message: 'No videos found',
+          data: [],
+        };
+      }
+
+      // Get all videos for these courses
+      const courseIds = courses.map(c => c.id);
+      const { data: videos, error: videosError } = await supabase
+        .from('videos')
+        .select(`
+          *,
+          courses!videos_course_id_fkey(
+            id,
+            title
+          )
+        `)
+        .in('course_id', courseIds)
+        .order('created_at', { ascending: false });
+
+      if (videosError) {
+        throw new AppError(`Failed to fetch videos: ${videosError.message}`, 400);
+      }
+
+      return {
+        success: true,
+        message: 'Videos retrieved successfully',
+        data: videos || [],
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError('Failed to retrieve videos', 500);
+    }
+  }
+
+  /**
+   * Get video by ID for lecturer (without enrollment check)
+   */
+  static async getVideoByIdForLecturer(videoId: string, userId: string): Promise<VideoResponse> {
+    try {
+      // First, get the lecturer record for this user
+      const { data: lecturer, error: lecturerError } = await supabase
+        .from('lecturers')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (lecturerError || !lecturer) {
+        throw new AppError('Lecturer profile not found', 404);
+      }
+
+      // Get video with course info
+      const { data: video, error: videoError } = await supabase
+        .from('videos')
+        .select(`
+          *,
+          courses!videos_course_id_fkey(
+            id,
+            title,
+            lecturer_id
+          )
+        `)
+        .eq('id', videoId)
+        .single();
+
+      if (videoError || !video) {
+        throw new AppError('Video not found', 404);
+      }
+
+      // Verify the lecturer owns this video's course
+      if (video.courses.lecturer_id !== lecturer.id) {
+        throw new AppError('You can only view videos from your own courses', 403);
+      }
+
+      return {
+        success: true,
+        message: 'Video retrieved successfully',
+        data: video,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError('Failed to retrieve video', 500);
+    }
+  }
+
+  /**
+   * Update transcription URL manually (same logic as Kafka consumer)
+   */
+  static async updateTranscriptionUrl(videoId: string, transcriptionData: any, userId: string): Promise<VideoResponse> {
+    try {
+      // First, get the lecturer record for this user
+      const { data: lecturer, error: lecturerError } = await supabase
+        .from('lecturers')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (lecturerError || !lecturer) {
+        throw new AppError('Lecturer profile not found', 404);
+      }
+
+      // Get video with course info to verify ownership
+      const { data: video, error: videoError } = await supabase
+        .from('videos')
+        .select(`
+          *,
+          courses!videos_course_id_fkey(lecturer_id)
+        `)
+        .eq('id', videoId)
+        .single();
+
+      if (videoError || !video) {
+        throw new AppError('Video not found', 404);
+      }
+
+      if (video.courses.lecturer_id !== lecturer.id) {
+        throw new AppError('You can only update transcription for videos in your own courses', 403);
+      }
+
+      // Same logic as Kafka consumer: delete existing caption, upload new one, get public URL
+      const captionFileName = `${videoId}.json`;
+      const storagePath = `videos/${captionFileName}`;
+
+      logger.info('Updating transcription URL manually', { videoId, storagePath });
+
+      // 1. Check if caption file exists in storage
+      const { data: existingFiles } = await supabase
+        .storage
+        .from('captions')
+        .list('videos', {
+          search: captionFileName,
+        });
+
+      // 2. Delete existing file if found
+      if (existingFiles && existingFiles.length > 0) {
+        logger.info('Deleting existing caption file', { videoId, storagePath });
+        const { error: deleteError } = await supabase
+          .storage
+          .from('captions')
+          .remove([storagePath]);
+
+        if (deleteError) {
+          logger.warn('Failed to delete existing caption file', {
+            videoId,
+            error: deleteError,
+          });
+        } else {
+          logger.info('Existing caption file deleted', { videoId });
+        }
+      }
+
+      // 3. Upload new caption JSON to Supabase Storage
+      const captionJson = JSON.stringify(transcriptionData, null, 2);
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('captions')
+        .upload(storagePath, captionJson, {
+          contentType: 'application/json',
+          upsert: true,
+        });
+
+      if (uploadError) {
+        logger.error('Failed to upload caption to storage', {
+          videoId,
+          error: uploadError,
+        });
+        throw new AppError(`Failed to upload caption: ${uploadError.message}`, 500);
+      }
+
+      logger.info('Caption uploaded to storage', { videoId, path: uploadData.path });
+
+      // 4. Get public URL
+      const { data: publicUrlData } = supabase
+        .storage
+        .from('captions')
+        .getPublicUrl(storagePath);
+
+      const captionPublicUrl = publicUrlData.publicUrl;
+      logger.info('Caption public URL generated', { videoId, url: captionPublicUrl });
+
+      // 5. Update video record with caption URL
+      const { data: updatedVideo, error: updateError } = await supabase
+        .from('videos')
+        .update({
+          transcript_url: captionPublicUrl,
+        })
+        .eq('id', videoId)
+        .select()
+        .single();
+
+      if (updateError) {
+        logger.error('Failed to update video with caption URL', {
+          videoId,
+          error: updateError,
+        });
+        throw new AppError(`Failed to update video: ${updateError.message}`, 500);
+      }
+
+      logger.info('Transcription URL updated successfully', {
+        videoId,
+        captionUrl: captionPublicUrl,
+      });
+
+      return {
+        success: true,
+        message: 'Transcription URL updated successfully',
+        data: updatedVideo,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      logger.error('Failed to update transcription URL', { error });
+      throw new AppError('Failed to update transcription URL', 500);
+    }
   }
 }

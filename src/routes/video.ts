@@ -479,6 +479,95 @@ router.post('/:videoId/complete',
 
 /**
  * @swagger
+ * /api/videos/{videoId}/transcription:
+ *   put:
+ *     summary: Update transcription URL manually
+ *     description: Upload transcription data and update video's transcript_url. Uses same logic as Kafka consumer.
+ *     tags: [Videos]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: videoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Video ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               video_id:
+ *                 type: string
+ *                 example: "video-uuid-123"
+ *               transcription:
+ *                 type: object
+ *                 properties:
+ *                   duration:
+ *                     type: number
+ *                     example: 125.5
+ *                   language:
+ *                     type: string
+ *                     example: "en"
+ *                   words:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         text:
+ *                           type: string
+ *                           example: "hello"
+ *                         start:
+ *                           type: number
+ *                           example: 0.0
+ *                         end:
+ *                           type: number
+ *                           example: 0.5
+ *     responses:
+ *       200:
+ *         description: Transcription URL updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - not video owner
+ *       404:
+ *         description: Video not found
+ */
+router.put('/:videoId/transcription',
+  authenticateToken,
+  requireRole(['lecturer', 'admin']),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { videoId } = req.params;
+    if (!videoId || typeof videoId !== 'string') {
+      res.status(400).json({
+        success: false,
+        error: 'Video ID is required',
+      });
+      return;
+    }
+
+    const transcriptionData = req.body;
+    if (!transcriptionData) {
+      res.status(400).json({
+        success: false,
+        error: 'Transcription data is required',
+      });
+      return;
+    }
+
+    const userId = req.user!.id;
+    const result = await VideoService.updateTranscriptionUrl(videoId, transcriptionData, userId);
+    res.status(200).json(result);
+  })
+);
+
+/**
+ * @swagger
  * /api/students/{studentId}/videos/completed:
  *   get:
  *     summary: Get student's completed videos

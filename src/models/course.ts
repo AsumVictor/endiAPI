@@ -121,6 +121,42 @@ export interface CourseDetails {
 export interface CourseDetailsResponse {
   success: boolean;
   message: string;
-  data?: CourseDetails;
+  data?: CourseDetails | LecturerCourseDetails;
   error?: string;
+}
+
+// Lecturer course details with video stats
+export interface LecturerCourseDetails {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail_url: string | null;
+  created_at: string;
+
+  // Lecturer information
+  lecturer: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    avatar_url?: string;
+  };
+
+  // Course statistics
+  total_videos: number;
+  total_enrollments: number;
+
+  // Videos with completion stats
+  videos: {
+    id: string;
+    title: string;
+    description: string;
+    thumbnail_url: string | null;
+    camera_video_url: string;
+    transcript_url: string | null;
+    level: 'beginner' | 'intermediate' | 'advanced';
+    ispublic: boolean;
+    created_at: string;
+    completed_count: number; // Number of students who completed this video
+    completion_rate: number; // Percentage of enrolled students who completed (0-100)
+  }[];
 }

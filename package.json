@@ -9,7 +9,11 @@
     "dev": "nodemon src/server.ts",
     "dev:build": "tsc --watch -p tsconfig.build.json",
     "clean": "rm -rf dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "kafka:test": "tsx src/scripts/test-kafka.ts",
+    "kafka:test-video": "tsx src/scripts/test-kafka-video.ts",
+    "kafka:check-messages": "tsx src/scripts/check-kafka-messages.ts",
+    "kafka:consumer": "tsx src/scripts/kafka-consumer-worker.ts"
   },
   "repository": {
     "type": "git",
@@ -42,6 +46,7 @@
     "express-validator": "^7.2.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "kafkajs": "^2.2.4",
     "morgan": "^1.10.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

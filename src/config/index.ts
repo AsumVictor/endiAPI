@@ -23,6 +23,17 @@ export interface Config {
   logging: {
     level: string;
   };
+  kafka: {
+    brokers: string[];
+    username: string;
+    password: string;
+    produceTopic: string;
+    consumeTopic: string;
+    ssl: boolean;
+    saslMechanism: 'plain' | 'scram-sha-256' | 'scram-sha-512';
+    connectionTimeout: number;
+    requestTimeout: number;
+  };
 }
 
 const config: Config = {
@@ -52,6 +63,19 @@ const config: Config = {
   // Logging Configuration
   logging: {
     level: process.env['LOG_LEVEL'] || 'info',
+  },
+
+  // Kafka Configuration
+  kafka: {
+    brokers: process.env['KAFKA_BROKERS']?.split(',') || [],
+    username: process.env['KAFKA_USERNAME'] || '',
+    password: process.env['KAFKA_PASSWORD'] || '',
+    produceTopic: process.env['KAFKA_PRODUCE_TOPIC'] || 'Transcribe',
+    consumeTopic: process.env['KAFKA_CONSUME_TOPIC'] || 'update_transcribe',
+    ssl: process.env['KAFKA_SSL'] !== 'false',
+    saslMechanism: (process.env['KAFKA_SASL_MECHANISM'] as 'plain' | 'scram-sha-256' | 'scram-sha-512') || 'scram-sha-256',
+    connectionTimeout: Number(process.env['KAFKA_CONNECTION_TIMEOUT']) || 10000,
+    requestTimeout: Number(process.env['KAFKA_REQUEST_TIMEOUT']) || 30000,
   },
 };
 
