@@ -17,7 +17,7 @@ export class CookieService {
    * iOS Safari requires SameSite=None with Secure=true for cross-site cookies
    */
   private static getCookieOptions(req: Request, maxAge?: number): CookieOptions {
-    const isProduction = config.nodeEnv === 'production';
+    const isProduction = config.nodeEnv !== 'development';
     
     // Check if request is over HTTPS (accounting for proxies/load balancers)
     const isHttps = req.secure || 
