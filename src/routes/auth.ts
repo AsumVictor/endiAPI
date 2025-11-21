@@ -268,7 +268,7 @@ router.post('/register',
     }
 
     const registerData: RegisterRequest = req.body;
-    const result = await AuthService.register(registerData, res);
+    const result = await AuthService.register(registerData, req, res);
     
     res.status(201).json(result);
   })
@@ -316,7 +316,7 @@ router.post('/login',
     }
 
     const loginData: LoginRequest = req.body;
-    const result = await AuthService.login(loginData, res);
+    const result = await AuthService.login(loginData, req, res);
     
     res.status(200).json(result);
   })
@@ -364,7 +364,7 @@ router.post('/refresh',
     }
 
     const refreshData: RefreshTokenRequest = req.body;
-    const result = await AuthService.refreshToken(refreshData, res);
+    const result = await AuthService.refreshToken(refreshData, req, res);
     
     res.status(200).json(result);
   })
@@ -495,7 +495,7 @@ router.get('/me',
 router.post('/logout',
   authenticateToken,
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const result = await AuthService.logout(req.user!.id, res);
+    const result = await AuthService.logout(req.user!.id, req, res);
     res.status(200).json(result);
     return;
   })

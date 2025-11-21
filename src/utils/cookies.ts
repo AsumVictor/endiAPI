@@ -1,5 +1,5 @@
 // Secure cookie utilities for token management
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import config from '../config/index.ts';
 
 export interface CookieOptions {
@@ -12,83 +12,108 @@ export interface CookieOptions {
 }
 
 export class CookieService {
-  private static readonly DEFAULT_OPTIONS: CookieOptions = {
-    httpOnly: true,
-    secure: config.nodeEnv === 'development' ? false : true, // Only secure in production
-    sameSite: 'none',
-    path: '/',
-  };
+  /**
+   * Determine cookie options based on request and environment
+   * iOS Safari requires SameSite=None with Secure=true for cross-site cookies
+   */
+  private static getCookieOptions(req: Request, maxAge?: number): CookieOptions {
+    const isProduction = config.nodeEnv === 'production';
+    
+    // Check if request is over HTTPS (accounting for proxies/load balancers)
+    const isHttps = req.secure || 
+                    req.headers['x-forwarded-proto'] === 'https' || 
+                    req.protocol === 'https' ||
+                    req.headers['x-forwarded-ssl'] === 'on';
+    
+    // Check if this is a localhost/development environment
+    const isLocalhost = req.headers.host && 
+                       (req.headers.host.includes('localhost') || 
+                        req.headers.host.includes('127.0.0.1') ||
+                        req.headers.host.startsWith('192.168.') ||
+                        req.headers.host.startsWith('10.'));
+    
+    // For iOS Safari: use SameSite=None with Secure when HTTPS or in production
+    // This is required for cross-site cookies to work on iOS
+    // Only use lax/not-secure for localhost HTTP connections
+    const useSecureCookies = isProduction || (isHttps && !isLocalhost);
+    const sameSite: 'strict' | 'lax' | 'none' = useSecureCookies ? 'none' : 'lax';
+    
+    const options: CookieOptions = {
+      httpOnly: true,
+      secure: useSecureCookies,
+      sameSite,
+      path: '/',
+    };
+
+    if (maxAge) {
+      options.maxAge = maxAge;
+    }
+
+    // Optional: Set domain for subdomain scenarios (e.g., .example.com)
+    // Only set if COOKIE_DOMAIN is explicitly configured
+    const cookieDomain = process.env['COOKIE_DOMAIN'];
+    if (cookieDomain) {
+      options.domain = cookieDomain;
+    }
+
+    return options;
+  }
 
   /**
    * Set access token cookie (15 minutes)
    */
-  static setAccessTokenCookie(res: Response, token: string): void {
-    const options = {
-      httpOnly: true,
-      secure: config.nodeEnv === 'production',
-      sameSite: (config.nodeEnv === 'production' ? 'none' : 'lax') as 'strict' | 'lax' | 'none',
-      // TODO: Change to 15 minutes
-      maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
-      path: '/',
-    };
-
+  static setAccessTokenCookie(req: Request, res: Response, token: string): void {
+    const options = this.getCookieOptions(
+      req,
+      3 * 24 * 60 * 60 * 1000 // 3 days (TODO: Change to 15 minutes)
+    );
     res.cookie('access_token', token, options);
   }
 
   /**
    * Set refresh token cookie (7 days)
    */
-  static setRefreshTokenCookie(res: Response, token: string): void {
-    const options = {
-      httpOnly: true,
-      secure: config.nodeEnv === 'production',
-      sameSite: (config.nodeEnv === 'production' ? 'none' : 'lax') as 'strict' | 'lax' | 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/',
-    };
-
+  static setRefreshTokenCookie(req: Request, res: Response, token: string): void {
+    const options = this.getCookieOptions(
+      req,
+      7 * 24 * 60 * 60 * 1000 // 7 days
+    );
     res.cookie('refresh_token', token, options);
   }
 
   /**
-   * Clear access token cookie
+   * Clear access token cookie (must use same options as set)
    */
-  static clearAccessTokenCookie(res: Response): void {
-    const options = {
-      httpOnly: true,
-      secure: config.nodeEnv === 'production',
-      sameSite: (config.nodeEnv === 'production' ? 'none' : 'lax') as 'strict' | 'lax' | 'none',
-      path: '/',
-    };
+  static clearAccessTokenCookie(req: Request, res: Response): void {
+    const options = this.getCookieOptions(req);
+    // Remove maxAge for clearCookie
+    delete options.maxAge;
     res.clearCookie('access_token', options);
   }
 
   /**
-   * Clear refresh token cookie
+   * Clear refresh token cookie (must use same options as set)
    */
-  static clearRefreshTokenCookie(res: Response): void {
-    const options = {
-      httpOnly: true,
-      secure: config.nodeEnv === 'production',
-      sameSite: (config.nodeEnv === 'production' ? 'none' : 'lax') as 'strict' | 'lax' | 'none',
-      path: '/',
-    };
+  static clearRefreshTokenCookie(req: Request, res: Response): void {
+    const options = this.getCookieOptions(req);
+    // Remove maxAge for clearCookie
+    delete options.maxAge;
     res.clearCookie('refresh_token', options);
   }
 
   /**
    * Clear all auth cookies
    */
-  static clearAllAuthCookies(res: Response): void {
-    this.clearAccessTokenCookie(res);
-    this.clearRefreshTokenCookie(res);
+  static clearAllAuthCookies(req: Request, res: Response): void {
+    this.clearAccessTokenCookie(req, res);
+    this.clearRefreshTokenCookie(req, res);
   }
 
   /**
    * Set secure cookies for both tokens
    */
-  static setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
-    this.setAccessTokenCookie(res, accessToken);
-    this.setRefreshTokenCookie(res, refreshToken);
+  static setAuthCookies(req: Request, res: Response, accessToken: string, refreshToken: string): void {
+    this.setAccessTokenCookie(req, res, accessToken);
+    this.setRefreshTokenCookie(req, res, refreshToken);
   }
 }

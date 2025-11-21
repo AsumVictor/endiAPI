@@ -13,13 +13,13 @@ import type {
   AuthResponse, 
   AuthTokens 
 } from '../models/user.ts';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 
 export class AuthService {
   /**
    * Register a new user
    */
-  static async register(data: RegisterRequest, res?: Response): Promise<AuthResponse> {
+  static async register(data: RegisterRequest, req?: Request, res?: Response): Promise<AuthResponse> {
     try {
       // Check if user already exists in our database
       const { data: existingUser } = await supabase
@@ -142,8 +142,8 @@ export class AuthService {
       };
 
       // Set secure HTTP-only cookies if response object is provided
-      if (res) {
-        CookieService.setAuthCookies(res, tokens.access_token, tokens.refresh_token);
+      if (res && req) {
+        CookieService.setAuthCookies(req, res, tokens.access_token, tokens.refresh_token);
       }
 
       return {
@@ -167,7 +167,7 @@ export class AuthService {
   /**
    * Login user
    */
-  static async login(data: LoginRequest, res?: Response): Promise<AuthResponse> {
+  static async login(data: LoginRequest, req?: Request, res?: Response): Promise<AuthResponse> {
     try {
       // Authenticate with Supabase
       const { data: authData, error: authError } = await supabaseAuth.auth.signInWithPassword({
@@ -231,8 +231,8 @@ export class AuthService {
       };
 
       // Set secure HTTP-only cookies if response object is provided
-      if (res) {
-        CookieService.setAuthCookies(res, tokens.access_token, tokens.refresh_token);
+      if (res && req) {
+        CookieService.setAuthCookies(req, res, tokens.access_token, tokens.refresh_token);
       }
 
       return {
@@ -258,7 +258,7 @@ export class AuthService {
   /**
    * Refresh access token
    */
-  static async refreshToken(data: RefreshTokenRequest, res?: Response): Promise<AuthResponse> {
+  static async refreshToken(data: RefreshTokenRequest, req?: Request, res?: Response): Promise<AuthResponse> {
     try {
       // Verify refresh token
       const payload = JWTService.verifyRefreshToken(data.refresh_token);
@@ -312,8 +312,8 @@ export class AuthService {
       }
 
       // Set secure HTTP-only cookies if response object is provided
-      if (res) {
-        CookieService.setAuthCookies(res, tokens.access_token, tokens.refresh_token);
+      if (res && req) {
+        CookieService.setAuthCookies(req, res, tokens.access_token, tokens.refresh_token);
       }
 
       return {
@@ -354,11 +354,11 @@ export class AuthService {
   /**
    * Logout user (invalidate refresh token)
    */
-  static async logout(_userId: string, res?: Response): Promise<{ success: boolean; message: string }> {
+  static async logout(_userId: string, req?: Request, res?: Response): Promise<{ success: boolean; message: string }> {
     try {
       // Clear secure HTTP-only cookies if response object is provided
-      if (res) {
-        CookieService.clearAllAuthCookies(res);
+      if (res && req) {
+        CookieService.clearAllAuthCookies(req, res);
       }
 
       // For now, we'll just return success
