@@ -35,15 +35,17 @@ export class CookieService {
     // For iOS Safari: use SameSite=None with Secure when HTTPS or in production
     // This is required for cross-site cookies to work on iOS
     // Only use lax/not-secure for localhost HTTP connections
-    const useSecureCookies = isProduction || (isHttps && !isLocalhost);
-    const sameSite: 'strict' | 'lax' | 'none' = useSecureCookies ? 'none' : 'lax';
-    
-    const options: CookieOptions = {
-      httpOnly: true,
-      secure: useSecureCookies,
-      sameSite,
-      path: '/',
-    };
+     
+const useSecureCookies = isProduction || (isHttps && !isLocalhost);
+const sameSite: 'lax' | 'none' = useSecureCookies ? 'none' : 'lax';
+
+// Final cookie settings
+const options: CookieOptions = {
+  httpOnly: true,
+  secure: useSecureCookies,
+  sameSite,
+  path: '/',
+};
 
     if (maxAge) {
       options.maxAge = maxAge;
