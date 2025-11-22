@@ -16,36 +16,16 @@ export class CookieService {
    * Determine cookie options based on request and environment
    * iOS Safari requires SameSite=None with Secure=true for cross-site cookies
    */
-  private static getCookieOptions(req: Request, maxAge?: number): CookieOptions {
-    const isProduction = config.nodeEnv !== 'development';
-    
-    // Check if request is over HTTPS (accounting for proxies/load balancers)
-    const isHttps = req.secure || 
-                    req.headers['x-forwarded-proto'] === 'https' || 
-                    req.protocol === 'https' ||
-                    req.headers['x-forwarded-ssl'] === 'on';
-    
-    // Check if this is a localhost/development environment
-    const isLocalhost = req.headers.host && 
-                       (req.headers.host.includes('localhost') || 
-                        req.headers.host.includes('127.0.0.1') ||
-                        req.headers.host.startsWith('192.168.') ||
-                        req.headers.host.startsWith('10.'));
-    
-    // For iOS Safari: use SameSite=None with Secure when HTTPS or in production
-    // This is required for cross-site cookies to work on iOS
-    // Only use lax/not-secure for localhost HTTP connections
-   
-const useSecureCookies = isProduction || (isHttps && !isLocalhost);
-const sameSite: 'lax' | 'none' = useSecureCookies ? 'none' : 'lax';
+  private static getCookieOptions(_req: Request, maxAge?: number): CookieOptions {
 
-// Final cookie settings
-const options: CookieOptions = {
-  httpOnly: true,
-  secure: useSecureCookies,
-  sameSite,
-  path: '/',
-};
+
+    // Final cookie settings
+    const options: CookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+    };
 
     if (maxAge) {
       options.maxAge = maxAge;
