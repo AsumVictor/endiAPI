@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS students (
     major VARCHAR(255),
     bio TEXT,
     avatar_url TEXT,
+    streak_count INTEGER DEFAULT 0 NOT NULL,
+    last_login DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -62,6 +64,7 @@ CREATE TABLE IF NOT EXISTS course_enrollments (
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_students_user_id ON students(user_id);
+CREATE INDEX IF NOT EXISTS idx_students_last_login ON students(last_login);
 CREATE INDEX IF NOT EXISTS idx_lecturers_user_id ON lecturers(user_id);
 CREATE INDEX IF NOT EXISTS idx_courses_lecturer_id ON courses(lecturer_id);
 CREATE INDEX IF NOT EXISTS idx_course_enrollments_course_id ON course_enrollments(course_id);

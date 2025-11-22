@@ -20,6 +20,9 @@ export interface Config {
   cors: {
     origin: string;
   };
+  frontend: {
+    url: string;
+  };
   logging: {
     level: string;
   };
@@ -58,6 +61,11 @@ const config: Config = {
   // CORS Configuration
   cors: {
     origin: process.env['CORS_ORIGIN'] || 'http://localhost:3000',
+  },
+
+  // Frontend Configuration
+  frontend: {
+    url: process.env['FRONTEND_URL'] || 'http://localhost:3000',
   },
 
   // Logging Configuration

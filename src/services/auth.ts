@@ -32,6 +32,10 @@ export class AuthService {
         throw new AppError('User with this email already exists', 409);
       }
 
+      // Get frontend URL for email redirect
+      // Supabase redirects with hash fragments (#access_token=...) which can only be read by frontend JavaScript
+      const frontendUrl = process.env['FRONTEND_URL'] || 'http://localhost:5173';
+      
       // Sign up user with Supabase Auth
       const { data: authData, error: authError } = await supabaseAuth.auth.signUp({
         email: data.email,
@@ -40,7 +44,9 @@ export class AuthService {
           data: {
             role: data.role,
           },
-          emailRedirectTo: `${process.env['FRONTEND_URL'] || 'http://localhost:3000'}/api/auth/verify-email`
+          // Redirect to frontend callback route - frontend will handle the hash fragments
+          // Make sure to add this URL in Supabase Dashboard → Authentication → URL Configuration → Redirect URLs
+          emailRedirectTo: `${frontendUrl}/auth/callback`
         }
       });
 
@@ -56,12 +62,15 @@ export class AuthService {
         throw new AppError('Registration failed: No user data returned', 400);
       }
 
-      // Create user in our users table
+      // Check if email confirmation is required (when enabled in Supabase, user.email_confirmed_at will be null)
+      // Also check if confirmation email was sent (session will be null if email confirmation required)
+      const emailConfirmationRequired = !authData.user.email_confirmed_at && !authData.session;
+      
+      // Create user in our users table (create even if email not confirmed yet)
       const userData = {
         id: authData.user.id,
         email: authData.user.email!,
         role: data.role,
-        //is_active: true,
         created_at: new Date().toISOString(),
       };
 
@@ -87,6 +96,8 @@ export class AuthService {
           major: null, // Will be filled later
           bio: null,
           avatar_url: null,
+          streak_count: 0,
+          last_login: null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
@@ -124,6 +135,20 @@ export class AuthService {
         profile = lecturerData;
       }
 
+      // If email confirmation is required, return response without tokens
+      if (emailConfirmationRequired) {
+        return {
+          success: true,
+          message: 'Registration successful! Please check your email to confirm your account before logging in.',
+          data: {
+            email: authData.user.email,
+            email_confirmed: false,
+            requires_email_confirmation: true,
+          } as any,
+        };
+      }
+
+      // Email already confirmed (or email confirmation disabled) - proceed with normal registration
       // Generate tokens
       const user: User = {
         id: authData.user.id,

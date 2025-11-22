@@ -445,8 +445,8 @@ router.get('/me',
         };
       }
 
-      res.status(200).json({
-        success: true,
+    res.status(200).json({
+      success: true,
         message: 'User retrieved successfully',
         data: {
           user,
@@ -506,36 +506,33 @@ router.post('/logout',
  * /api/auth/verify-email:
  *   get:
  *     summary: Verify email address
- *     description: Handle email verification callback from Supabase
+ *     description: Handle email verification callback from Supabase. When users click the confirmation link in their email, Supabase redirects here. This endpoint then redirects to the frontend with a success message.
  *     tags: [Authentication]
  *     parameters:
  *       - in: query
  *         name: token
  *         schema:
  *           type: string
- *         description: Email verification token
+ *         description: Email verification token from Supabase
  *       - in: query
  *         name: type
  *         schema:
  *           type: string
  *         description: Verification type (signup, recovery, etc.)
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: User email address
  *     responses:
- *       200:
- *         description: Email verified successfully
- *         content:
- *           application/json:
+ *       302:
+ *         description: Redirects to frontend with verification status
+ *         headers:
+ *           Location:
+ *             description: Frontend URL with query parameters
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Email verified successfully"
- *                 redirect_url:
- *                   type: string
- *                   example: "https://your-frontend.com/login?verified=true"
+ *               type: string
+ *               example: "https://your-frontend.com/login?verified=true&message=Email verified successfully"
  *       400:
  *         description: Verification failed
  *         content:
@@ -544,53 +541,68 @@ router.post('/logout',
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/verify-email', asyncHandler(async (req: Request, res: Response) => {
-  const { token, type, email } = req.query;
+  const { token, type, email, access_token, error, error_description } = req.query;
   
-  if (!token) {
-     res.status(400).json({
-      success: false,
-      error: 'Verification token is required'
-    });
+  // Get frontend URL from environment variable
+  const frontendUrl = process.env['FRONTEND_URL'] || 'http://localhost:5173';
+
+  // Supabase redirects here with either:
+  // 1. Query params: ?token=...&type=signup&email=...
+  // 2. Hash fragments: #access_token=... or #error=... (hash fragments don't come in query!)
+  // 3. After verification, Supabase might redirect with no params (already verified server-side)
+
+  // Check for errors first (from Supabase redirect)
+  if (error) {
+    const errorRedirectUrl = `${frontendUrl}/login?verified=false&error=${encodeURIComponent(error_description as string || error as string)}`;
+    res.redirect(errorRedirectUrl);
     return;
   }
 
-  try {
-    // Verify the email with Supabase
-    const { data, error } = await supabaseAuth.auth.verifyOtp({
+  // If access_token is provided in query (unlikely, usually in hash), Supabase already verified
+  if (access_token) {
+    const successRedirectUrl = `${frontendUrl}/login?verified=true&message=${encodeURIComponent('Email verified successfully. You can now login.')}`;
+    res.redirect(successRedirectUrl);
+    return;
+  }
+
+  // If token is provided, verify it
+  if (token) {
+    try {
+      // Verify the email with Supabase using OTP verification
+      const { data, error: verifyError } = await supabaseAuth.auth.verifyOtp({
       token: token as string,
-      type: (type as any) || 'signup',
-      email: email as string
+        type: (type as 'signup' | 'recovery' | 'invite' | 'email_change') || 'signup',
+        email: email as string
     });
 
-    if (error) {
-       res.status(400).json({
-        success: false,
-        error: `Email verification failed: ${error.message}`
-      });
-      return;
+      if (verifyError) {
+        const errorRedirectUrl = `${frontendUrl}/login?verified=false&error=${encodeURIComponent(verifyError.message)}`;
+        res.redirect(errorRedirectUrl);
+        return;
     }
 
     if (!data.user) {
-      res.status(400).json({
-        success: false,
-        error: 'Invalid verification token'
-      });
-      return;
+        const errorRedirectUrl = `${frontendUrl}/login?verified=false&error=${encodeURIComponent('Invalid verification token')}`;
+        res.redirect(errorRedirectUrl);
+        return;
     }
 
     // Success - redirect to frontend with success message
-    const frontendUrl = process.env['FRONTEND_URL'] || 'http://localhost:3000';
-    const redirectUrl = `${frontendUrl}/login?verified=true&message=Email verified successfully`;
-    
-    res.redirect(redirectUrl);
+      const successRedirectUrl = `${frontendUrl}/login?verified=true&message=${encodeURIComponent('Email verified successfully. You can now login.')}`;
+      res.redirect(successRedirectUrl);
+      return;
 
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Email verification failed'
-    });
-    return;
+    } catch (err: any) {
+      const errorRedirectUrl = `${frontendUrl}/login?verified=false&error=${encodeURIComponent(err.message || 'Email verification failed')}`;
+      res.redirect(errorRedirectUrl);
+      return;
+    }
   }
+
+  // If no token/access_token but Supabase already verified server-side, redirect to success
+  // This happens when Supabase verifies the email and redirects here without query params
+  const successRedirectUrl = `${frontendUrl}/login?verified=true&message=${encodeURIComponent('Email verified successfully. You can now login.')}`;
+  res.redirect(successRedirectUrl);
 }));
 
 export default router;

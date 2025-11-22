@@ -7,6 +7,7 @@ import authRoutes from './auth.ts';
 import courseRoutes from './course.ts';
 import videoRoutes from './video.ts';
 import lecturerRoutes from './lecturer.ts';
+import studentRoutes from './student.ts';
 
 const router = Router();
 
@@ -111,5 +112,8 @@ router.use('/courses', courseRoutes);
 
 // Mount video routes
 router.use('/videos', videoRoutes);
+
+// Mount student routes
+router.use('/students', studentRoutes);
 
 export default router;

@@ -16,6 +16,8 @@ export interface Student {
   major: string | null;
   bio?: string | null;
   avatar_url?: string | null;
+  streak_count: number; // Daily login streak count
+  last_login: string | null; // Last login date (YYYY-MM-DD)
   created_at: string;
   updated_at: string;
 }
@@ -85,4 +87,44 @@ export interface UserSession {
   access_token: string;
   refresh_token: string;
   expires_at: number;
+}
+
+export interface StudentDashboard {
+  total_courses_enrolled: number;
+  completed_courses_count: number;
+  completed_courses: {
+    id: string;
+    title: string;
+  }[];
+  total_videos_watched: number;
+  course_progress: {
+    title: string;
+    summary: string;
+    thumbnail_url: string | null;
+    total_videos: number;
+    total_watched_videos: number;
+    course_id: string;
+  }[];
+  recent_enrolled_courses: {
+    id: string;
+    title: string;
+    timestamp: string;
+  }[];
+  recent_watched_videos: {
+    id: string;
+    title: string;
+    timestamp: string;
+  }[];
+  recent_completed_videos: {
+    id: string;
+    title: string;
+    timestamp: string;
+  }[];
+}
+
+export interface DashboardResponse {
+  success: boolean;
+  message: string;
+  data?: StudentDashboard;
+  error?: string;
 }

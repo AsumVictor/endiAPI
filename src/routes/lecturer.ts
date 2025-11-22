@@ -155,8 +155,136 @@ router.get('/videos/:videoId',
 
 /**
  * @swagger
+ * /api/lecturers/videos/{videoId}/public:
+ *   put:
+ *     summary: Set video to public
+ *     description: Changes video visibility to public (ispublic = true). Only the course owner can update video visibility.
+ *     tags: [Lecturers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: videoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Video ID
+ *     responses:
+ *       200:
+ *         description: Video set to public successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Video set to public successfully"
+ *                 data:
+ *                   type: object
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - not video owner
+ *       404:
+ *         description: Video not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/videos/:videoId/public',
+  authenticateToken,
+  requireRole(['lecturer', 'admin']),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { videoId } = req.params;
+    if (!videoId || typeof videoId !== 'string') {
+      res.status(400).json({
+        success: false,
+        error: 'Video ID is required',
+      });
+      return;
+    }
+
+    const userId = req.user!.id;
+    const result = await VideoService.updateVideo(videoId, { ispublic: true }, userId);
+    res.status(200).json({
+      success: true,
+      message: 'Video set to public successfully',
+      data: result.data,
+    });
+  })
+);
+
+/**
+ * @swagger
+ * /api/lecturers/videos/{videoId}/private:
+ *   put:
+ *     summary: Set video to private
+ *     description: Changes video visibility to private (ispublic = false). Only the course owner can update video visibility.
+ *     tags: [Lecturers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: videoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Video ID
+ *     responses:
+ *       200:
+ *         description: Video set to private successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Video set to private successfully"
+ *                 data:
+ *                   type: object
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - not video owner
+ *       404:
+ *         description: Video not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/videos/:videoId/private',
+  authenticateToken,
+  requireRole(['lecturer', 'admin']),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { videoId } = req.params;
+    if (!videoId || typeof videoId !== 'string') {
+      res.status(400).json({
+        success: false,
+        error: 'Video ID is required',
+      });
+      return;
+    }
+
+    const userId = req.user!.id;
+    const result = await VideoService.updateVideo(videoId, { ispublic: false }, userId);
+    res.status(200).json({
+      success: true,
+      message: 'Video set to private successfully',
+      data: result.data,
+    });
+  })
+);
+
+/**
+ * @swagger
  * /api/lecturers/{lecturerId}/courses:
- *   get:
+ *   get: 
  *     summary: Get lecturer's courses
  *     description: Fetch all courses owned by a lecturer. Accessible by lecturer and admin.
  *     tags: [Lecturers]
