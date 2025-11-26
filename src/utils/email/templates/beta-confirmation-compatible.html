@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CodeEndelea - Welcome to Testing</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td, p, a, li, blockquote {-webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;}
+        table, td {mso-table-lspace: 0pt; mso-table-rspace: 0pt;}
+    </style>
+    <![endif]-->
+    <!-- Media queries for responsive design (only in head, many clients support this) -->
+    <style type="text/css">
+        /* Reset styles for email clients */
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
+        /* Hide on mobile */
+        .mobile-hide { display: block !important; }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .main-content {
+                padding: 30px 20px !important;
+            }
+            .header {
+                padding: 30px 20px !important;
+            }
+            .greeting {
+                font-size: 22px !important;
+            }
+            .highlight-box {
+                padding: 20px !important;
+            }
+            .button {
+                padding: 14px 30px !important;
+                font-size: 15px !important;
+            }
+            .mobile-hide { display: none !important; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: Arial, Helvetica, sans-serif;">
+    <!-- Wrapper Table -->
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #F5F5F5; margin: 0; padding: 0;">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+                <!-- Main Container Table (600px max width) -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td class="header" style="background-color: #9333EA; padding: 40px 20px; text-align: center;">
+                            <img src="https://xxzeaovewnmfvmekvhvm.supabase.co/storage/v1/object/public/images/Group%205.png" alt="CodeEndelea Logo" width="200" height="auto" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
+                        </td>
+                    </tr>
+
+                    <!-- Main Content -->
+                    <tr>
+                        <td class="main-content" style="padding: 50px 50px 40px 50px; font-family: Arial, Helvetica, sans-serif;">
+                            
+                            <!-- Greeting -->
+                            <h1 class="greeting" style="margin: 0 0 25px 0; font-size: 24px; font-weight: 600; color: #10002B; font-family: Arial, Helvetica, sans-serif;">
+                                Hi {{name}},
+                            </h1>
+
+                            <!-- Introduction -->
+                            <p class="intro-text" style="margin: 0 0 30px 0; font-size: 16px; color: #525252; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+                                Thank you again for signing up to test the Code Endelea prototype. We're excited to have you on board.
+                            </p>
+
+                            <!-- Testing Period Info -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="info-box" style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; margin: 25px 0;">
+                                <tr>
+                                    <td style="padding: 20px 25px;">
+                                        <p class="info-title" style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #10002B; font-family: Arial, Helvetica, sans-serif;">📅 Testing Period: 5 Days</p>
+                                        <p style="margin: 0; font-size: 14px; color: #525252; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+                                            Your testing access will be active for the next 5 days. Make the most of this time to explore all features!
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Login Credentials -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="highlight-box" style="background-color: #F3E8FF; border-left: 4px solid #9333EA; border-radius: 6px; margin: 30px 0;">
+                                <tr>
+                                    <td style="padding: 25px 30px;">
+                                        <p class="highlight-title" style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, Helvetica, sans-serif;">Your Login Details</p>
+                                        
+                                        <!-- Email Row -->
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td style="padding-bottom: 12px;">
+                                                    <p class="credential-label" style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #525252; font-family: Arial, Helvetica, sans-serif;">Email:</p>
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td class="credential-value" style="font-size: 15px; color: #10002B; background-color: #ffffff; padding: 10px 15px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; border: 1px solid #E5E5E5; word-break: break-all;">{{email}}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="height: 12px; line-height: 12px; font-size: 12px;">&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <p class="credential-label" style="margin: 0 0 5px 0; font-size: 14px; font-weight: 600; color: #525252; font-family: Arial, Helvetica, sans-serif;">Password:</p>
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td class="credential-value" style="font-size: 15px; color: #10002B; background-color: #ffffff; padding: 10px 15px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; border: 1px solid #E5E5E5; word-break: break-all;">{{password}}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Usage Information -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="info-box" style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 6px; margin: 25px 0;">
+                                <tr>
+                                    <td style="padding: 20px 25px;">
+                                        <p class="info-title" style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #10002B; font-family: Arial, Helvetica, sans-serif;">⚡ What You Can Do</p>
+                                        <ul class="info-list" style="margin: 0; padding-left: 20px; font-family: Arial, Helvetica, sans-serif;">
+                                            <li style="font-size: 14px; color: #525252; line-height: 1.7; margin-bottom: 8px;"><strong>Assessment Feature:</strong> Available up to 3 times per day</li>
+                                            <li style="font-size: 14px; color: #525252; line-height: 1.7; margin-bottom: 8px;"><strong>Full Access:</strong> Explore all features and functionalities</li>
+                                            <li style="font-size: 14px; color: #525252; line-height: 1.7; margin-bottom: 0;"><strong>Experiment Freely:</strong> Try different approaches and workflows</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Main Message -->
+                            <p class="body-text" style="margin: 0 0 20px 0; font-size: 15px; color: #525252; line-height: 1.7; font-family: Arial, Helvetica, sans-serif;">
+                                Please explore the app, have a good time using it, and feel free to try different things. After the testing period, we will reach out for your honest feedback based on your experience.
+                            </p>
+
+                            <!-- CTA Button -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center" style="padding: 35px 0;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td class="button-wrapper" style="background-color: #9333EA; border-radius: 8px; box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);">
+                                                    <a href="{{appURL}}" class="button" style="display: inline-block; padding: 16px 45px; font-size: 16px; color: #ffffff; text-decoration: none; font-weight: 600; font-family: Arial, Helvetica, sans-serif; border-radius: 8px;">Start Testing Now</a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Closing -->
+                            <p class="closing" style="margin: 30px 0 0 0; font-size: 15px; color: #525252; line-height: 1.7; font-family: Arial, Helvetica, sans-serif;">
+                                Thank you for helping us make Code Endelea better!
+                            </p>
+
+                            <!-- Signature -->
+                            <p class="signature" style="margin: 25px 0 0 0; font-size: 15px; color: #10002B; font-weight: 600; font-family: Arial, Helvetica, sans-serif;">
+                                Best regards,
+                            </p>
+                            <p class="signature-team" style="margin: 5px 0 0 0; font-size: 14px; color: #737373; font-family: Arial, Helvetica, sans-serif;">
+                                The Code Endelea Team
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td class="footer" style="padding: 40px; background-color: #FAFAFA; text-align: center;">
+                            <p class="footer-text" style="margin: 0 0 10px 0; font-size: 14px; color: #737373; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+                                Copyright © 2025 CodeEndelea. All rights reserved.
+                            </p>
+                            <p class="footer-disclaimer" style="margin: 20px 0 0 0; font-size: 12px; color: #A3A3A3; line-height: 1.6; font-family: Arial, Helvetica, sans-serif;">
+                                You are receiving this email because you signed up as a beta tester for CodeEndelea.<br>
+                                This is a testing account with limited access. If you have any questions, please contact us.
+                            </p>
+                            <p class="footer-links" style="margin: 20px 0 0 0; font-size: 12px; color: #D4D4D4; font-family: Arial, Helvetica, sans-serif;">
+                                <a href="#" style="color: #9333EA; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+                                <span style="color: #D4D4D4;">|</span>
+                                <a href="#" style="color: #9333EA; text-decoration: none; margin: 0 10px;">Terms of Service</a>
+                                <span style="color: #D4D4D4;">|</span>
+                                <a href="#" style="color: #9333EA; text-decoration: none; margin: 0 10px;">Support</a>
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+

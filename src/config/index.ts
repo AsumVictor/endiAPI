@@ -37,6 +37,28 @@ export interface Config {
     connectionTimeout: number;
     requestTimeout: number;
   };
+  email: {
+    enabled: boolean;
+    service?: string;
+    host: string;
+    port: number;
+    secure: boolean;
+    from: {
+      name: string;
+      address: string;
+    };
+    auth: {
+      user: string;
+      password: string;
+    };
+    tls?: {
+      rejectUnauthorized: boolean;
+    };
+  };
+  ai: {
+    baseUrl: string;
+    timeout: number;
+  };
 }
 
 const config: Config = {
@@ -84,6 +106,32 @@ const config: Config = {
     saslMechanism: (process.env['KAFKA_SASL_MECHANISM'] as 'plain' | 'scram-sha-256' | 'scram-sha-512') || 'scram-sha-256',
     connectionTimeout: Number(process.env['KAFKA_CONNECTION_TIMEOUT']) || 10000,
     requestTimeout: Number(process.env['KAFKA_REQUEST_TIMEOUT']) || 30000,
+  },
+
+  // Email Configuration
+  email: {
+    enabled: process.env['EMAIL_ENABLED'] === 'true',
+    ...(process.env['EMAIL_SERVICE'] && { service: process.env['EMAIL_SERVICE'] }), // e.g., 'Gmail', 'SendGrid', 'Outlook'
+    host: process.env['EMAIL_HOST'] || 'smtp.gmail.com',
+    port: Number(process.env['EMAIL_PORT']) || 587,
+    secure: process.env['EMAIL_SECURE'] === 'true', // true for 465, false for other ports
+    from: {
+      name: process.env['EMAIL_FROM_NAME'] || 'API Server',
+      address: process.env['EMAIL_FROM_ADDRESS'] || 'noreply@example.com',
+    },
+    auth: {
+      user: process.env['EMAIL_AUTH_USER'] || '',
+      password: process.env['EMAIL_AUTH_PASSWORD'] || '',
+    },
+    tls: {
+      rejectUnauthorized: process.env['EMAIL_TLS_REJECT_UNAUTHORIZED'] !== 'false',
+    },
+  },
+
+  // AI Server Configuration
+  ai: {
+    baseUrl: process.env['AI_SERVER_URL'] || '',
+    timeout: Number(process.env['AI_SERVER_TIMEOUT']) || 30000, // 30 seconds default
   },
 };
 

@@ -8,7 +8,7 @@ Use this checklist to ensure your Kafka integration is properly configured.
 - [ ] Navigate to: **Databases** → **Your Kafka Cluster**
 - [ ] Go to **Connection Details** or **Users** tab
 - [ ] Copy the password for `doadmin` user
-- [ ] Password should start with `AVNS_`
+- [ ] Password format (usually starts with specific prefix)
 
 ## Step 2: Update Your .env File
 

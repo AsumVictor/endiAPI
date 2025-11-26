@@ -13,7 +13,8 @@
     "kafka:test": "tsx src/scripts/test-kafka.ts",
     "kafka:test-video": "tsx src/scripts/test-kafka-video.ts",
     "kafka:check-messages": "tsx src/scripts/check-kafka-messages.ts",
-    "kafka:consumer": "tsx src/scripts/kafka-consumer-worker.ts"
+    "kafka:consumer": "tsx src/scripts/kafka-consumer-worker.ts",
+    "create-beta-users": "tsx src/scripts/create-beta-users.ts"
   },
   "repository": {
     "type": "git",
@@ -48,6 +49,7 @@
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
     "morgan": "^1.10.0",
+    "nodemailer": "^7.0.10",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "tsx": "^4.20.6",
@@ -61,6 +63,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.10.0",
+    "@types/nodemailer": "^7.0.4",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.0.2",

@@ -2,6 +2,7 @@
 import app from './app.ts';
 import config from './config/index.ts';
 import logger from './utils/logger.ts';
+import { EmailService } from './utils/email.ts';
 import { kafkaConsumer } from './services/kafka-consumer.ts';
 
 // Start server
@@ -10,6 +11,24 @@ const server = app.listen(config.port, config.host, async () => {
   logger.info(`Environment: ${config.nodeEnv}`);
   logger.info(`Health check available at: http://${config.host}:${config.port}/api/health`);
   logger.info(`Supabase URL: ${config.supabase.url ? 'configured' : 'not configured'}`);
+
+  // Initialize Email Service
+  try {
+    if (config.email.enabled) {
+      EmailService.initialize();
+      const isVerified = await EmailService.verify();
+      if (isVerified) {
+        logger.info('✅ Email service initialized and verified successfully');
+      } else {
+        logger.warn('⚠️ Email service initialized but verification failed');
+      }
+    } else {
+      logger.info('Email service is disabled');
+    }
+  } catch (error) {
+    logger.error('❌ Failed to initialize email service', { error });
+    logger.warn('Server will continue running, but emails will not be sent');
+  }
 
   // Start Kafka consumer
   try {
@@ -50,6 +69,14 @@ process.on('uncaughtException', (err: Error) => {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received. Shutting down gracefully...');
+
+  // Close Email Service
+  try {
+    EmailService.close();
+    logger.info('Email service closed');
+  } catch (error) {
+    logger.error('Error closing email service', { error });
+  }
 
   // Disconnect Kafka consumer
   try {
