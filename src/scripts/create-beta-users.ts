@@ -274,12 +274,12 @@ async function main() {
   const betaUsers: BetaUserArray[] = [
     // Example users - replace with your actual user data
     //['Victor', 'Asum', 'victor.asum@ashesi.edu.gh', 'student'],
-     ['Eldad', 'Opare', 'eldad.opare@ashesi.edu.gh', 'student'],
-     ['Shaun', 'Esua', 'shaun.esua@ashesi.edu.gh', 'student'],
+    //  ['Eldad', 'Opare', 'eldad.opare@ashesi.edu.gh', 'student'],
+    //  ['Shaun', 'Esua', 'shaun.esua@ashesi.edu.gh', 'student'],
     // ['Shaun', 'Esua', 'shaunemensah@gmail.com', 'lecturer'],
-     //['Victor', 'Asum', 'iamasum369@gmail.com', 'lecturer'],
-    // ['Eldad', 'Opare', 'opareeldad@gmail.com', 'lecturer'],
-  ];
+    //  ['Victor', 'Asum', 'iamasum369@gmail.com', 'lecturer'],
+     ['Eldad', 'Opare', 'opareeldad@gmail.com', 'lecturer'],
+  ]; 
 
   if (betaUsers.length === 0) {
     logger.warn('No users defined in the script. Please add users to the betaUsers array.');

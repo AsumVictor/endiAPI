@@ -94,7 +94,7 @@ export class VideoService {
       return {
         success: true,
         message: 'Video created successfully and sent for transcription',
-        data: video,
+        data: { id: video.id },
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -331,6 +331,60 @@ export class VideoService {
         throw error;
       }
       throw new AppError('Failed to update video', 500);
+    }
+  }
+
+  /**
+   * Update video's camera_video_url directly (used by Kafka consumer, bypasses lecturer validation)
+   */
+  static async updateCameraVideoUrl(videoId: string, cloudUrl: string): Promise<void> {
+    try {
+      // First verify the video exists
+      const { data: video, error: videoError } = await supabase
+        .from('videos')
+        .select('id')
+        .eq('id', videoId)
+        .single();
+
+      if (videoError || !video) {
+        logger.error('Video not found when updating camera_video_url', {
+          videoId,
+          error: videoError,
+        });
+        throw new AppError(`Video not found: ${videoId}`, 404);
+      }
+
+      // Update the camera_video_url
+      const { error: updateError } = await supabase
+        .from('videos')
+        .update({
+          camera_video_url: cloudUrl,
+        })
+        .eq('id', videoId);
+
+      if (updateError) {
+        logger.error('Failed to update camera_video_url', {
+          videoId,
+          cloudUrl,
+          error: updateError,
+        });
+        throw new AppError(`Failed to update camera_video_url: ${updateError.message}`, 500);
+      }
+
+      logger.info('Successfully updated camera_video_url', {
+        videoId,
+        cloudUrl,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      logger.error('Error updating camera_video_url', {
+        videoId,
+        cloudUrl,
+        error,
+      });
+      throw new AppError('Failed to update camera_video_url', 500);
     }
   }
 

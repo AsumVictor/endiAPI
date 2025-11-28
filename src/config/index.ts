@@ -32,6 +32,7 @@ export interface Config {
     password: string;
     produceTopic: string;
     consumeTopic: string;
+    compressionTopic: string;
     ssl: boolean;
     saslMechanism: 'plain' | 'scram-sha-256' | 'scram-sha-512';
     connectionTimeout: number;
@@ -102,6 +103,7 @@ const config: Config = {
     password: process.env['KAFKA_PASSWORD'] || '',
     produceTopic: process.env['KAFKA_PRODUCE_TOPIC'] || 'Transcribe',
     consumeTopic: process.env['KAFKA_CONSUME_TOPIC'] || 'update_transcribe',
+    compressionTopic: process.env['KAFKA_COMPRESSION_TOPIC'] || 'finish_compress',
     ssl: process.env['KAFKA_SSL'] !== 'false',
     saslMechanism: (process.env['KAFKA_SASL_MECHANISM'] as 'plain' | 'scram-sha-256' | 'scram-sha-512') || 'scram-sha-256',
     connectionTimeout: Number(process.env['KAFKA_CONNECTION_TIMEOUT']) || 10000,
