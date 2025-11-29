@@ -22,15 +22,15 @@ Add the following variables to the `.env` file:
 
 ```env
 # Kafka Configuration
-KAFKA_BROKERS=
-KAFKA_USERNAME=
-KAFKA_PASSWORD=
-KAFKA_PRODUCE_TOPIC=
-KAFKA_CONSUME_TOPIC=
-KAFKA_SSL=
-KAFKA_SASL_MECHANISM=
-KAFKA_CONNECTION_TIMEOUT=
-KAFKA_REQUEST_TIMEOUT=
+KAFKA_BROKERS=  # add kafka broker hostname and port
+KAFKA_USERNAME=  # add kafka username
+KAFKA_PASSWORD=  # add kafka password
+KAFKA_PRODUCE_TOPIC=  # add producer topic name
+KAFKA_CONSUME_TOPIC=  # add consumer topic name
+KAFKA_SSL=  # set to true for SSL/TLS
+KAFKA_SASL_MECHANISM=  # add SASL mechanism (e.g., scram-sha-256)
+KAFKA_CONNECTION_TIMEOUT=  # add connection timeout in milliseconds
+KAFKA_REQUEST_TIMEOUT=  # add request timeout in milliseconds
 ```
 
 ### 2. SSL Certificate
@@ -308,7 +308,7 @@ The consumer logs key events:
 Set environment variable for detailed Kafka logs:
 
 ```env
-LOG_LEVEL=debug
+LOG_LEVEL=  # add log level (e.g., debug, info, error)
 ```
 
 ### Test Individual Components

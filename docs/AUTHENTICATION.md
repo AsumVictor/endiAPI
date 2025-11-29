@@ -209,13 +209,13 @@ Set these environment variables in the `.env` file:
 
 ```env
 # Supabase Configuration
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_KEY=your_supabase_service_key
+SUPABASE_URL=  # add supabase project URL
+SUPABASE_ANON_KEY=  # add supabase anonymous key
+SUPABASE_SERVICE_KEY=  # add supabase service role key
 
 # JWT Configuration
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRE_TIME=24h
+JWT_SECRET=  # add JWT secret key
+JWT_EXPIRE_TIME=  # add JWT expiration time (e.g., 24h)
 ```
 
 ## Error Handling

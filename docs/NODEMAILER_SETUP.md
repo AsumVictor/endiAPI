@@ -29,26 +29,26 @@ Add the following variables to the `.env` file:
 
 ```bash
 # Email Configuration (Nodemailer)
-EMAIL_ENABLED=true
+EMAIL_ENABLED=  # set to true to enable email service
 
 # Option 1: Use a predefined service (Gmail, SendGrid, Outlook, etc.)
-EMAIL_SERVICE=Gmail
+EMAIL_SERVICE=  # add email service name
 
 # Option 2: Use custom SMTP (leave EMAIL_SERVICE empty)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
+EMAIL_HOST=  # add SMTP hostname
+EMAIL_PORT=  # add SMTP port
+EMAIL_SECURE=  # set to true for SSL, false for TLS
 
 # Email sender information
-EMAIL_FROM_NAME=App Name
-EMAIL_FROM_ADDRESS=noreply@domain.com
+EMAIL_FROM_NAME=  # add sender display name
+EMAIL_FROM_ADDRESS=  # add sender email address
 
 # Email authentication
-EMAIL_AUTH_USER=email@gmail.com
-EMAIL_AUTH_PASSWORD=app-password
+EMAIL_AUTH_USER=  # add email authentication username
+EMAIL_AUTH_PASSWORD=  # add email authentication password
 
 # TLS Configuration
-EMAIL_TLS_REJECT_UNAUTHORIZED=true
+EMAIL_TLS_REJECT_UNAUTHORIZED=  # set to true to reject unauthorized certificates
 ```
 
 ### Configuration Options
@@ -240,12 +240,12 @@ await EmailService.sendEmail({
 ### Gmail
 
 ```bash
-EMAIL_ENABLED=true
-EMAIL_SERVICE=Gmail
-EMAIL_FROM_NAME=App
-EMAIL_FROM_ADDRESS=email@gmail.com
-EMAIL_AUTH_USER=email@gmail.com
-EMAIL_AUTH_PASSWORD=app-password  # Generate from Google Account settings
+EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_SERVICE=  # add email service name (e.g., Gmail)
+EMAIL_FROM_NAME=  # add sender display name
+EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_AUTH_USER=  # add email authentication username
+EMAIL_AUTH_PASSWORD=  # add app password from Google Account settings
 ```
 
 **Note:** Gmail requires an [App Password](https://support.google.com/accounts/answer/185833) for authentication.
@@ -253,38 +253,38 @@ EMAIL_AUTH_PASSWORD=app-password  # Generate from Google Account settings
 ### SendGrid
 
 ```bash
-EMAIL_ENABLED=true
-EMAIL_HOST=smtp.sendgrid.net
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_FROM_NAME=App
-EMAIL_FROM_ADDRESS=noreply@domain.com
-EMAIL_AUTH_USER=apikey
-EMAIL_AUTH_PASSWORD=sendgrid-api-key
+EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_HOST=  # add SMTP hostname (e.g., smtp.sendgrid.net)
+EMAIL_PORT=  # add SMTP port
+EMAIL_SECURE=  # set to false for TLS
+EMAIL_FROM_NAME=  # add sender display name
+EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_AUTH_USER=  # add authentication username
+EMAIL_AUTH_PASSWORD=  # add SendGrid API key
 ```
 
 ### Outlook/Hotmail
 
 ```bash
-EMAIL_ENABLED=true
-EMAIL_SERVICE=Outlook
-EMAIL_FROM_NAME=App
-EMAIL_FROM_ADDRESS=email@outlook.com
-EMAIL_AUTH_USER=email@outlook.com
-EMAIL_AUTH_PASSWORD=password
+EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_SERVICE=  # add email service name (e.g., Outlook)
+EMAIL_FROM_NAME=  # add sender display name
+EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_AUTH_USER=  # add email authentication username
+EMAIL_AUTH_PASSWORD=  # add email authentication password
 ```
 
 ### Custom SMTP
 
 ```bash
-EMAIL_ENABLED=true
-EMAIL_HOST=smtp.domain.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_FROM_NAME=App
-EMAIL_FROM_ADDRESS=noreply@domain.com
-EMAIL_AUTH_USER=username
-EMAIL_AUTH_PASSWORD=password
+EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_HOST=  # add SMTP hostname
+EMAIL_PORT=  # add SMTP port
+EMAIL_SECURE=  # set to false for TLS
+EMAIL_FROM_NAME=  # add sender display name
+EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_AUTH_USER=  # add SMTP username
+EMAIL_AUTH_PASSWORD=  # add SMTP password
 ```
 
 ## Testing
@@ -398,7 +398,7 @@ If using Gmail:
 For TLS errors:
 
 ```bash
-EMAIL_TLS_REJECT_UNAUTHORIZED=false  # Only for development!
+EMAIL_TLS_REJECT_UNAUTHORIZED=  # set to false only for development
 ```
 
 **Warning:** Do not use this in production without understanding the security implications.

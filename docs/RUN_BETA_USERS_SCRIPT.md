@@ -56,18 +56,18 @@ Before running, ensure the `.env` file is configured:
 
 ```bash
 # Required for email sending
-EMAIL_ENABLED=true
-EMAIL_SERVICE=Gmail
-EMAIL_AUTH_USER=email@gmail.com
-EMAIL_AUTH_PASSWORD=app-password
-EMAIL_FROM_ADDRESS=email@gmail.com
-EMAIL_FROM_NAME=CodeEndelea
+EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_SERVICE=  # add email service name (e.g., Gmail)
+EMAIL_AUTH_USER=  # add email authentication username
+EMAIL_AUTH_PASSWORD=  # add email authentication password
+EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_FROM_NAME=  # add sender display name
 
 # Optional: Set beta version (defaults to "1")
-BETA_VERSION=1
+BETA_VERSION=  # add beta version number
 
 # Frontend URL for email links
-FRONTEND_URL=https://app.example.com
+FRONTEND_URL=  # add frontend application URL
 ```
 
 ## Example Usage

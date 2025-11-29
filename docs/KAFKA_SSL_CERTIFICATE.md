@@ -23,11 +23,11 @@ No manual configuration needed for:
 
 In the `.env` file:
 ```env
-KAFKA_BROKERS=your-kafka-broker-hostname:25073
-KAFKA_USERNAME=doadmin
-KAFKA_PASSWORD=replace_with_actual_password  # Replace with actual password
-KAFKA_SSL=true                             # Enables SSL/TLS
-KAFKA_SASL_MECHANISM=scram-sha-256        # Authentication method
+KAFKA_BROKERS=  # add kafka broker hostname and port
+KAFKA_USERNAME=  # add kafka username
+KAFKA_PASSWORD=  # add kafka password
+KAFKA_SSL=  # set to true to enable SSL/TLS
+KAFKA_SASL_MECHANISM=  # add SASL authentication method
 ```
 
 ### Setup Steps
@@ -41,7 +41,7 @@ KAFKA_SASL_MECHANISM=scram-sha-256        # Authentication method
 - Paste it in the `.env` file:
 
 ```env
-KAFKA_PASSWORD=replace_with_actual_password  # Actual password
+KAFKA_PASSWORD=  # add kafka password
 ```
 
 **2. Test the Connection:**
@@ -183,16 +183,16 @@ Request timed out
 
 1. **Broker address is correct:**
    ```env
-   KAFKA_BROKERS=your-kafka-broker-hostname:25073
+   KAFKA_BROKERS=  # add kafka broker hostname and port
    ```
 
 2. **Network connectivity:**
    ```bash
    # Test broker connectivity
-   nc -zv your-kafka-broker-hostname 25073
+   nc -zv <broker-hostname> 25073
 
    # Or use telnet
-   telnet your-kafka-broker-hostname 25073
+   telnet <broker-hostname> 25073
    ```
 
 3. **Firewall rules:**
@@ -216,12 +216,12 @@ Authentication failed: Invalid username or password
 
 2. **Username is correct:**
    ```env
-   KAFKA_USERNAME=doadmin  # Must be exactly this
+   KAFKA_USERNAME=  # add kafka username
    ```
 
 3. **SASL mechanism matches:**
    ```env
-   KAFKA_SASL_MECHANISM=scram-sha-256  # Must be exactly this
+   KAFKA_SASL_MECHANISM=  # add SASL mechanism (e.g., scram-sha-256)
    ```
 
 ## Security Best Practices
@@ -232,10 +232,10 @@ Authentication failed: Invalid username or password
 
 ```env
 # ✅ GOOD - Encrypted connection
-KAFKA_SSL=true
+KAFKA_SSL=  # set to true
 
 # ❌ BAD - Unencrypted connection (DO NOT USE)
-KAFKA_SSL=false
+KAFKA_SSL=  # set to false (not recommended)
 ```
 
 ### 2. Protect the Password
@@ -302,7 +302,7 @@ Look for:
 {
   "level": "info",
   "message": "Kafka client initialized",
-  "brokers": ["your-kafka-broker-hostname:25073"],
+  "brokers": ["<broker-hostname>:25073"],
   "ssl": true,
   "saslMechanism": "scram-sha-256"
 }

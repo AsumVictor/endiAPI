@@ -33,16 +33,16 @@ This error occurs when Gmail rejects authentication credentials. Common causes a
 Ensure the `.env` file has:
 
 ```bash
-EMAIL_ENABLED=true
-EMAIL_SERVICE=Gmail
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587                    # or 465
-EMAIL_SECURE=false                # false for 587, true for 465
-EMAIL_FROM_NAME=App Name     # No angle brackets!
-EMAIL_FROM_ADDRESS=email@gmail.com
-EMAIL_AUTH_USER=email@gmail.com
-EMAIL_AUTH_PASSWORD=16-char-app-password  # No spaces!
-EMAIL_TLS_REJECT_UNAUTHORIZED=false
+EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_SERVICE=  # add email service name (e.g., Gmail)
+EMAIL_HOST=  # add SMTP hostname
+EMAIL_PORT=  # add SMTP port (587 or 465)
+EMAIL_SECURE=  # set to false for port 587, true for port 465
+EMAIL_FROM_NAME=  # add sender display name
+EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_AUTH_USER=  # add email authentication username
+EMAIL_AUTH_PASSWORD=  # add email authentication password
+EMAIL_TLS_REJECT_UNAUTHORIZED=  # set to false for development
 ```
 
 ### 3. Common Issues

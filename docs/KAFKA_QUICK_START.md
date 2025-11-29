@@ -7,17 +7,17 @@
 cp env.example .env
 
 # Edit .env and add the Kafka password:
-KAFKA_PASSWORD=replace_with_actual_password
+KAFKA_PASSWORD=  # add kafka password
 ```
 
 The following are already configured in `env.example`:
 ```
-KAFKA_BROKERS=
-KAFKA_USERNAME=
-KAFKA_PRODUCE_TOPIC=
-KAFKA_CONSUME_TOPIC=
-KAFKA_SSL=true
-KAFKA_SASL_MECHANISM=
+KAFKA_BROKERS=  # add kafka broker hostname and port
+KAFKA_USERNAME=  # add kafka username
+KAFKA_PRODUCE_TOPIC=  # add producer topic name
+KAFKA_CONSUME_TOPIC=  # add consumer topic name
+KAFKA_SSL=  # set to true for SSL/TLS
+KAFKA_SASL_MECHANISM=  # add SASL mechanism
 ```
 
 ## 2. Test Kafka Connectivity

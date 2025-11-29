@@ -134,15 +134,15 @@ Set these in the `.env` file:
 
 ```bash
 # Email Configuration
-EMAIL_ENABLED=true
-EMAIL_SERVICE=Gmail  # or the SMTP provider
-EMAIL_FROM_NAME=CodeEndelea
-EMAIL_FROM_ADDRESS=noreply@codeendelea.com
-EMAIL_AUTH_USER=email@gmail.com
-EMAIL_AUTH_PASSWORD=app-password
+EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_SERVICE=  # add email service name or SMTP provider
+EMAIL_FROM_NAME=  # add sender display name
+EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_AUTH_USER=  # add email authentication username
+EMAIL_AUTH_PASSWORD=  # add email authentication password
 
 # Frontend URL (for app link in email)
-FRONTEND_URL=https://app.codeendelea.com
+FRONTEND_URL=  # add frontend application URL
 ```
 
 ## Features

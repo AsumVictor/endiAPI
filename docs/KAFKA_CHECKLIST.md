@@ -16,15 +16,15 @@ The `.env` file should have these lines:
 
 ```env
 # Kafka Configuration
-KAFKA_BROKERS=your-kafka-broker-hostname:25073
-KAFKA_USERNAME=doadmin
-KAFKA_PASSWORD=replace_with_actual_password  # ← PASTE PASSWORD HERE
-KAFKA_PRODUCE_TOPIC=Transcribe
-KAFKA_CONSUME_TOPIC=update_transcribe
-KAFKA_SSL=true
-KAFKA_SASL_MECHANISM=scram-sha-256
-KAFKA_CONNECTION_TIMEOUT=10000
-KAFKA_REQUEST_TIMEOUT=30000
+KAFKA_BROKERS=  # add kafka broker hostname and port
+KAFKA_USERNAME=  # add kafka username
+KAFKA_PASSWORD=  # add kafka password
+KAFKA_PRODUCE_TOPIC=  # add producer topic name
+KAFKA_CONSUME_TOPIC=  # add consumer topic name
+KAFKA_SSL=  # set to true for SSL/TLS
+KAFKA_SASL_MECHANISM=  # add SASL mechanism (e.g., scram-sha-256)
+KAFKA_CONNECTION_TIMEOUT=  # add connection timeout in milliseconds
+KAFKA_REQUEST_TIMEOUT=  # add request timeout in milliseconds
 ```
 
 **Checklist:**
@@ -140,10 +140,10 @@ await kafkaProducer.sendTranscriptionRequest({
 ### Connection Issues
 ```bash
 # Test network connectivity
-nc -zv your-kafka-broker-hostname 25073
+nc -zv <broker-hostname> 25073
 
 # Check if port is accessible
-telnet your-kafka-broker-hostname 25073
+telnet <broker-hostname> 25073
 ```
 
 ### View Logs
