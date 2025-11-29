@@ -16,9 +16,9 @@ The `.env` file should have these lines:
 
 ```env
 # Kafka Configuration
-KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
+KAFKA_BROKERS=your-kafka-broker-hostname:25073
 KAFKA_USERNAME=doadmin
-KAFKA_PASSWORD=replace_with_actual_password  # ← PASTE PASSWORD HERE
+KAFKA_PASSWORD=your_kafka_password_here  # ← PASTE PASSWORD HERE
 KAFKA_PRODUCE_TOPIC=Transcribe
 KAFKA_CONSUME_TOPIC=update_transcribe
 KAFKA_SSL=true
@@ -36,7 +36,7 @@ KAFKA_REQUEST_TIMEOUT=30000
 
 ## Step 3: Verify SSL Certificate (Automatic!)
 
-**Good news:** You don't need to do anything for SSL certificates!
+**Note:** SSL certificates are handled automatically.
 
 - [x] kafkajs library handles SSL automatically
 - [x] Uses Node.js system certificates
@@ -140,10 +140,10 @@ await kafkaProducer.sendTranscriptionRequest({
 ### Connection Issues
 ```bash
 # Test network connectivity
-nc -zv db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com 25073
+nc -zv your-kafka-broker-hostname 25073
 
 # Check if port is accessible
-telnet db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com 25073
+telnet your-kafka-broker-hostname 25073
 ```
 
 ### View Logs
@@ -224,7 +224,7 @@ Before going to production, verify:
 ✅ Test scripts available
 ✅ Documentation complete
 
-**What you need to do:**
+**Next steps:**
 1. Add the Kafka password to `.env`
 2. Run `npm run kafka:test`
 3. Create topics in DigitalOcean
