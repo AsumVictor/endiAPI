@@ -239,7 +239,7 @@ All errors follow a consistent format:
 
 ## Testing
 
-You can test the authentication system using:
+Test the authentication system using:
 
 1. **Swagger UI**: Interactive API documentation at `/api-docs`
 2. **cURL commands**: As shown in the examples above
@@ -247,7 +247,7 @@ You can test the authentication system using:
 
 ## Next Steps
 
-With the authentication system in place, you can now:
+With the authentication system in place, the following can be implemented:
 
 1. Create protected API endpoints
 2. Implement user profile management

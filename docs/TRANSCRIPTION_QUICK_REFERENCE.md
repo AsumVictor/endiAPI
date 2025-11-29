@@ -247,9 +247,9 @@ Required in `.env`:
 
 ```env
 # Kafka
-KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
+KAFKA_BROKERS=your-kafka-broker-hostname:25073
 KAFKA_USERNAME=doadmin
-KAFKA_PASSWORD=AVNS_your_password
+KAFKA_PASSWORD=your_kafka_password
 KAFKA_PRODUCE_TOPIC=Transcribe
 KAFKA_CONSUME_TOPIC=update_transcribe
 KAFKA_SSL=true

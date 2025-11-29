@@ -291,7 +291,7 @@ EMAIL_AUTH_PASSWORD=password
 
 ### Verify Email Configuration
 
-The email service is automatically initialized when the server starts. You can verify the configuration by checking the server logs:
+The email service is automatically initialized when the server starts. Verify the configuration by checking the server logs:
 
 ```
 ✅ Email service initialized and verified successfully
@@ -395,17 +395,17 @@ If using Gmail:
 
 ### TLS/SSL Errors
 
-If you encounter TLS errors:
+For TLS errors:
 
 ```bash
 EMAIL_TLS_REJECT_UNAUTHORIZED=false  # Only for development!
 ```
 
-**Warning:** Never use this in production unless you understand the security implications.
+**Warning:** Do not use this in production without understanding the security implications.
 
 ### Email Service Not Initialized
 
-The email service is initialized automatically when the server starts. If you see warnings:
+The email service is initialized automatically when the server starts. If warnings appear:
 
 1. Check that `EMAIL_ENABLED=true` in the `.env` file
 2. Ensure all required configuration variables are set

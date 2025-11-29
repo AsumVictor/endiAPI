@@ -3,7 +3,7 @@
 ## 1. Add Kafka Password to .env
 
 ```bash
-# Copy from env.example if you haven't already
+# Copy from env.example if needed
 cp env.example .env
 
 # Edit .env and add the Kafka password:

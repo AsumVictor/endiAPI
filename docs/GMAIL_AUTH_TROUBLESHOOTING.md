@@ -56,7 +56,7 @@ EMAIL_TLS_REJECT_UNAUTHORIZED=false
 - Port **465** with `EMAIL_SECURE=true` (SSL)
 
 #### Issue: "Less Secure Apps" (Deprecated)
-**Solution:** This feature is deprecated. You MUST use App Passwords with 2-Step Verification.
+**Solution:** This feature is deprecated. App Passwords with 2-Step Verification are required.
 
 #### Issue: Account Restrictions
 **Check:**

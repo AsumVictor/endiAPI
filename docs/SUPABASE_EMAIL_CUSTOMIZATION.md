@@ -43,7 +43,7 @@
 <p><a href="{{ .ConfirmationURL }}">Confirm Email</a></p>
 <p>Or copy this link: {{ .ConfirmationURL }}</p>
 <p>This link will expire in 1 hour.</p>
-<p>If you didn't request this, please ignore this email.</p>
+<p>If this wasn't requested, please ignore this email.</p>
 ```
 
 ## Step-by-Step Setup
@@ -81,7 +81,7 @@
      <p>Or copy this link:</p>
      <p>{{ .ConfirmationURL }}</p>
      <p>This link expires in 1 hour.</p>
-     <p>If you didn't sign up, please ignore this email.</p>
+     <p>If this account wasn't created, please ignore this email.</p>
    </body>
    </html>
    ```
@@ -108,7 +108,7 @@ This is the URL users are redirected to after clicking the email link.
 
 ## Environment-Specific Templates
 
-You can use different templates for different environments by checking `{{ .SiteURL }}` in the template, but Supabase doesn't support environment-specific templates by default.
+Different templates can be used for different environments by checking `{{ .SiteURL }}` in the template, but Supabase doesn't support environment-specific templates by default.
 
 **Alternative:** Use different Supabase projects for dev/staging/production.
 
@@ -134,7 +134,7 @@ You can use different templates for different environments by checking `{{ .Site
     <p>Or copy and paste this link into the browser:</p>
     <p style="word-break: break-all; color: #666;">{{ .ConfirmationURL }}</p>
     <p><strong>This link will expire in 1 hour.</strong></p>
-    <p>If you didn't create an account, please ignore this email.</p>
+    <p>If this account wasn't created, please ignore this email.</p>
     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
     <p style="color: #999; font-size: 12px;">This email was sent to {{ .Email }}</p>
   </div>
@@ -159,7 +159,7 @@ You can use different templates for different environments by checking `{{ .Site
 
 - **Template Variables**: Use `{{ .VariableName }}` syntax (Go template syntax)
 - **HTML Supported**: Full HTML and CSS styling is supported
-- **Redirect URL**: The `{{ .ConfirmationURL }}` includes the redirect URL you set in code
+- **Redirect URL**: The `{{ .ConfirmationURL }}` includes the redirect URL set in code
 - **Token Expiry**: Default is 1 hour (configurable in Supabase settings)
 - **SMTP**: If using custom SMTP, configure in SMTP Settings
 

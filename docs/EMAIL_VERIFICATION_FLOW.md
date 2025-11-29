@@ -48,10 +48,10 @@ export default function AuthCallback() {
     
     if (accessToken) {
       // Email verified successfully!
-      // If you're using Supabase client, the session is already set
+      // If using Supabase client, the session is already set
       // Just redirect to login with success message
       console.log('Email verified successfully!');
-      navigate('/login?verified=true&message=Email verified successfully! You can now login.');
+      navigate('/login?verified=true&message=Email verified successfully! Login is now available.');
       return;
     }
     
@@ -111,7 +111,7 @@ onMounted(() => {
 
 **Why it happens:**
 - Supabase email verification tokens are **one-time use** and expire quickly (usually 1 hour)
-- If you click the link twice, the second click will fail
+- Clicking the link twice causes the second click to fail
 - If too much time passes, the token expires
 
 **Solution:**
@@ -137,5 +137,5 @@ onMounted(() => {
 
 - **Redirects to callback but shows error**: Token expired or already used
 - **Redirects to wrong URL**: Check Supabase Dashboard redirect URL settings
-- **Hash fragments not working**: Make sure you're reading `window.location.hash`, not `window.location.search`
+- **Hash fragments not working**: Ensure `window.location.hash` is being read, not `window.location.search`
 

@@ -18,7 +18,7 @@ npx tsx src/scripts/create-beta-users.ts
 
 ## Option 3: Using tsx directly
 
-If you have tsx installed globally:
+If tsx is installed globally:
 
 ```bash
 tsx src/scripts/create-beta-users.ts

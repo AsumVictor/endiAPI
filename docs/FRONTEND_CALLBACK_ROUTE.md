@@ -48,11 +48,11 @@ export default function AuthCallback() {
       // Success! Email verified
       console.log('Email verified successfully!');
       
-      // If you're using Supabase client in frontend, the session is automatically set
-      // If not, you might want to store the tokens
+      // If using Supabase client in frontend, the session is automatically set
+      // If not, store the tokens manually
       
       // Redirect to login with success message
-      navigate('/login?verified=true&message=Email verified successfully! You can now login.');
+      navigate('/login?verified=true&message=Email verified successfully! Login is now available.');
       return;
     }
     
@@ -65,7 +65,7 @@ export default function AuthCallback() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
       <h2>Verifying email...</h2>
-      <p>Please wait while we confirm the email address.</p>
+      <p>Please wait while the email address is being confirmed.</p>
     </div>
   );
 }
@@ -98,7 +98,7 @@ function App() {
 <template>
   <div class="auth-callback">
     <h2>Verifying email...</h2>
-    <p>Please wait while we confirm the email address.</p>
+    <p>Please wait while the email address is being confirmed.</p>
   </div>
 </template>
 
@@ -157,7 +157,7 @@ const routes = [
 
 - **One-time use**: Each token can only be used once
 - **Time limit**: Tokens expire after ~1 hour
-- **Already used**: If you click the link twice, the second click fails
+- **Already used**: Clicking the link twice causes the second click to fail
 
 ## Handle Token Expiry on Login Page
 
@@ -179,7 +179,7 @@ useEffect(() => {
       showError(decodeURIComponent(error || 'Verification failed'));
     }
   } else if (verified === 'true') {
-    showSuccess('Email verified successfully! You can now login.');
+    showSuccess('Email verified successfully! Login is now available.');
   }
 }, []);
 ```
