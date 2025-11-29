@@ -113,9 +113,9 @@ curl -X POST http://localhost:8000/api/auth/logout \
 
 ## Database Setup
 
-Before using the authentication system, you need to set up the database schema in your Supabase project:
+Before using the authentication system, set up the database schema in the Supabase project:
 
-1. Go to your Supabase project dashboard
+1. Go to the Supabase project dashboard
 2. Navigate to the SQL Editor
 3. Run the SQL schema from `database/schema.sql`
 
@@ -205,7 +205,7 @@ router.get('/users/:userId/profile', requireOwnership('userId'), (req, res) => {
 
 ## Environment Variables
 
-Make sure to set these environment variables in your `.env` file:
+Set these environment variables in the `.env` file:
 
 ```env
 # Supabase Configuration

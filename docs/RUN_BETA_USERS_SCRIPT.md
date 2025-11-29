@@ -46,33 +46,33 @@ npm run create-beta-users
 
 This is the simplest and most reliable method since:
 - ✅ It's already configured
-- ✅ Uses the correct tsx version from your project
+- ✅ Uses the correct tsx version from the project
 - ✅ Works consistently across different environments
 - ✅ No need to remember the full file path
 
 ## Environment Variables
 
-Before running, make sure your `.env` file is configured:
+Before running, ensure the `.env` file is configured:
 
 ```bash
 # Required for email sending
 EMAIL_ENABLED=true
 EMAIL_SERVICE=Gmail
-EMAIL_AUTH_USER=your-email@gmail.com
-EMAIL_AUTH_PASSWORD=your-app-password
-EMAIL_FROM_ADDRESS=your-email@gmail.com
+EMAIL_AUTH_USER=email@gmail.com
+EMAIL_AUTH_PASSWORD=app-password
+EMAIL_FROM_ADDRESS=email@gmail.com
 EMAIL_FROM_NAME=CodeEndelea
 
 # Optional: Set beta version (defaults to "1")
 BETA_VERSION=1
 
 # Frontend URL for email links
-FRONTEND_URL=https://your-app.com
+FRONTEND_URL=https://app.example.com
 ```
 
 ## Example Usage
 
-1. Edit `src/scripts/create-beta-users.ts` and add your users:
+1. Edit `src/scripts/create-beta-users.ts` and add users:
    ```typescript
    const betaUsers: BetaUserArray[] = [
      ['John', 'Doe', 'john@example.com', 'student'],

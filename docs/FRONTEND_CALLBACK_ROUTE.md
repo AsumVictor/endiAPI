@@ -8,7 +8,7 @@ The `#` hash fragments are **NOT sent to the server** - only frontend JavaScript
 
 ## Solution: Create `/auth/callback` Route on Frontend
 
-You MUST create this route in your frontend application.
+Create this route in the frontend application.
 
 ### React Example (with React Router v6):
 
@@ -64,14 +64,14 @@ export default function AuthCallback() {
   // Show loading while processing
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h2>Verifying your email...</h2>
-      <p>Please wait while we confirm your email address.</p>
+      <h2>Verifying email...</h2>
+      <p>Please wait while we confirm the email address.</p>
     </div>
   );
 }
 ```
 
-### Add Route to Your Router:
+### Add Route to the Router:
 
 ```jsx
 // src/App.jsx or src/router.jsx
@@ -97,8 +97,8 @@ function App() {
 <!-- src/views/AuthCallback.vue -->
 <template>
   <div class="auth-callback">
-    <h2>Verifying your email...</h2>
-    <p>Please wait while we confirm your email address.</p>
+    <h2>Verifying email...</h2>
+    <p>Please wait while we confirm the email address.</p>
   </div>
 </template>
 
@@ -161,10 +161,10 @@ const routes = [
 
 ## Handle Token Expiry on Login Page
 
-On your login page, check for error:
+On the login page, check for errors:
 
 ```javascript
-// In your Login component
+// In the Login component
 useEffect(() => {
   const params = new URLSearchParams(window.location.search);
   const verified = params.get('verified');
@@ -187,7 +187,7 @@ useEffect(() => {
 ## Summary
 
 1. ✅ **Backend is correct** - it sets `emailRedirectTo: http://localhost:5173/auth/callback`
-2. ✅ **Supabase redirects correctly** - to your frontend
+2. ✅ **Supabase redirects correctly** - to the frontend
 3. ❌ **Missing**: Frontend `/auth/callback` route to read hash fragments
 4. ✅ **Solution**: Create the route above to handle the verification
 

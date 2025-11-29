@@ -5,7 +5,7 @@
 1. **User Registers** → Backend calls Supabase `signUp()`
 2. **Supabase Sends Email** → User receives confirmation email
 3. **User Clicks Link** → Supabase verifies token server-side
-4. **Supabase Redirects** → To your frontend with hash fragments:
+4. **Supabase Redirects** → To the frontend with hash fragments:
    - Success: `http://localhost:5173/auth/callback#access_token=...&type=...`
    - Error: `http://localhost:5173/auth/callback#error=...&error_description=...`
 
@@ -17,7 +17,7 @@
 
 ## Frontend Route Required
 
-You MUST create `/auth/callback` route on your frontend to handle these hash fragments.
+Create the `/auth/callback` route on the frontend to handle these hash fragments.
 
 ### Example React Route (Vite/React Router):
 
@@ -123,13 +123,13 @@ onMounted(() => {
 1. Go to **Supabase Dashboard** → **Authentication** → **URL Configuration**
 2. Under **Redirect URLs**, add:
    - Development: `http://localhost:5173/auth/callback`
-   - Production: `https://your-domain.com/auth/callback`
+   - Production: `https://domain.com/auth/callback`
 3. Save the changes
 
 ## Testing
 
 1. Register a new user
-2. Check your email
+2. Check the email inbox
 3. Click the confirmation link **once** within 1 hour
 4. Should redirect to `/auth/callback` → Then to `/login` with success message
 

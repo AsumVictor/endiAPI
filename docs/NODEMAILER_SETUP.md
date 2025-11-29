@@ -25,7 +25,7 @@ npm install --save-dev @types/nodemailer
 
 ### Environment Variables
 
-Add the following variables to your `.env` file:
+Add the following variables to the `.env` file:
 
 ```bash
 # Email Configuration (Nodemailer)
@@ -40,12 +40,12 @@ EMAIL_PORT=587
 EMAIL_SECURE=false
 
 # Email sender information
-EMAIL_FROM_NAME=Your App Name
-EMAIL_FROM_ADDRESS=noreply@yourdomain.com
+EMAIL_FROM_NAME=App Name
+EMAIL_FROM_ADDRESS=noreply@domain.com
 
 # Email authentication
-EMAIL_AUTH_USER=your-email@gmail.com
-EMAIL_AUTH_PASSWORD=your-app-password
+EMAIL_AUTH_USER=email@gmail.com
+EMAIL_AUTH_PASSWORD=app-password
 
 # TLS Configuration
 EMAIL_TLS_REJECT_UNAUTHORIZED=true
@@ -164,7 +164,7 @@ await EmailService.sendWelcomeEmail(
 ### Password Reset Email
 
 ```typescript
-const resetToken = 'your-reset-token';
+const resetToken = 'reset-token';
 const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
 await EmailService.sendPasswordResetEmail(
@@ -222,7 +222,7 @@ const htmlTemplate = `
   <body>
     <div class="container">
       <h1>Custom Email</h1>
-      <p>Your custom content here.</p>
+      <p>Custom content here.</p>
     </div>
   </body>
   </html>
@@ -242,10 +242,10 @@ await EmailService.sendEmail({
 ```bash
 EMAIL_ENABLED=true
 EMAIL_SERVICE=Gmail
-EMAIL_FROM_NAME=Your App
-EMAIL_FROM_ADDRESS=your-email@gmail.com
-EMAIL_AUTH_USER=your-email@gmail.com
-EMAIL_AUTH_PASSWORD=your-app-password  # Generate from Google Account settings
+EMAIL_FROM_NAME=App
+EMAIL_FROM_ADDRESS=email@gmail.com
+EMAIL_AUTH_USER=email@gmail.com
+EMAIL_AUTH_PASSWORD=app-password  # Generate from Google Account settings
 ```
 
 **Note:** Gmail requires an [App Password](https://support.google.com/accounts/answer/185833) for authentication.
@@ -257,10 +257,10 @@ EMAIL_ENABLED=true
 EMAIL_HOST=smtp.sendgrid.net
 EMAIL_PORT=587
 EMAIL_SECURE=false
-EMAIL_FROM_NAME=Your App
-EMAIL_FROM_ADDRESS=noreply@yourdomain.com
+EMAIL_FROM_NAME=App
+EMAIL_FROM_ADDRESS=noreply@domain.com
 EMAIL_AUTH_USER=apikey
-EMAIL_AUTH_PASSWORD=your-sendgrid-api-key
+EMAIL_AUTH_PASSWORD=sendgrid-api-key
 ```
 
 ### Outlook/Hotmail
@@ -268,23 +268,23 @@ EMAIL_AUTH_PASSWORD=your-sendgrid-api-key
 ```bash
 EMAIL_ENABLED=true
 EMAIL_SERVICE=Outlook
-EMAIL_FROM_NAME=Your App
-EMAIL_FROM_ADDRESS=your-email@outlook.com
-EMAIL_AUTH_USER=your-email@outlook.com
-EMAIL_AUTH_PASSWORD=your-password
+EMAIL_FROM_NAME=App
+EMAIL_FROM_ADDRESS=email@outlook.com
+EMAIL_AUTH_USER=email@outlook.com
+EMAIL_AUTH_PASSWORD=password
 ```
 
 ### Custom SMTP
 
 ```bash
 EMAIL_ENABLED=true
-EMAIL_HOST=smtp.yourdomain.com
+EMAIL_HOST=smtp.domain.com
 EMAIL_PORT=587
 EMAIL_SECURE=false
-EMAIL_FROM_NAME=Your App
-EMAIL_FROM_ADDRESS=noreply@yourdomain.com
-EMAIL_AUTH_USER=your-username
-EMAIL_AUTH_PASSWORD=your-password
+EMAIL_FROM_NAME=App
+EMAIL_FROM_ADDRESS=noreply@domain.com
+EMAIL_AUTH_USER=username
+EMAIL_AUTH_PASSWORD=password
 ```
 
 ## Testing
@@ -359,7 +359,7 @@ router.post('/register', async (req, res) => {
 
 2. **Verify credentials:**
    - Ensure `EMAIL_AUTH_USER` and `EMAIL_AUTH_PASSWORD` are correct
-   - For Gmail, use an App Password, not your regular password
+   - For Gmail, use an App Password, not the regular password
 
 3. **Check port and security:**
    - Port 465 requires `EMAIL_SECURE=true`
@@ -385,7 +385,7 @@ If using Gmail:
 - Check firewall settings
 - Verify SMTP host and port
 - Try different ports (587, 465, 25)
-- Check if your hosting provider blocks SMTP ports
+- Check if the hosting provider blocks SMTP ports
 
 ### "Authentication Failed" Error
 
@@ -407,7 +407,7 @@ EMAIL_TLS_REJECT_UNAUTHORIZED=false  # Only for development!
 
 The email service is initialized automatically when the server starts. If you see warnings:
 
-1. Check that `EMAIL_ENABLED=true` in your `.env`
+1. Check that `EMAIL_ENABLED=true` in the `.env` file
 2. Ensure all required configuration variables are set
 3. Check server startup logs for initialization errors
 
@@ -492,7 +492,7 @@ export default router;
 ### Example: Integration with Auth Service
 
 ```typescript
-// In your auth service
+// In the auth service
 import { EmailService } from '../utils/email.ts';
 
 export class AuthService {

@@ -180,7 +180,7 @@ tail -f logs/combined.log
 ```sql
 SELECT id, title, transcript_url
 FROM videos
-WHERE id = 'your-video-id';
+WHERE id = 'video-id';
 ```
 
 ## Troubleshooting

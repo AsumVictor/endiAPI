@@ -209,7 +209,7 @@ Scoring schemes with explanations for each option:
 
 ## Configuration
 
-Add to your `.env` file:
+Add to the `.env` file:
 
 ```bash
 # AI Server Configuration

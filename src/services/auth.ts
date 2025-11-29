@@ -37,6 +37,7 @@ export class AuthService {
       const frontendUrl = process.env['FRONTEND_URL'] || 'http://localhost:5173';
       
       // Sign up user with Supabase Auth
+      console.log(data);
       const { data: authData, error: authError } = await supabaseAuth.auth.signUp({
         email: data.email,
         password: data.password,

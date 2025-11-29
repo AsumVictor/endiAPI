@@ -18,7 +18,7 @@ The application uses Kafka for asynchronous video transcription processing:
 
 ### 1. Environment Variables
 
-Add the following variables to your `.env` file:
+Add the following variables to the `.env` file:
 
 ```env
 # Kafka Configuration
@@ -39,7 +39,7 @@ The Kafka cluster uses **SASL_SSL** authentication which includes:
 - **SSL/TLS encryption**: Enabled by default
 - **SASL authentication**: Using SCRAM-SHA-256 mechanism
 - **Username**: `doadmin`
-- **Password**: Your Kafka password from DigitalOcean
+- **Password**: Kafka password from DigitalOcean
 
 The `kafkajs` library automatically handles SSL certificate validation for DigitalOcean managed Kafka clusters.
 
@@ -139,7 +139,7 @@ await kafkaProducer.sendTranscriptionRequest({
 
 ### Test Kafka Connectivity
 
-Run the connectivity test to verify your Kafka setup:
+Run the connectivity test to verify the Kafka setup:
 
 ```bash
 npm run kafka:test
@@ -219,7 +219,7 @@ pm2 stop kafka-consumer
 **Cause**: Invalid username or password
 **Solution**:
 - Verify `KAFKA_USERNAME` is set to `doadmin`
-- Verify `KAFKA_PASSWORD` matches your DigitalOcean Kafka password
+- Verify `KAFKA_PASSWORD` matches the DigitalOcean Kafka password
 - Ensure `KAFKA_SASL_MECHANISM` is set to `scram-sha-256`
 
 #### 3. SSL/TLS Error
@@ -241,7 +241,7 @@ pm2 stop kafka-consumer
 
 ## Integration with Video Service
 
-To integrate Kafka with your video service:
+To integrate Kafka with the video service:
 
 ```typescript
 import { kafkaProducer } from '../services/kafka-producer';

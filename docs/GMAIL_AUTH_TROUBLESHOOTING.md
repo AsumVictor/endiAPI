@@ -2,11 +2,11 @@
 
 ## Error: "535-5.7.8 Username and Password not accepted"
 
-This error occurs when Gmail rejects your authentication credentials. Here are the most common causes and solutions:
+This error occurs when Gmail rejects authentication credentials. Common causes and solutions:
 
 ### 1. Verify App Password Setup
 
-**Important:** You MUST use an App Password, not your regular Gmail password.
+**Important:** Use an App Password, not the regular Gmail password.
 
 #### Steps to Generate App Password:
 
@@ -24,13 +24,13 @@ This error occurs when Gmail rejects your authentication credentials. Here are t
    - Copy the 16-character password (no spaces)
 
 3. **Use the App Password**:
-   - Use your **Gmail address** as the username
-   - Use the **16-character app password** (not your regular password)
+   - Use the **Gmail address** as the username
+   - Use the **16-character app password** (not the regular password)
    - Remove any spaces from the app password
 
 ### 2. Configuration Check
 
-Make sure your `.env` has:
+Ensure the `.env` file has:
 
 ```bash
 EMAIL_ENABLED=true
@@ -38,10 +38,10 @@ EMAIL_SERVICE=Gmail
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587                    # or 465
 EMAIL_SECURE=false                # false for 587, true for 465
-EMAIL_FROM_NAME=Your App Name     # No angle brackets!
-EMAIL_FROM_ADDRESS=your-email@gmail.com
-EMAIL_AUTH_USER=your-email@gmail.com
-EMAIL_AUTH_PASSWORD=your-16-char-app-password  # No spaces!
+EMAIL_FROM_NAME=App Name     # No angle brackets!
+EMAIL_FROM_ADDRESS=email@gmail.com
+EMAIL_AUTH_USER=email@gmail.com
+EMAIL_AUTH_PASSWORD=16-char-app-password  # No spaces!
 EMAIL_TLS_REJECT_UNAUTHORIZED=false
 ```
 
@@ -67,7 +67,7 @@ EMAIL_TLS_REJECT_UNAUTHORIZED=false
 ### 4. Test Configuration
 
 The updated code now uses explicit SMTP configuration for Gmail, which is more reliable with app passwords. The configuration automatically uses:
-- Port 587 (STARTTLS) or 465 (SSL) based on your settings
+- Port 587 (STARTTLS) or 465 (SSL) based on the settings
 - Proper TLS/SSL encryption
 - App password authentication
 
@@ -77,7 +77,7 @@ Double-check:
 - ✅ 2-Step Verification is enabled
 - ✅ App Password was generated for "Mail"
 - ✅ Using the full 16-character password (no spaces)
-- ✅ Using your Gmail address (not username) as EMAIL_AUTH_USER
+- ✅ Using the Gmail address (not username) as EMAIL_AUTH_USER
 - ✅ App Password hasn't been revoked
 
 ### 6. Alternative: Use OAuth2
@@ -90,10 +90,10 @@ this.transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     type: 'OAuth2',
-    user: 'your-email@gmail.com',
-    clientId: 'your-client-id',
-    clientSecret: 'your-client-secret',
-    refreshToken: 'your-refresh-token',
+    user: 'email@gmail.com',
+    clientId: 'client-id',
+    clientSecret: 'client-secret',
+    refreshToken: 'refresh-token',
   },
 });
 ```

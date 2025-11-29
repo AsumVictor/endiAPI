@@ -1,24 +1,24 @@
 # Kafka Setup Checklist ✅
 
-Use this checklist to ensure your Kafka integration is properly configured.
+Use this checklist to ensure the Kafka integration is properly configured.
 
-## Step 1: Get Your Kafka Password from DigitalOcean
+## Step 1: Get Kafka Password from DigitalOcean
 
 - [ ] Log into DigitalOcean dashboard
-- [ ] Navigate to: **Databases** → **Your Kafka Cluster**
+- [ ] Navigate to: **Databases** → **Kafka Cluster**
 - [ ] Go to **Connection Details** or **Users** tab
 - [ ] Copy the password for `doadmin` user
 - [ ] Password format (usually starts with specific prefix)
 
-## Step 2: Update Your .env File
+## Step 2: Update .env File
 
-Your `.env` file should have these lines:
+The `.env` file should have these lines:
 
 ```env
 # Kafka Configuration
 KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
 KAFKA_USERNAME=doadmin
-KAFKA_PASSWORD=AVNS_your_actual_password_here  # ← PASTE YOUR PASSWORD HERE
+KAFKA_PASSWORD=replace_with_actual_password  # ← PASTE PASSWORD HERE
 KAFKA_PRODUCE_TOPIC=Transcribe
 KAFKA_CONSUME_TOPIC=update_transcribe
 KAFKA_SSL=true
@@ -29,7 +29,7 @@ KAFKA_REQUEST_TIMEOUT=30000
 
 **Checklist:**
 - [ ] `.env` file exists in project root
-- [ ] `KAFKA_PASSWORD` is filled with your actual password
+- [ ] `KAFKA_PASSWORD` is filled with the actual password
 - [ ] No extra spaces or quotes around the password
 - [ ] `KAFKA_SSL=true` (not false)
 - [ ] All other Kafka variables are present
@@ -71,14 +71,14 @@ npm run kafka:test
 
 ## Step 5: Create Kafka Topics in DigitalOcean
 
-Ensure these topics exist in your Kafka cluster:
+Ensure these topics exist in the Kafka cluster:
 
 - [ ] Topic: `Transcribe` (producer sends here)
 - [ ] Topic: `update_transcribe` (consumer reads from here)
 
 **How to create topics:**
 1. Go to DigitalOcean dashboard
-2. Navigate to your Kafka cluster
+2. Navigate to the Kafka cluster
 3. Go to **Topics** tab
 4. Click **Create Topic**
 5. Create both topics with default settings
@@ -108,7 +108,7 @@ pm2 startup
 
 ## Step 7: Test Sending a Message
 
-In your code, test sending a transcription request:
+In code, test sending a transcription request:
 
 ```typescript
 import { kafkaProducer } from './services/kafka-producer';
@@ -214,7 +214,7 @@ Before going to production, verify:
 
 ---
 
-## Your Current Status
+## Current Status
 
 **What's configured:**
 ✅ kafkajs installed
@@ -225,7 +225,7 @@ Before going to production, verify:
 ✅ Documentation complete
 
 **What you need to do:**
-1. Add your Kafka password to `.env`
+1. Add the Kafka password to `.env`
 2. Run `npm run kafka:test`
 3. Create topics in DigitalOcean
 4. Start the consumer worker

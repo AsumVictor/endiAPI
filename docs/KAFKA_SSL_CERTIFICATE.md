@@ -4,7 +4,7 @@
 
 ### Good News: No Manual Certificate Needed! 🎉
 
-**DigitalOcean Managed Kafka uses standard SSL/TLS encryption, and the `kafkajs` library automatically handles certificate validation using your system's trusted Certificate Authorities (CAs).**
+**DigitalOcean Managed Kafka uses standard SSL/TLS encryption, and the `kafkajs` library automatically handles certificate validation using the system's trusted Certificate Authorities (CAs).**
 
 You **DO NOT** need to:
 - Download a certificate file
@@ -15,13 +15,13 @@ You **DO NOT** need to:
 
 1. **DigitalOcean uses publicly trusted certificates**: Their Kafka brokers use SSL certificates signed by well-known Certificate Authorities (like Let's Encrypt or DigiCert)
 
-2. **Node.js trusts these CAs by default**: Your system already has these root CAs installed
+2. **Node.js trusts these CAs by default**: The system already has these root CAs installed
 
 3. **KafkaJS handles everything**: The library automatically uses Node.js's built-in TLS support
 
-### Your Current Configuration (Already Correct!)
+### Current Configuration (Already Correct)
 
-In your `.env` file:
+In the `.env` file:
 ```env
 KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
 KAFKA_USERNAME=doadmin
@@ -32,16 +32,16 @@ KAFKA_SASL_MECHANISM=scram-sha-256        # Authentication method
 
 ### What You Need to Do
 
-**1. Get Your Kafka Password from DigitalOcean:**
+**1. Get Kafka Password from DigitalOcean:**
 
-- Log into your DigitalOcean account
-- Navigate to **Databases** → **Your Kafka Cluster**
+- Log into the DigitalOcean account
+- Navigate to **Databases** → **Kafka Cluster**
 - Go to **Connection Details** or **Users** tab
 - Copy the password for the `doadmin` user
-- Paste it in your `.env` file:
+- Paste it in the `.env` file:
 
 ```env
-KAFKA_PASSWORD=AVNS_abc123xyz...  # Your actual password
+KAFKA_PASSWORD=AVNS_abc123xyz...  # Actual password
 ```
 
 **2. Test the Connection:**
@@ -55,12 +55,12 @@ This will verify:
 - Authentication succeeds ✅
 - You can send/receive messages ✅
 
-## How SSL Works in Your Setup
+## How SSL Works in This Setup
 
 ### Connection Flow:
 
 ```
-Your App (Node.js)
+Application (Node.js)
     ↓
 kafkajs library
     ↓
@@ -84,7 +84,7 @@ Connected! 🎉
 
 ### Configuration in Code
 
-Your Kafka client is already properly configured in [src/config/kafka.ts](src/config/kafka.ts):
+The Kafka client is already properly configured in [src/config/kafka.ts](src/config/kafka.ts):
 
 ```typescript
 const kafka = new Kafka({
@@ -131,7 +131,7 @@ unable to verify the first certificate
    ```
 
 2. **Corporate proxy or firewall blocking SSL:**
-   - Check if your network requires a proxy
+   - Check if the network requires a proxy
    - Ensure port 25073 is not blocked
    - Test from a different network
 
@@ -141,7 +141,7 @@ unable to verify the first certificate
    date
 
    # SSL certificates are time-sensitive
-   # Ensure your system clock is correct
+   # Ensure the system clock is correct
    ```
 
 ### Issue 2: Certificate Verification Failed
@@ -197,7 +197,7 @@ Request timed out
 
 3. **Firewall rules:**
    - Ensure outbound connections on port 25073 are allowed
-   - Check if your hosting provider blocks Kafka ports
+   - Check if the hosting provider blocks Kafka ports
 
 ### Issue 4: Authentication Failed
 
@@ -238,7 +238,7 @@ KAFKA_SSL=true
 KAFKA_SSL=false
 ```
 
-### 2. Protect Your Password
+### 2. Protect the Password
 
 - Never commit `.env` to git
 - Use environment variables in production
@@ -263,7 +263,7 @@ tail -f logs/combined.log | grep -i "ssl\|tls\|certificate"
 tail -f logs/error.log | grep -i "sasl\|auth"
 ```
 
-## Testing Your Setup
+## Testing the Setup
 
 ### 1. Quick Test
 
@@ -313,7 +313,7 @@ Look for:
 ### What's Required:
 
 ✅ **Set `KAFKA_SSL=true`** in `.env`
-✅ **Add your Kafka password** from DigitalOcean
+✅ **Add the Kafka password** from DigitalOcean
 ✅ **Run `npm run kafka:test`** to verify
 
 ### What's NOT Required:
@@ -323,7 +323,7 @@ Look for:
 ❌ Modify certificate validation logic
 ❌ Install additional SSL tools
 
-### The kafkajs library handles SSL automatically using your system's trusted CAs! 🎉
+### The kafkajs library handles SSL automatically using the system's trusted CAs! 🎉
 
 ## Need Help?
 

@@ -55,7 +55,7 @@ export interface CreateUserResult {
  */
 export function parseUserArray(userArray: BetaUserArray): BetaUserData {
   const [first_name, last_name, email, role] = userArray;
-  
+
   return {
     first_name,
     last_name,
@@ -71,7 +71,7 @@ export function parseUserArray(userArray: BetaUserArray): BetaUserData {
 export async function createBetaUser(userData: BetaUserData | BetaUserArray): Promise<CreateUserResult> {
   // Convert array format to object if needed
   const user = Array.isArray(userData) ? parseUserArray(userData) : userData;
-  
+
   const result: CreateUserResult = {
     email: user.email,
     success: false,
@@ -82,7 +82,7 @@ export async function createBetaUser(userData: BetaUserData | BetaUserArray): Pr
   try {
     // Register the user
     logger.info(`Creating user: ${user.email}`);
-    
+
     const authResponse = await AuthService.register({
       email: user.email,
       password: user.password,
@@ -170,7 +170,7 @@ export async function createBetaUsers(
       logger.warn(`Skipping undefined user at index ${i}`);
       continue;
     }
-    
+
     // Convert array format to object if needed
     const user = Array.isArray(userData) ? parseUserArray(userData) : userData;
     logger.info(`Processing user ${i + 1}/${totalUsers}: ${user.email}`);
@@ -266,20 +266,49 @@ async function main() {
     logger.warn('Email service is disabled. Users will be created but no emails will be sent.');
   }
 
-  // Example: Define your beta users here in array format
-  // Format: [first_name, last_name, email, role, password?]
-  // Password is optional - will be auto-generated if omitted
-  // Format: TestBETA-1-{FirstLetterFirstName}{First3LettersLastName}
-  // Example: ['John', 'Doe', 'john@example.com', 'student'] -> password: 'TestBETA-1-JDoe'
   const betaUsers: BetaUserArray[] = [
     // Example users - replace with your actual user data
-    //['Victor', 'Asum', 'victor.asum@ashesi.edu.gh', 'student'],
-    //  ['Eldad', 'Opare', 'eldad.opare@ashesi.edu.gh', 'student'],
-    //  ['Shaun', 'Esua', 'shaun.esua@ashesi.edu.gh', 'student'],
+    // ['Victor', 'Asum', 'victor.asum@ashesi.edu.gh', 'student'],
+    // ['Eldad', 'Opare', 'eldad.opare@ashesi.edu.gh', 'student'],
+    // ['Shaun', 'Esua', 'shaun.esua@ashesi.edu.gh', 'student'],
     // ['Shaun', 'Esua', 'shaunemensah@gmail.com', 'lecturer'],
-    //  ['Victor', 'Asum', 'iamasum369@gmail.com', 'lecturer'],
-     ['Eldad', 'Opare', 'opareeldad@gmail.com', 'lecturer'],
-  ]; 
+    // ['Victor', 'Asum', 'iamasum369@gmail.com', 'lecturer'],
+    // ['Eldad', 'Opare', 'opareeldad@gmail.com', 'lecturer'],
+    // ["Marc-Etienne", "Sossou", "sossoumarc2310@gmail.com", "student"],
+    // ["Nerrisa", "Abunu", "seshieabunu19357@gmail.com", "student"],
+    // ["Nana", "Daasebre Kwaku Adu-Gyamfi", "nanadaasebrekwaku@gmail.com", "student"],
+    // ["Jescaps", "Antwi", "antwijescaps1@gmail.com", "student"],
+    // ["Edward", "Ofosu Mensah", "eddiemens0462@gmail.com", "student"],
+    // ["Nana", "Kwaku Adu-Asomaning", "aduasomaningnanakwaku@gmail.com", "student"],
+    // ["Anne", "Segbaya", "segbaya.anne92@gmail.com", "student"],
+    // ["Hawa", "Eliasu", "hawa.eliasu@ashesi.edu.gh", "student"],
+    // ["Edward", "Anokye", "edwardanokyejnr09@gmail.com", "student"],
+    // ["Fadzai", "Zaranyika", "fadzai.zaranyika@ashesi.edu.gh", "student"],
+    // ["Jerome", "Selorm Adedze", "jeromeadedze@gmail.com", "student"],
+    // ["Shadrack", "", "shadrack.nti@ashesi.edu.gh", "student"],
+    // ["Elias", "Aboagye", "eli.aboa@ashesi.edu.gh", "student"],
+    // ["Elias", "Adams", "elias.adams@ashesi.edu.gh", "student"],
+
+    // ["Gift", "Ansah Larbj", "giftansah1@gmail.com", "student"],
+    // ["Kingsley", "Wunzooya Nahyi", "kingsleynahyi15@gmail.com", "student"],
+    // ["Elvis", "Fosu Owusu", "esfokom@gmail.com", "student"],
+    // ["Nongyin", "Awindor", "nawindor@gmail.com", "student"],
+    // ["Vanessa", "Logan", "logan.anabi@gmail.com", "student"],
+    // ["Frank", "Kwizera Mugwaneza", "kwizera.frank@ashesi.edu.gh", "student"],
+    // ["Tyrone", "Marhguy", "tmarhguy@seas.upenn.edu", "student"],
+    // ["Noah", "Adasi", "noah.adasi@alumni.ashesi.edu.gh", "student"],
+    // ["Mariem", "Sall", "mariem.sall@ashesi.edu.gh", "student"],
+     ["Daniel", "Tunyinko", "daniel.tunyinko@gmail.com", "student"],
+    // ["Gina", "Asang", "ginagana05@gmail.com", "student"],
+    // ["Bright", "Boateng", "Bright.boateng@ashesi.edu.gh", "student"],
+   // ["Bright", "Boateng", "bright.boateng@ashesi.edu.gh", "student"], 
+    // ["William", "Mensah", "william.mensah@ashesi.edu.gh", "student"],
+    // ["Jathniel", "Olamide Alade", "jathnielalade@gmail.com", "student"],
+    // ["Philemon", "Danso", "philemon.danso@ashesi.edu.gh", "student"],
+    // ["Jeffery", "Adunah", "jeffery.adunah@ashesi.edu.gh", "student"]
+   // ["Favour", "Amourzang Fri Fon", "famourzangfrifon@gmail.com", "student"],
+   //["Micheal", "Adu", "victorasum310@gmail.com", "student"],
+  ];
 
   if (betaUsers.length === 0) {
     logger.warn('No users defined in the script. Please add users to the betaUsers array.');

