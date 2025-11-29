@@ -12,12 +12,12 @@ KAFKA_PASSWORD=actual_kafka_password_here
 
 The following are already configured in `env.example`:
 ```
-KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
-KAFKA_USERNAME=doadmin
-KAFKA_PRODUCE_TOPIC=Transcribe
-KAFKA_CONSUME_TOPIC=update_transcribe
+KAFKA_BROKERS=
+KAFKA_USERNAME=
+KAFKA_PRODUCE_TOPIC=
+KAFKA_CONSUME_TOPIC=
 KAFKA_SSL=true
-KAFKA_SASL_MECHANISM=scram-sha-256
+KAFKA_SASL_MECHANISM=
 ```
 
 ## 2. Test Kafka Connectivity
