@@ -229,56 +229,56 @@ Create a `.env` file in the root directory with the following variables:
 
 ```env
 # Supabase Configuration
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_KEY=your-service-role-key
+SUPABASE_URL=  # add supabase project URL
+SUPABASE_ANON_KEY=  # add supabase anonymous key
+SUPABASE_SERVICE_KEY=  # add supabase service role key
 
 # JWT Configuration
-JWT_SECRET=your-jwt-secret-key
-JWT_EXPIRE_TIME=24h
+JWT_SECRET=  # add JWT secret key
+JWT_EXPIRE_TIME=  # add JWT expiration time (e.g., 24h)
 
 # Server Configuration
-PORT=8000
-HOST=0.0.0.0
-NODE_ENV=development
+PORT=  # add server port number
+HOST=  # add server host address
+NODE_ENV=  # add environment (development, production, etc.)
 
 # Frontend URL (for email redirects)
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=  # add frontend application URL
 ```
 
 ### Optional Variables
 
 ```env
 # CORS Configuration
-CORS_ORIGIN=http://localhost:3000,http://localhost:5173
+CORS_ORIGIN=  # add allowed CORS origins (comma-separated)
 
 # Kafka Configuration
-KAFKA_BROKERS=kafka1:9092,kafka2:9092
-KAFKA_USERNAME=your-kafka-username
-KAFKA_PASSWORD=your-kafka-password
-KAFKA_PRODUCE_TOPIC=Transcribe
-KAFKA_CONSUME_TOPIC=update_transcribe
-KAFKA_COMPRESSION_TOPIC=finish_compress
-KAFKA_SSL=true
-KAFKA_SASL_MECHANISM=scram-sha-256
+KAFKA_BROKERS=  # add kafka broker addresses (comma-separated)
+KAFKA_USERNAME=  # add kafka username
+KAFKA_PASSWORD=  # add kafka password
+KAFKA_PRODUCE_TOPIC=  # add producer topic name
+KAFKA_CONSUME_TOPIC=  # add consumer topic name
+KAFKA_COMPRESSION_TOPIC=  # add compression topic name
+KAFKA_SSL=  # set to true for SSL/TLS
+KAFKA_SASL_MECHANISM=  # add SASL mechanism (e.g., scram-sha-256)
 
 # Email Configuration (Nodemailer)
-EMAIL_ENABLED=true
-EMAIL_SERVICE=Gmail  # Optional: 'Gmail', 'SendGrid', 'Outlook'
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_FROM_NAME=CodeEndelea LMS
-EMAIL_FROM_ADDRESS=noreply@codeendelea.com
-EMAIL_AUTH_USER=your-email@gmail.com
-EMAIL_AUTH_PASSWORD=your-app-password
+EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_SERVICE=  # add email service name (Gmail, SendGrid, Outlook, etc.)
+EMAIL_HOST=  # add SMTP hostname
+EMAIL_PORT=  # add SMTP port
+EMAIL_SECURE=  # set to true for SSL, false for TLS
+EMAIL_FROM_NAME=  # add sender display name
+EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_AUTH_USER=  # add email authentication username
+EMAIL_AUTH_PASSWORD=  # add email authentication password
 
 # AI Server Configuration
-AI_SERVER_URL=https://your-ai-server.com
-AI_SERVER_TIMEOUT=30000
+AI_SERVER_URL=  # add AI server URL
+AI_SERVER_TIMEOUT=  # add timeout in milliseconds
 
 # Logging
-LOG_LEVEL=info
+LOG_LEVEL=  # add log level (debug, info, error, etc.)
 ```
 
 See `env.example` for the complete template.
@@ -720,7 +720,7 @@ CMD ["npm", "start"]
 Enable debug logging:
 
 ```env
-LOG_LEVEL=debug
+LOG_LEVEL=  # add log level (e.g., debug, info, error)
 ```
 
 View logs in `logs/` directory:
