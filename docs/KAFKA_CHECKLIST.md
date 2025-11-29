@@ -18,7 +18,7 @@ The `.env` file should have these lines:
 # Kafka Configuration
 KAFKA_BROKERS=your-kafka-broker-hostname:25073
 KAFKA_USERNAME=doadmin
-KAFKA_PASSWORD=your_kafka_password_here  # ← PASTE PASSWORD HERE
+KAFKA_PASSWORD=replace_with_actual_password  # ← PASTE PASSWORD HERE
 KAFKA_PRODUCE_TOPIC=Transcribe
 KAFKA_CONSUME_TOPIC=update_transcribe
 KAFKA_SSL=true

@@ -249,7 +249,7 @@ Required in `.env`:
 # Kafka
 KAFKA_BROKERS=your-kafka-broker-hostname:25073
 KAFKA_USERNAME=doadmin
-KAFKA_PASSWORD=your_kafka_password
+KAFKA_PASSWORD=replace_with_actual_password
 KAFKA_PRODUCE_TOPIC=Transcribe
 KAFKA_CONSUME_TOPIC=update_transcribe
 KAFKA_SSL=true

@@ -25,7 +25,7 @@ In the `.env` file:
 ```env
 KAFKA_BROKERS=your-kafka-broker-hostname:25073
 KAFKA_USERNAME=doadmin
-KAFKA_PASSWORD=your_kafka_password_here  # Replace with actual password
+KAFKA_PASSWORD=replace_with_actual_password  # Replace with actual password
 KAFKA_SSL=true                             # Enables SSL/TLS
 KAFKA_SASL_MECHANISM=scram-sha-256        # Authentication method
 ```
@@ -41,7 +41,7 @@ KAFKA_SASL_MECHANISM=scram-sha-256        # Authentication method
 - Paste it in the `.env` file:
 
 ```env
-KAFKA_PASSWORD=your_kafka_password_here  # Actual password
+KAFKA_PASSWORD=replace_with_actual_password  # Actual password
 ```
 
 **2. Test the Connection:**

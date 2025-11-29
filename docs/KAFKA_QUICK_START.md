@@ -7,7 +7,7 @@
 cp env.example .env
 
 # Edit .env and add the Kafka password:
-KAFKA_PASSWORD=actual_kafka_password_here
+KAFKA_PASSWORD=replace_with_actual_password
 ```
 
 The following are already configured in `env.example`:
