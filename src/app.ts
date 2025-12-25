@@ -1,11 +1,17 @@
 // Main Express application entry point
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import type { Application } from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import type { Application, Request, Response } from 'express';
 import { errorHandler } from './utils/errors.ts';
 import { corsMiddleware, limiter, requestLogger, securityMiddleware } from './middleware/index.ts';
 import routes from './routes/index.ts';
 import { setupSwagger } from './config/swagger.ts';
+
+// Get directory paths for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Create Express app
 const app: Application = express();
@@ -28,6 +34,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request logging middleware
 app.use(requestLogger);
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Root route - serve animated status page
+app.get('/', (_req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Swagger documentation
 setupSwagger(app);
