@@ -2,7 +2,7 @@
 
 ## The Problem
 
-Email clients (Gmail, Outlook, Apple Mail, iOS Mail, etc.) have **very limited CSS support** and render emails differently. Templates may look great in one client but broken in another.
+Email clients (Gmail, Outlook, Apple Mail, iOS Mail, etc.) have **very limited CSS support** and render emails differently. Your template may look great in one client but broken in another.
 
 ## Critical Rules for Email Templates
 
@@ -112,7 +112,7 @@ Media queries work in many clients if placed in `<head>`:
 3. **Table-based layouts** for structure
 4. **Progressive enhancement** - basic design works everywhere
 
-## Testing Email Templates
+## Testing Your Email
 
 Test in:
 1. Gmail (Web + Mobile app)

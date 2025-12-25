@@ -198,7 +198,7 @@ const router = Router();
  *                 - $ref: '#/components/schemas/Lecturer'
  *             tokens:
  *               $ref: '#/components/schemas/AuthTokens'
- */
+ */ 
 
 // Validation middleware
 const validateRegistration = [

@@ -180,7 +180,7 @@ tail -f logs/combined.log
 ```sql
 SELECT id, title, transcript_url
 FROM videos
-WHERE id = 'video-id';
+WHERE id = 'your-video-id';
 ```
 
 ## Troubleshooting
@@ -238,7 +238,7 @@ tail -f logs/combined.log | grep "Processing transcription result"
 
 **Test URL:**
 ```bash
-curl https://<supabase-url>.supabase.co/storage/v1/object/public/captions/videos/video-id.json
+curl https://YOUR_SUPABASE_URL.supabase.co/storage/v1/object/public/captions/videos/video-id.json
 ```
 
 ## Environment Variables
@@ -247,16 +247,16 @@ Required in `.env`:
 
 ```env
 # Kafka
-KAFKA_BROKERS=  # add kafka broker hostname and port
-KAFKA_USERNAME=  # add kafka username
-KAFKA_PASSWORD=  # add kafka password
-KAFKA_PRODUCE_TOPIC=  # add producer topic name
-KAFKA_CONSUME_TOPIC=  # add consumer topic name
-KAFKA_SSL=  # set to true for SSL/TLS
+KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
+KAFKA_USERNAME=doadmin
+KAFKA_PASSWORD=AVNS_your_password
+KAFKA_PRODUCE_TOPIC=Transcribe
+KAFKA_CONSUME_TOPIC=update_transcribe
+KAFKA_SSL=true
 
 # Supabase (already configured)
-SUPABASE_URL=  # add supabase project URL
-SUPABASE_SERVICE_KEY=  # add supabase service role key
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_KEY=your_service_key
 ```
 
 ## Monitoring

@@ -1,23 +1,23 @@
 # Kafka Quick Start Guide
 
-## 1. Add Kafka Password to .env
+## 1. Add Your Kafka Password to .env
 
 ```bash
-# Copy from env.example if needed
+# Copy from env.example if you haven't already
 cp env.example .env
 
-# Edit .env and add the Kafka password:
-KAFKA_PASSWORD=  # add kafka password
+# Edit .env and add your Kafka password:
+KAFKA_PASSWORD=your_actual_kafka_password_here
 ```
 
 The following are already configured in `env.example`:
 ```
-KAFKA_BROKERS=  # add kafka broker hostname and port
-KAFKA_USERNAME=  # add kafka username
-KAFKA_PRODUCE_TOPIC=  # add producer topic name
-KAFKA_CONSUME_TOPIC=  # add consumer topic name
-KAFKA_SSL=  # set to true for SSL/TLS
-KAFKA_SASL_MECHANISM=  # add SASL mechanism
+KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
+KAFKA_USERNAME=doadmin
+KAFKA_PRODUCE_TOPIC=Transcribe
+KAFKA_CONSUME_TOPIC=update_transcribe
+KAFKA_SSL=true
+KAFKA_SASL_MECHANISM=scram-sha-256
 ```
 
 ## 2. Test Kafka Connectivity
@@ -44,7 +44,7 @@ pm2 start npm --name "kafka-consumer" -- run kafka:consumer
 pm2 logs kafka-consumer
 ```
 
-## 4. Send Transcription Requests (in code)
+## 4. Send Transcription Requests (in your code)
 
 ```typescript
 import { kafkaProducer } from './services/kafka-producer';
@@ -52,7 +52,7 @@ import { kafkaProducer } from './services/kafka-producer';
 // Example: Send video for transcription
 await kafkaProducer.sendTranscriptionRequest({
   video_id: 'video-uuid-here',
-  video_url: 'https://cdn.example.com/videos/video-uuid.mp4',
+  video_url: 'https://your-cdn.com/videos/video-uuid.mp4',
   metadata: {
     title: 'Course Video Title',
     courseId: 'course-uuid',
@@ -107,9 +107,9 @@ Expected result format:
 
 ## Next Steps
 
-1. Add the Kafka password to `.env`
+1. Add your Kafka password to `.env`
 2. Run `npm run kafka:test` to verify connectivity
 3. Start consumer worker with `npm run kafka:consumer`
-4. Integrate producer into the video upload/processing flow
+4. Integrate producer into your video upload/processing flow
 
 See [KAFKA_SETUP.md](KAFKA_SETUP.md) for detailed documentation.

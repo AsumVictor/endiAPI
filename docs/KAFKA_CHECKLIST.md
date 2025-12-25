@@ -1,42 +1,42 @@
 # Kafka Setup Checklist ✅
 
-Use this checklist to ensure the Kafka integration is properly configured.
+Use this checklist to ensure your Kafka integration is properly configured.
 
-## Step 1: Get Kafka Password from DigitalOcean
+## Step 1: Get Your Kafka Password from DigitalOcean
 
 - [ ] Log into DigitalOcean dashboard
-- [ ] Navigate to: **Databases** → **Kafka Cluster**
+- [ ] Navigate to: **Databases** → **Your Kafka Cluster**
 - [ ] Go to **Connection Details** or **Users** tab
 - [ ] Copy the password for `doadmin` user
-- [ ] Password format (usually starts with specific prefix)
+- [ ] Password should start with `AVNS_`
 
-## Step 2: Update .env File
+## Step 2: Update Your .env File
 
-The `.env` file should have these lines:
+Your `.env` file should have these lines:
 
 ```env
 # Kafka Configuration
-KAFKA_BROKERS=  # add kafka broker hostname and port
-KAFKA_USERNAME=  # add kafka username
-KAFKA_PASSWORD=  # add kafka password
-KAFKA_PRODUCE_TOPIC=  # add producer topic name
-KAFKA_CONSUME_TOPIC=  # add consumer topic name
-KAFKA_SSL=  # set to true for SSL/TLS
-KAFKA_SASL_MECHANISM=  # add SASL mechanism (e.g., scram-sha-256)
-KAFKA_CONNECTION_TIMEOUT=  # add connection timeout in milliseconds
-KAFKA_REQUEST_TIMEOUT=  # add request timeout in milliseconds
+KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
+KAFKA_USERNAME=doadmin
+KAFKA_PASSWORD=AVNS_your_actual_password_here  # ← PASTE YOUR PASSWORD HERE
+KAFKA_PRODUCE_TOPIC=Transcribe
+KAFKA_CONSUME_TOPIC=update_transcribe
+KAFKA_SSL=true
+KAFKA_SASL_MECHANISM=scram-sha-256
+KAFKA_CONNECTION_TIMEOUT=10000
+KAFKA_REQUEST_TIMEOUT=30000
 ```
 
 **Checklist:**
 - [ ] `.env` file exists in project root
-- [ ] `KAFKA_PASSWORD` is filled with the actual password
+- [ ] `KAFKA_PASSWORD` is filled with your actual password
 - [ ] No extra spaces or quotes around the password
 - [ ] `KAFKA_SSL=true` (not false)
 - [ ] All other Kafka variables are present
 
 ## Step 3: Verify SSL Certificate (Automatic!)
 
-**Note:** SSL certificates are handled automatically.
+**Good news:** You don't need to do anything for SSL certificates!
 
 - [x] kafkajs library handles SSL automatically
 - [x] Uses Node.js system certificates
@@ -71,14 +71,14 @@ npm run kafka:test
 
 ## Step 5: Create Kafka Topics in DigitalOcean
 
-Ensure these topics exist in the Kafka cluster:
+Ensure these topics exist in your Kafka cluster:
 
 - [ ] Topic: `Transcribe` (producer sends here)
 - [ ] Topic: `update_transcribe` (consumer reads from here)
 
 **How to create topics:**
 1. Go to DigitalOcean dashboard
-2. Navigate to the Kafka cluster
+2. Navigate to your Kafka cluster
 3. Go to **Topics** tab
 4. Click **Create Topic**
 5. Create both topics with default settings
@@ -108,7 +108,7 @@ pm2 startup
 
 ## Step 7: Test Sending a Message
 
-In code, test sending a transcription request:
+In your code, test sending a transcription request:
 
 ```typescript
 import { kafkaProducer } from './services/kafka-producer';
@@ -140,10 +140,10 @@ await kafkaProducer.sendTranscriptionRequest({
 ### Connection Issues
 ```bash
 # Test network connectivity
-nc -zv <broker-hostname> 25073
+nc -zv db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com 25073
 
 # Check if port is accessible
-telnet <broker-hostname> 25073
+telnet db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com 25073
 ```
 
 ### View Logs
@@ -214,7 +214,7 @@ Before going to production, verify:
 
 ---
 
-## Current Status
+## Your Current Status
 
 **What's configured:**
 ✅ kafkajs installed
@@ -224,8 +224,8 @@ Before going to production, verify:
 ✅ Test scripts available
 ✅ Documentation complete
 
-**Next steps:**
-1. Add the Kafka password to `.env`
+**What you need to do:**
+1. Add your Kafka password to `.env`
 2. Run `npm run kafka:test`
 3. Create topics in DigitalOcean
 4. Start the consumer worker

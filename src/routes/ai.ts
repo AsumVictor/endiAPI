@@ -310,18 +310,32 @@ router.post('/explain',
 
     const { file_system, question, user_id, code_snippet } = req.body;
 
-    const result = await AIService.explain({
-      file_system,
-      question,
-      user_id,
-      code_snippet,
-    });
+    try {
+      const result = await AIService.explain({
+        file_system,
+        question,
+        user_id,
+        code_snippet,
+      });
 
-    res.status(200).json({
-      success: true,
-      message: 'Explanation retrieved successfully',
-      data: result,
-    });
+      res.status(200).json({
+        success: true,
+        message: 'Explanation retrieved successfully',
+        data: result,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to retrieve explanation',
+        });
+      }
+    }
   })
 );
 
@@ -355,7 +369,7 @@ router.post('/explain',
  *         description: Internal server error or AI server error
  */
 router.post('/interaction',
-  // authenticateToken,
+   authenticateToken,
   [
     body('user_id').notEmpty().withMessage('User ID is required'),
     body('question').notEmpty().withMessage('Question is required'),
@@ -368,16 +382,30 @@ router.post('/interaction',
 
     const { user_id, question } = req.body;
 
-    const result = await AIService.interaction({
-      user_id,
-      question,
-    });
+    try {
+      const result = await AIService.interaction({
+        user_id,
+        question,
+      });
 
-    res.status(200).json({
-      success: true,
-      message: 'Answer retrieved successfully',
-      data: result,
-    });
+      res.status(200).json({
+        success: true,
+        message: 'Answer retrieved successfully',
+        data: result,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to retrieve answer',
+        });
+      }
+    }
   })
 );
 
@@ -411,7 +439,7 @@ router.post('/interaction',
  *         description: Internal server error or AI server error
  */
 router.post('/assessment',
-  //authenticateToken,
+  authenticateToken,
   [
     body('user_id').notEmpty().withMessage('User ID is required'),
     body('assessment').notEmpty().withMessage('Assessment description is required'),
@@ -425,17 +453,31 @@ router.post('/assessment',
 
     const { user_id, assessment, difficulty } = req.body;
 
-    const result = await AIService.assessment({
-      user_id,
-      assessment,
-      difficulty,
-    });
+    try {
+      const result = await AIService.assessment({
+        user_id,
+        assessment,
+        difficulty,
+      });
 
-    res.status(200).json({
-      success: true,
-      message: 'Assessment generated successfully',
-      data: result,
-    });
+      res.status(200).json({
+        success: true,
+        message: 'Assessment generated successfully',
+        data: result,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to generate assessment',
+        });
+      }
+    }
   })
 );
 
@@ -491,7 +533,7 @@ router.post('/assessment',
  *         description: Internal server error or AI server error
  */
 router.post('/assessment/topic',
-  //authenticateToken,
+  authenticateToken,
   [
     body('questions_prompt').notEmpty().withMessage('Questions prompt is required'),
     body('difficulty').isIn(['easy', 'medium', 'hard', 'very_hard']).withMessage('Difficulty must be easy, medium, hard, or very_hard'),
@@ -504,16 +546,33 @@ router.post('/assessment/topic',
 
     const { questions_prompt, difficulty } = req.body;
 
-    const result = await AIService.assessmentTopic({
-      questions_prompt,
-      difficulty,
-    });
+    try {
+      const result = await AIService.assessmentTopic({
+        questions_prompt,
+        difficulty,
+      });
 
-    res.status(200).json({
-      success: true,
-      message: 'Assessment questions generated successfully',
-      data: result,
-    });
+      console.log(result);
+
+      res.status(200).json({
+        success: true,
+        message: 'Assessment questions generated successfully',
+        data: result,
+      });
+      
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to generate assessment questions',
+        });
+      }
+    }
   })
 );
 
@@ -556,7 +615,7 @@ router.post('/assessment/topic',
  *         description: Internal server error or AI server error
  */
 router.post('/assessment/pdf',
-  //authenticateToken,
+  authenticateToken,
   [
     body('pdf_text').notEmpty().withMessage('PDF text is required'),
     body('difficulty').isIn(['easy', 'medium', 'hard', 'very_hard']).withMessage('Difficulty must be easy, medium, hard, or very_hard'),
@@ -569,16 +628,30 @@ router.post('/assessment/pdf',
 
     const { pdf_text, difficulty } = req.body;
 
-    const result = await AIService.assessmentPdf({
-      pdf_text,
-      difficulty,
-    });
+    try {
+      const result = await AIService.assessmentPdf({
+        pdf_text,
+        difficulty,
+      });
 
-    res.status(200).json({
-      success: true,
-      message: 'Assessment questions generated successfully',
-      data: result,
-    });
+      res.status(200).json({
+        success: true,
+        message: 'Assessment questions generated successfully',
+        data: result,
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to generate assessment questions from PDF',
+        });
+      }
+    }
   })
 );
 

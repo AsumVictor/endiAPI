@@ -298,7 +298,7 @@ async function main() {
     // ["Tyrone", "Marhguy", "tmarhguy@seas.upenn.edu", "student"],
     // ["Noah", "Adasi", "noah.adasi@alumni.ashesi.edu.gh", "student"],
     // ["Mariem", "Sall", "mariem.sall@ashesi.edu.gh", "student"],
-     ["Daniel", "Tunyinko", "daniel.tunyinko@gmail.com", "student"],
+     //["Daniel", "Tunyinko", "daniel.tunyinko@gmail.com", "student"],
     // ["Gina", "Asang", "ginagana05@gmail.com", "student"],
     // ["Bright", "Boateng", "Bright.boateng@ashesi.edu.gh", "student"],
    // ["Bright", "Boateng", "bright.boateng@ashesi.edu.gh", "student"], 
@@ -308,6 +308,7 @@ async function main() {
     // ["Jeffery", "Adunah", "jeffery.adunah@ashesi.edu.gh", "student"]
    // ["Favour", "Amourzang Fri Fon", "famourzangfrifon@gmail.com", "student"],
    //["Micheal", "Adu", "victorasum310@gmail.com", "student"],
+   ["Kelvin", "Degbotse", "kelvin@obsessiveinnovations.com", "student"],
   ];
 
   if (betaUsers.length === 0) {

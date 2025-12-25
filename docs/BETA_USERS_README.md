@@ -6,7 +6,7 @@ Script to create multiple beta users and send welcome emails with access credent
 
 ### As a Script
 
-1. **Edit the script** to add user data:
+1. **Edit the script** to add your user data:
    ```typescript
    // In src/scripts/create-beta-users.ts
    const betaUsers: BetaUserData[] = [
@@ -36,7 +36,7 @@ Script to create multiple beta users and send welcome emails with access credent
 
 ### Programmatically
 
-Import and use in code:
+Import and use in your code:
 
 ```typescript
 import { createBetaUsers, createBetaUser } from './scripts/create-beta-users.ts';
@@ -119,7 +119,7 @@ interface CreateUserResult {
 The script uses the `beta-confirmation.html` template located at:
 `src/utils/email/templates/beta-confirmation.html`
 
-**Email Subject:** "Access for Endelea Prototype Testing"
+**Email Subject:** "Your Access for Endelea Prototype Testing"
 
 The email includes:
 - User's name
@@ -130,19 +130,19 @@ The email includes:
 
 ## Environment Variables
 
-Set these in the `.env` file:
+Make sure these are set in your `.env`:
 
 ```bash
 # Email Configuration
-EMAIL_ENABLED=  # set to true to enable email service
-EMAIL_SERVICE=  # add email service name or SMTP provider
-EMAIL_FROM_NAME=  # add sender display name
-EMAIL_FROM_ADDRESS=  # add sender email address
-EMAIL_AUTH_USER=  # add email authentication username
-EMAIL_AUTH_PASSWORD=  # add email authentication password
+EMAIL_ENABLED=true
+EMAIL_SERVICE=Gmail  # or your SMTP provider
+EMAIL_FROM_NAME=CodeEndelea
+EMAIL_FROM_ADDRESS=noreply@codeendelea.com
+EMAIL_AUTH_USER=your-email@gmail.com
+EMAIL_AUTH_PASSWORD=your-app-password
 
 # Frontend URL (for app link in email)
-FRONTEND_URL=  # add frontend application URL
+FRONTEND_URL=https://app.codeendelea.com
 ```
 
 ## Features

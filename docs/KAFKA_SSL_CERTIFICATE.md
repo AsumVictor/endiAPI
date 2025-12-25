@@ -4,9 +4,9 @@
 
 ### Good News: No Manual Certificate Needed! 🎉
 
-**DigitalOcean Managed Kafka uses standard SSL/TLS encryption, and the `kafkajs` library automatically handles certificate validation using the system's trusted Certificate Authorities (CAs).**
+**DigitalOcean Managed Kafka uses standard SSL/TLS encryption, and the `kafkajs` library automatically handles certificate validation using your system's trusted Certificate Authorities (CAs).**
 
-No manual configuration needed for:
+You **DO NOT** need to:
 - Download a certificate file
 - Configure a custom CA certificate
 - Manually handle certificate validation
@@ -15,33 +15,33 @@ No manual configuration needed for:
 
 1. **DigitalOcean uses publicly trusted certificates**: Their Kafka brokers use SSL certificates signed by well-known Certificate Authorities (like Let's Encrypt or DigiCert)
 
-2. **Node.js trusts these CAs by default**: The system already has these root CAs installed
+2. **Node.js trusts these CAs by default**: Your system already has these root CAs installed
 
 3. **KafkaJS handles everything**: The library automatically uses Node.js's built-in TLS support
 
-### Current Configuration (Already Correct)
+### Your Current Configuration (Already Correct!)
 
-In the `.env` file:
+In your `.env` file:
 ```env
-KAFKA_BROKERS=  # add kafka broker hostname and port
-KAFKA_USERNAME=  # add kafka username
-KAFKA_PASSWORD=  # add kafka password
-KAFKA_SSL=  # set to true to enable SSL/TLS
-KAFKA_SASL_MECHANISM=  # add SASL authentication method
+KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
+KAFKA_USERNAME=doadmin
+KAFKA_PASSWORD=YOUR_KAFKA_PASSWORD_HERE  # Replace with actual password
+KAFKA_SSL=true                             # Enables SSL/TLS
+KAFKA_SASL_MECHANISM=scram-sha-256        # Authentication method
 ```
 
-### Setup Steps
+### What You Need to Do
 
-**1. Get Kafka Password from DigitalOcean:**
+**1. Get Your Kafka Password from DigitalOcean:**
 
-- Log into the DigitalOcean account
-- Navigate to **Databases** → **Kafka Cluster**
+- Log into your DigitalOcean account
+- Navigate to **Databases** → **Your Kafka Cluster**
 - Go to **Connection Details** or **Users** tab
 - Copy the password for the `doadmin` user
-- Paste it in the `.env` file:
+- Paste it in your `.env` file:
 
 ```env
-KAFKA_PASSWORD=  # add kafka password
+KAFKA_PASSWORD=AVNS_abc123xyz...  # Your actual password
 ```
 
 **2. Test the Connection:**
@@ -53,14 +53,14 @@ npm run kafka:test
 This will verify:
 - SSL connection works ✅
 - Authentication succeeds ✅
-- Messages can be sent and received ✅
+- You can send/receive messages ✅
 
-## How SSL Works in This Setup
+## How SSL Works in Your Setup
 
 ### Connection Flow:
 
 ```
-Application (Node.js)
+Your App (Node.js)
     ↓
 kafkajs library
     ↓
@@ -84,7 +84,7 @@ Connected! 🎉
 
 ### Configuration in Code
 
-The Kafka client is already properly configured in [src/config/kafka.ts](src/config/kafka.ts):
+Your Kafka client is already properly configured in [src/config/kafka.ts](src/config/kafka.ts):
 
 ```typescript
 const kafka = new Kafka({
@@ -131,7 +131,7 @@ unable to verify the first certificate
    ```
 
 2. **Corporate proxy or firewall blocking SSL:**
-   - Check if the network requires a proxy
+   - Check if your network requires a proxy
    - Ensure port 25073 is not blocked
    - Test from a different network
 
@@ -141,14 +141,14 @@ unable to verify the first certificate
    date
 
    # SSL certificates are time-sensitive
-   # Ensure the system clock is correct
+   # Ensure your system clock is correct
    ```
 
 ### Issue 2: Certificate Verification Failed
 
-**For custom CA certificates** (rare, usually only for self-hosted Kafka):
+**If you need to use a custom CA certificate** (rare, usually only for self-hosted Kafka):
 
-Modify [src/config/kafka.ts](src/config/kafka.ts):
+You would need to modify [src/config/kafka.ts](src/config/kafka.ts):
 
 ```typescript
 import fs from 'fs';
@@ -169,7 +169,7 @@ const kafka = new Kafka({
 });
 ```
 
-**Note:** DigitalOcean Managed Kafka doesn't require this configuration.
+**But for DigitalOcean Managed Kafka, you don't need this!**
 
 ### Issue 3: Connection Timeout
 
@@ -183,21 +183,21 @@ Request timed out
 
 1. **Broker address is correct:**
    ```env
-   KAFKA_BROKERS=  # add kafka broker hostname and port
+   KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
    ```
 
 2. **Network connectivity:**
    ```bash
-   # Test broker connectivity
-   nc -zv <broker-hostname> 25073
+   # Test if you can reach the broker
+   nc -zv db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com 25073
 
    # Or use telnet
-   telnet <broker-hostname> 25073
+   telnet db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com 25073
    ```
 
 3. **Firewall rules:**
    - Ensure outbound connections on port 25073 are allowed
-   - Check if the hosting provider blocks Kafka ports
+   - Check if your hosting provider blocks Kafka ports
 
 ### Issue 4: Authentication Failed
 
@@ -212,16 +212,16 @@ Authentication failed: Invalid username or password
 1. **Password is correct:**
    - Copy password directly from DigitalOcean
    - Ensure no extra spaces or characters
-   - Password format (check DigitalOcean for exact format)
+   - Password usually starts with `AVNS_`
 
 2. **Username is correct:**
    ```env
-   KAFKA_USERNAME=  # add kafka username
+   KAFKA_USERNAME=doadmin  # Must be exactly this
    ```
 
 3. **SASL mechanism matches:**
    ```env
-   KAFKA_SASL_MECHANISM=  # add SASL mechanism (e.g., scram-sha-256)
+   KAFKA_SASL_MECHANISM=scram-sha-256  # Must be exactly this
    ```
 
 ## Security Best Practices
@@ -232,13 +232,13 @@ Authentication failed: Invalid username or password
 
 ```env
 # ✅ GOOD - Encrypted connection
-KAFKA_SSL=  # set to true
+KAFKA_SSL=true
 
 # ❌ BAD - Unencrypted connection (DO NOT USE)
-KAFKA_SSL=  # set to false (not recommended)
+KAFKA_SSL=false
 ```
 
-### 2. Protect the Password
+### 2. Protect Your Password
 
 - Never commit `.env` to git
 - Use environment variables in production
@@ -263,7 +263,7 @@ tail -f logs/combined.log | grep -i "ssl\|tls\|certificate"
 tail -f logs/error.log | grep -i "sasl\|auth"
 ```
 
-## Testing the Setup
+## Testing Your Setup
 
 ### 1. Quick Test
 
@@ -302,7 +302,7 @@ Look for:
 {
   "level": "info",
   "message": "Kafka client initialized",
-  "brokers": ["<broker-hostname>:25073"],
+  "brokers": ["db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073"],
   "ssl": true,
   "saslMechanism": "scram-sha-256"
 }
@@ -313,7 +313,7 @@ Look for:
 ### What's Required:
 
 ✅ **Set `KAFKA_SSL=true`** in `.env`
-✅ **Add the Kafka password** from DigitalOcean
+✅ **Add your Kafka password** from DigitalOcean
 ✅ **Run `npm run kafka:test`** to verify
 
 ### What's NOT Required:
@@ -323,11 +323,11 @@ Look for:
 ❌ Modify certificate validation logic
 ❌ Install additional SSL tools
 
-### The kafkajs library handles SSL automatically using the system's trusted CAs! 🎉
+### The kafkajs library handles SSL automatically using your system's trusted CAs! 🎉
 
 ## Need Help?
 
-For SSL issues:
+If you encounter SSL issues:
 
 1. Check Node.js version: `node --version` (should be v18+)
 2. Update system packages and certificates

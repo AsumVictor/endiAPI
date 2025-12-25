@@ -25,30 +25,30 @@ npm install --save-dev @types/nodemailer
 
 ### Environment Variables
 
-Add the following variables to the `.env` file:
+Add the following variables to your `.env` file:
 
 ```bash
 # Email Configuration (Nodemailer)
-EMAIL_ENABLED=  # set to true to enable email service
+EMAIL_ENABLED=true
 
 # Option 1: Use a predefined service (Gmail, SendGrid, Outlook, etc.)
-EMAIL_SERVICE=  # add email service name
+EMAIL_SERVICE=Gmail
 
 # Option 2: Use custom SMTP (leave EMAIL_SERVICE empty)
-EMAIL_HOST=  # add SMTP hostname
-EMAIL_PORT=  # add SMTP port
-EMAIL_SECURE=  # set to true for SSL, false for TLS
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
 
 # Email sender information
-EMAIL_FROM_NAME=  # add sender display name
-EMAIL_FROM_ADDRESS=  # add sender email address
+EMAIL_FROM_NAME=Your App Name
+EMAIL_FROM_ADDRESS=noreply@yourdomain.com
 
 # Email authentication
-EMAIL_AUTH_USER=  # add email authentication username
-EMAIL_AUTH_PASSWORD=  # add email authentication password
+EMAIL_AUTH_USER=your-email@gmail.com
+EMAIL_AUTH_PASSWORD=your-app-password
 
 # TLS Configuration
-EMAIL_TLS_REJECT_UNAUTHORIZED=  # set to true to reject unauthorized certificates
+EMAIL_TLS_REJECT_UNAUTHORIZED=true
 ```
 
 ### Configuration Options
@@ -164,7 +164,7 @@ await EmailService.sendWelcomeEmail(
 ### Password Reset Email
 
 ```typescript
-const resetToken = 'reset-token';
+const resetToken = 'your-reset-token';
 const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
 await EmailService.sendPasswordResetEmail(
@@ -222,7 +222,7 @@ const htmlTemplate = `
   <body>
     <div class="container">
       <h1>Custom Email</h1>
-      <p>Custom content here.</p>
+      <p>Your custom content here.</p>
     </div>
   </body>
   </html>
@@ -240,12 +240,12 @@ await EmailService.sendEmail({
 ### Gmail
 
 ```bash
-EMAIL_ENABLED=  # set to true to enable email service
-EMAIL_SERVICE=  # add email service name (e.g., Gmail)
-EMAIL_FROM_NAME=  # add sender display name
-EMAIL_FROM_ADDRESS=  # add sender email address
-EMAIL_AUTH_USER=  # add email authentication username
-EMAIL_AUTH_PASSWORD=  # add app password from Google Account settings
+EMAIL_ENABLED=true
+EMAIL_SERVICE=Gmail
+EMAIL_FROM_NAME=Your App
+EMAIL_FROM_ADDRESS=your-email@gmail.com
+EMAIL_AUTH_USER=your-email@gmail.com
+EMAIL_AUTH_PASSWORD=your-app-password  # Generate from Google Account settings
 ```
 
 **Note:** Gmail requires an [App Password](https://support.google.com/accounts/answer/185833) for authentication.
@@ -253,45 +253,45 @@ EMAIL_AUTH_PASSWORD=  # add app password from Google Account settings
 ### SendGrid
 
 ```bash
-EMAIL_ENABLED=  # set to true to enable email service
-EMAIL_HOST=  # add SMTP hostname (e.g., smtp.sendgrid.net)
-EMAIL_PORT=  # add SMTP port
-EMAIL_SECURE=  # set to false for TLS
-EMAIL_FROM_NAME=  # add sender display name
-EMAIL_FROM_ADDRESS=  # add sender email address
-EMAIL_AUTH_USER=  # add authentication username
-EMAIL_AUTH_PASSWORD=  # add SendGrid API key
+EMAIL_ENABLED=true
+EMAIL_HOST=smtp.sendgrid.net
+EMAIL_PORT=587
+EMAIL_SECURE=false
+EMAIL_FROM_NAME=Your App
+EMAIL_FROM_ADDRESS=noreply@yourdomain.com
+EMAIL_AUTH_USER=apikey
+EMAIL_AUTH_PASSWORD=your-sendgrid-api-key
 ```
 
 ### Outlook/Hotmail
 
 ```bash
-EMAIL_ENABLED=  # set to true to enable email service
-EMAIL_SERVICE=  # add email service name (e.g., Outlook)
-EMAIL_FROM_NAME=  # add sender display name
-EMAIL_FROM_ADDRESS=  # add sender email address
-EMAIL_AUTH_USER=  # add email authentication username
-EMAIL_AUTH_PASSWORD=  # add email authentication password
+EMAIL_ENABLED=true
+EMAIL_SERVICE=Outlook
+EMAIL_FROM_NAME=Your App
+EMAIL_FROM_ADDRESS=your-email@outlook.com
+EMAIL_AUTH_USER=your-email@outlook.com
+EMAIL_AUTH_PASSWORD=your-password
 ```
 
 ### Custom SMTP
 
 ```bash
-EMAIL_ENABLED=  # set to true to enable email service
-EMAIL_HOST=  # add SMTP hostname
-EMAIL_PORT=  # add SMTP port
-EMAIL_SECURE=  # set to false for TLS
-EMAIL_FROM_NAME=  # add sender display name
-EMAIL_FROM_ADDRESS=  # add sender email address
-EMAIL_AUTH_USER=  # add SMTP username
-EMAIL_AUTH_PASSWORD=  # add SMTP password
+EMAIL_ENABLED=true
+EMAIL_HOST=smtp.yourdomain.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
+EMAIL_FROM_NAME=Your App
+EMAIL_FROM_ADDRESS=noreply@yourdomain.com
+EMAIL_AUTH_USER=your-username
+EMAIL_AUTH_PASSWORD=your-password
 ```
 
 ## Testing
 
 ### Verify Email Configuration
 
-The email service is automatically initialized when the server starts. Verify the configuration by checking the server logs:
+The email service is automatically initialized when the server starts. You can verify the configuration by checking the server logs:
 
 ```
 ✅ Email service initialized and verified successfully
@@ -359,7 +359,7 @@ router.post('/register', async (req, res) => {
 
 2. **Verify credentials:**
    - Ensure `EMAIL_AUTH_USER` and `EMAIL_AUTH_PASSWORD` are correct
-   - For Gmail, use an App Password, not the regular password
+   - For Gmail, use an App Password, not your regular password
 
 3. **Check port and security:**
    - Port 465 requires `EMAIL_SECURE=true`
@@ -385,7 +385,7 @@ If using Gmail:
 - Check firewall settings
 - Verify SMTP host and port
 - Try different ports (587, 465, 25)
-- Check if the hosting provider blocks SMTP ports
+- Check if your hosting provider blocks SMTP ports
 
 ### "Authentication Failed" Error
 
@@ -395,19 +395,19 @@ If using Gmail:
 
 ### TLS/SSL Errors
 
-For TLS errors:
+If you encounter TLS errors:
 
 ```bash
-EMAIL_TLS_REJECT_UNAUTHORIZED=  # set to false only for development
+EMAIL_TLS_REJECT_UNAUTHORIZED=false  # Only for development!
 ```
 
-**Warning:** Do not use this in production without understanding the security implications.
+**Warning:** Never use this in production unless you understand the security implications.
 
 ### Email Service Not Initialized
 
-The email service is initialized automatically when the server starts. If warnings appear:
+The email service is initialized automatically when the server starts. If you see warnings:
 
-1. Check that `EMAIL_ENABLED=true` in the `.env` file
+1. Check that `EMAIL_ENABLED=true` in your `.env`
 2. Ensure all required configuration variables are set
 3. Check server startup logs for initialization errors
 
@@ -492,7 +492,7 @@ export default router;
 ### Example: Integration with Auth Service
 
 ```typescript
-// In the auth service
+// In your auth service
 import { EmailService } from '../utils/email.ts';
 
 export class AuthService {

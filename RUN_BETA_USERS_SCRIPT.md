@@ -18,7 +18,7 @@ npx tsx src/scripts/create-beta-users.ts
 
 ## Option 3: Using tsx directly
 
-If tsx is installed globally:
+If you have tsx installed globally:
 
 ```bash
 tsx src/scripts/create-beta-users.ts
@@ -46,33 +46,33 @@ npm run create-beta-users
 
 This is the simplest and most reliable method since:
 - ✅ It's already configured
-- ✅ Uses the correct tsx version from the project
+- ✅ Uses the correct tsx version from your project
 - ✅ Works consistently across different environments
 - ✅ No need to remember the full file path
 
 ## Environment Variables
 
-Before running, ensure the `.env` file is configured:
+Before running, make sure your `.env` file is configured:
 
 ```bash
 # Required for email sending
-EMAIL_ENABLED=  # set to true to enable email service
-EMAIL_SERVICE=  # add email service name (e.g., Gmail)
-EMAIL_AUTH_USER=  # add email authentication username
-EMAIL_AUTH_PASSWORD=  # add email authentication password
-EMAIL_FROM_ADDRESS=  # add sender email address
-EMAIL_FROM_NAME=  # add sender display name
+EMAIL_ENABLED=true
+EMAIL_SERVICE=Gmail
+EMAIL_AUTH_USER=your-email@gmail.com
+EMAIL_AUTH_PASSWORD=your-app-password
+EMAIL_FROM_ADDRESS=your-email@gmail.com
+EMAIL_FROM_NAME=CodeEndelea
 
 # Optional: Set beta version (defaults to "1")
-BETA_VERSION=  # add beta version number
+BETA_VERSION=1
 
 # Frontend URL for email links
-FRONTEND_URL=  # add frontend application URL
+FRONTEND_URL=https://your-app.com
 ```
 
 ## Example Usage
 
-1. Edit `src/scripts/create-beta-users.ts` and add users:
+1. Edit `src/scripts/create-beta-users.ts` and add your users:
    ```typescript
    const betaUsers: BetaUserArray[] = [
      ['John', 'Doe', 'john@example.com', 'student'],

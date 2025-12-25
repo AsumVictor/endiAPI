@@ -2,11 +2,11 @@
 
 ## Error: "535-5.7.8 Username and Password not accepted"
 
-This error occurs when Gmail rejects authentication credentials. Common causes and solutions:
+This error occurs when Gmail rejects your authentication credentials. Here are the most common causes and solutions:
 
 ### 1. Verify App Password Setup
 
-**Important:** Use an App Password, not the regular Gmail password.
+**Important:** You MUST use an App Password, not your regular Gmail password.
 
 #### Steps to Generate App Password:
 
@@ -24,25 +24,25 @@ This error occurs when Gmail rejects authentication credentials. Common causes a
    - Copy the 16-character password (no spaces)
 
 3. **Use the App Password**:
-   - Use the **Gmail address** as the username
-   - Use the **16-character app password** (not the regular password)
+   - Use your **Gmail address** as the username
+   - Use the **16-character app password** (not your regular password)
    - Remove any spaces from the app password
 
 ### 2. Configuration Check
 
-Ensure the `.env` file has:
+Make sure your `.env` has:
 
 ```bash
-EMAIL_ENABLED=  # set to true to enable email service
-EMAIL_SERVICE=  # add email service name (e.g., Gmail)
-EMAIL_HOST=  # add SMTP hostname
-EMAIL_PORT=  # add SMTP port (587 or 465)
-EMAIL_SECURE=  # set to false for port 587, true for port 465
-EMAIL_FROM_NAME=  # add sender display name
-EMAIL_FROM_ADDRESS=  # add sender email address
-EMAIL_AUTH_USER=  # add email authentication username
-EMAIL_AUTH_PASSWORD=  # add email authentication password
-EMAIL_TLS_REJECT_UNAUTHORIZED=  # set to false for development
+EMAIL_ENABLED=true
+EMAIL_SERVICE=Gmail
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587                    # or 465
+EMAIL_SECURE=false                # false for 587, true for 465
+EMAIL_FROM_NAME=Your App Name     # No angle brackets!
+EMAIL_FROM_ADDRESS=your-email@gmail.com
+EMAIL_AUTH_USER=your-email@gmail.com
+EMAIL_AUTH_PASSWORD=your-16-char-app-password  # No spaces!
+EMAIL_TLS_REJECT_UNAUTHORIZED=false
 ```
 
 ### 3. Common Issues
@@ -56,7 +56,7 @@ EMAIL_TLS_REJECT_UNAUTHORIZED=  # set to false for development
 - Port **465** with `EMAIL_SECURE=true` (SSL)
 
 #### Issue: "Less Secure Apps" (Deprecated)
-**Solution:** This feature is deprecated. App Passwords with 2-Step Verification are required.
+**Solution:** This feature is deprecated. You MUST use App Passwords with 2-Step Verification.
 
 #### Issue: Account Restrictions
 **Check:**
@@ -67,7 +67,7 @@ EMAIL_TLS_REJECT_UNAUTHORIZED=  # set to false for development
 ### 4. Test Configuration
 
 The updated code now uses explicit SMTP configuration for Gmail, which is more reliable with app passwords. The configuration automatically uses:
-- Port 587 (STARTTLS) or 465 (SSL) based on the settings
+- Port 587 (STARTTLS) or 465 (SSL) based on your settings
 - Proper TLS/SSL encryption
 - App password authentication
 
@@ -77,7 +77,7 @@ Double-check:
 - ✅ 2-Step Verification is enabled
 - ✅ App Password was generated for "Mail"
 - ✅ Using the full 16-character password (no spaces)
-- ✅ Using the Gmail address (not username) as EMAIL_AUTH_USER
+- ✅ Using your Gmail address (not username) as EMAIL_AUTH_USER
 - ✅ App Password hasn't been revoked
 
 ### 6. Alternative: Use OAuth2
@@ -90,10 +90,10 @@ this.transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     type: 'OAuth2',
-    user: 'email@gmail.com',
-    clientId: 'client-id',
-    clientSecret: 'client-secret',
-    refreshToken: 'refresh-token',
+    user: 'your-email@gmail.com',
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret',
+    refreshToken: 'your-refresh-token',
   },
 });
 ```

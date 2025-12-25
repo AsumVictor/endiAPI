@@ -182,7 +182,7 @@ The `videos` table now has the public URL to the caption file in the `transcript
 
 ### Required Storage Bucket
 
-Create a storage bucket in Supabase:
+You need to create a storage bucket in Supabase:
 
 **Bucket Name:** `captions`
 

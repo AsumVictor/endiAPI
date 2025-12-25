@@ -8,7 +8,7 @@ The `#` hash fragments are **NOT sent to the server** - only frontend JavaScript
 
 ## Solution: Create `/auth/callback` Route on Frontend
 
-Create this route in the frontend application.
+You MUST create this route in your frontend application.
 
 ### React Example (with React Router v6):
 
@@ -48,11 +48,11 @@ export default function AuthCallback() {
       // Success! Email verified
       console.log('Email verified successfully!');
       
-      // If using Supabase client in frontend, the session is automatically set
-      // If not, store the tokens manually
+      // If you're using Supabase client in frontend, the session is automatically set
+      // If not, you might want to store the tokens
       
       // Redirect to login with success message
-      navigate('/login?verified=true&message=Email verified successfully! Login is now available.');
+      navigate('/login?verified=true&message=Email verified successfully! You can now login.');
       return;
     }
     
@@ -64,14 +64,14 @@ export default function AuthCallback() {
   // Show loading while processing
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h2>Verifying email...</h2>
-      <p>Please wait while the email address is being confirmed.</p>
+      <h2>Verifying your email...</h2>
+      <p>Please wait while we confirm your email address.</p>
     </div>
   );
 }
 ```
 
-### Add Route to the Router:
+### Add Route to Your Router:
 
 ```jsx
 // src/App.jsx or src/router.jsx
@@ -97,8 +97,8 @@ function App() {
 <!-- src/views/AuthCallback.vue -->
 <template>
   <div class="auth-callback">
-    <h2>Verifying email...</h2>
-    <p>Please wait while the email address is being confirmed.</p>
+    <h2>Verifying your email...</h2>
+    <p>Please wait while we confirm your email address.</p>
   </div>
 </template>
 
@@ -157,14 +157,14 @@ const routes = [
 
 - **One-time use**: Each token can only be used once
 - **Time limit**: Tokens expire after ~1 hour
-- **Already used**: Clicking the link twice causes the second click to fail
+- **Already used**: If you click the link twice, the second click fails
 
 ## Handle Token Expiry on Login Page
 
-On the login page, check for errors:
+On your login page, check for error:
 
 ```javascript
-// In the Login component
+// In your Login component
 useEffect(() => {
   const params = new URLSearchParams(window.location.search);
   const verified = params.get('verified');
@@ -179,7 +179,7 @@ useEffect(() => {
       showError(decodeURIComponent(error || 'Verification failed'));
     }
   } else if (verified === 'true') {
-    showSuccess('Email verified successfully! Login is now available.');
+    showSuccess('Email verified successfully! You can now login.');
   }
 }, []);
 ```
@@ -187,7 +187,7 @@ useEffect(() => {
 ## Summary
 
 1. ✅ **Backend is correct** - it sets `emailRedirectTo: http://localhost:5173/auth/callback`
-2. ✅ **Supabase redirects correctly** - to the frontend
+2. ✅ **Supabase redirects correctly** - to your frontend
 3. ❌ **Missing**: Frontend `/auth/callback` route to read hash fragments
 4. ✅ **Solution**: Create the route above to handle the verification
 

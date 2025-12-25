@@ -249,6 +249,7 @@ export class AuthService {
 
       // Generate tokens
       const tokens = JWTService.generateTokenPair(userData);
+      console.log("--AuthTokens Signed--",);
       const authTokens: AuthTokens = {
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
@@ -256,9 +257,12 @@ export class AuthService {
         token_type: 'Bearer',
       };
 
+      console.log("--AuthTokens Done--",);
+
       // Set secure HTTP-only cookies if response object is provided
       if (res && req) {
         CookieService.setAuthCookies(req, res, tokens.access_token, tokens.refresh_token);
+        console.log("--AuthCookies Set--",);
       }
 
       return {
@@ -277,7 +281,7 @@ export class AuthService {
       if (error instanceof AppError) {
         throw error;
       }
-      throw new AppError('Login failed', 500);
+      throw new AppError('Login failed: ' + (error as Error).message, 500);
     }
   }
 

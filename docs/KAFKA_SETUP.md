@@ -18,19 +18,19 @@ The application uses Kafka for asynchronous video transcription processing:
 
 ### 1. Environment Variables
 
-Add the following variables to the `.env` file:
+Add the following variables to your `.env` file:
 
 ```env
 # Kafka Configuration
-KAFKA_BROKERS=  # add kafka broker hostname and port
-KAFKA_USERNAME=  # add kafka username
-KAFKA_PASSWORD=  # add kafka password
-KAFKA_PRODUCE_TOPIC=  # add producer topic name
-KAFKA_CONSUME_TOPIC=  # add consumer topic name
-KAFKA_SSL=  # set to true for SSL/TLS
-KAFKA_SASL_MECHANISM=  # add SASL mechanism (e.g., scram-sha-256)
-KAFKA_CONNECTION_TIMEOUT=  # add connection timeout in milliseconds
-KAFKA_REQUEST_TIMEOUT=  # add request timeout in milliseconds
+KAFKA_BROKERS=db-kafka-ams3-04956-do-user-11896611-0.f.db.ondigitalocean.com:25073
+KAFKA_USERNAME=doadmin
+KAFKA_PASSWORD=your_kafka_password_here
+KAFKA_PRODUCE_TOPIC=Transcribe
+KAFKA_CONSUME_TOPIC=update_transcribe
+KAFKA_SSL=true
+KAFKA_SASL_MECHANISM=scram-sha-256
+KAFKA_CONNECTION_TIMEOUT=10000
+KAFKA_REQUEST_TIMEOUT=30000
 ```
 
 ### 2. SSL Certificate
@@ -39,7 +39,7 @@ The Kafka cluster uses **SASL_SSL** authentication which includes:
 - **SSL/TLS encryption**: Enabled by default
 - **SASL authentication**: Using SCRAM-SHA-256 mechanism
 - **Username**: `doadmin`
-- **Password**: Kafka password from DigitalOcean
+- **Password**: Your Kafka password from DigitalOcean
 
 The `kafkajs` library automatically handles SSL certificate validation for DigitalOcean managed Kafka clusters.
 
@@ -139,7 +139,7 @@ await kafkaProducer.sendTranscriptionRequest({
 
 ### Test Kafka Connectivity
 
-Run the connectivity test to verify the Kafka setup:
+Run the connectivity test to verify your Kafka setup:
 
 ```bash
 npm run kafka:test
@@ -219,7 +219,7 @@ pm2 stop kafka-consumer
 **Cause**: Invalid username or password
 **Solution**:
 - Verify `KAFKA_USERNAME` is set to `doadmin`
-- Verify `KAFKA_PASSWORD` matches the DigitalOcean Kafka password
+- Verify `KAFKA_PASSWORD` matches your DigitalOcean Kafka password
 - Ensure `KAFKA_SASL_MECHANISM` is set to `scram-sha-256`
 
 #### 3. SSL/TLS Error
@@ -241,7 +241,7 @@ pm2 stop kafka-consumer
 
 ## Integration with Video Service
 
-To integrate Kafka with the video service:
+To integrate Kafka with your video service:
 
 ```typescript
 import { kafkaProducer } from '../services/kafka-producer';
@@ -308,7 +308,7 @@ The consumer logs key events:
 Set environment variable for detailed Kafka logs:
 
 ```env
-LOG_LEVEL=  # add log level (e.g., debug, info, error)
+LOG_LEVEL=debug
 ```
 
 ### Test Individual Components

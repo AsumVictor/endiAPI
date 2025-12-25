@@ -26,7 +26,7 @@
 
 #### Default Template Variables:
 ```
-{{ .SiteURL }}     - Site URL
+{{ .SiteURL }}     - Your site URL
 {{ .Email }}       - User's email
 {{ .Token }}       - Verification token
 {{ .TokenHash }}   - Hashed token
@@ -39,11 +39,11 @@
 ```html
 <h2>Welcome!</h2>
 <p>Hi there,</p>
-<p>Please confirm the email address by clicking the link below:</p>
+<p>Please confirm your email address by clicking the link below:</p>
 <p><a href="{{ .ConfirmationURL }}">Confirm Email</a></p>
 <p>Or copy this link: {{ .ConfirmationURL }}</p>
 <p>This link will expire in 1 hour.</p>
-<p>If this wasn't requested, please ignore this email.</p>
+<p>If you didn't request this, please ignore this email.</p>
 ```
 
 ## Step-by-Step Setup
@@ -55,7 +55,7 @@
 3. Select template (e.g., **Confirm signup**)
 4. Edit **Subject**:
    ```
-   Confirm email for {{ .SiteURL }}
+   Confirm your email for {{ .SiteURL }}
    ```
 5. Edit **Body** (HTML):
    ```html
@@ -74,14 +74,14 @@
      </style>
    </head>
    <body>
-     <h2>Verify Email</h2>
+     <h2>Verify Your Email</h2>
      <p>Hello,</p>
-     <p>Click the button below to verify the email address:</p>
+     <p>Click the button below to verify your email address:</p>
      <a href="{{ .ConfirmationURL }}" class="button">Verify Email</a>
      <p>Or copy this link:</p>
      <p>{{ .ConfirmationURL }}</p>
      <p>This link expires in 1 hour.</p>
-     <p>If this account wasn't created, please ignore this email.</p>
+     <p>If you didn't sign up, please ignore this email.</p>
    </body>
    </html>
    ```
@@ -91,12 +91,12 @@
 
 1. Go to **Authentication** → **Settings** → **SMTP Settings**
 2. Set **From Email**: `noreply@yourdomain.com`
-3. Set **From Name**: `App Name` or `Company Name`
+3. Set **From Name**: `Your App Name` or `Your Company Name`
 4. Save changes
 
 **Note:** If using custom SMTP, configure SMTP settings here.
 
-### 3. Customize Redirect URL (in code)
+### 3. Customize Redirect URL (in your code)
 
 Already configured in `src/services/auth.ts`:
 
@@ -108,7 +108,7 @@ This is the URL users are redirected to after clicking the email link.
 
 ## Environment-Specific Templates
 
-Different templates can be used for different environments by checking `{{ .SiteURL }}` in the template, but Supabase doesn't support environment-specific templates by default.
+You can use different templates for different environments by checking `{{ .SiteURL }}` in the template, but Supabase doesn't support environment-specific templates by default.
 
 **Alternative:** Use different Supabase projects for dev/staging/production.
 
@@ -124,17 +124,17 @@ Different templates can be used for different environments by checking `{{ .Site
   </div>
   <div style="padding: 30px;">
     <p>Hi there,</p>
-    <p>Thanks for signing up! Please confirm the email address by clicking the button below:</p>
+    <p>Thanks for signing up! Please confirm your email address by clicking the button below:</p>
     <div style="text-align: center; margin: 30px 0;">
       <a href="{{ .ConfirmationURL }}" 
          style="background-color: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
         Verify Email Address
       </a>
     </div>
-    <p>Or copy and paste this link into the browser:</p>
+    <p>Or copy and paste this link into your browser:</p>
     <p style="word-break: break-all; color: #666;">{{ .ConfirmationURL }}</p>
     <p><strong>This link will expire in 1 hour.</strong></p>
-    <p>If this account wasn't created, please ignore this email.</p>
+    <p>If you didn't create an account, please ignore this email.</p>
     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
     <p style="color: #999; font-size: 12px;">This email was sent to {{ .Email }}</p>
   </div>
@@ -152,20 +152,20 @@ Different templates can be used for different environments by checking `{{ .Site
 
 1. Register a new user
 2. Check email inbox
-3. Verify email subject and content match the template
+3. Verify email subject and content match your template
 4. Click link and verify redirect works
 
 ## Important Notes
 
 - **Template Variables**: Use `{{ .VariableName }}` syntax (Go template syntax)
 - **HTML Supported**: Full HTML and CSS styling is supported
-- **Redirect URL**: The `{{ .ConfirmationURL }}` includes the redirect URL set in code
+- **Redirect URL**: The `{{ .ConfirmationURL }}` includes the redirect URL you set in code
 - **Token Expiry**: Default is 1 hour (configurable in Supabase settings)
 - **SMTP**: If using custom SMTP, configure in SMTP Settings
 
 ## Common Variables
 
-- `{{ .SiteURL }}` - Supabase project URL or custom site URL
+- `{{ .SiteURL }}` - Your Supabase project URL or custom site URL
 - `{{ .Email }}` - User's email address
 - `{{ .Token }}` - Raw verification token (rarely needed)
 - `{{ .ConfirmationURL }}` - Complete confirmation link (most common)

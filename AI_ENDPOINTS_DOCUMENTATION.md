@@ -209,12 +209,12 @@ Scoring schemes with explanations for each option:
 
 ## Configuration
 
-Add to the `.env` file:
+Add to your `.env` file:
 
 ```bash
 # AI Server Configuration
-AI_SERVER_URL=  # add AI server URL
-AI_SERVER_TIMEOUT=  # add timeout in milliseconds (default: 30000 = 30 seconds)
+AI_SERVER_URL=https://endi-ai.onrender.com
+AI_SERVER_TIMEOUT=30000  # Timeout in milliseconds (default: 30000 = 30 seconds)
 ```
 
 ## Example Usage

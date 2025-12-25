@@ -113,9 +113,9 @@ curl -X POST http://localhost:8000/api/auth/logout \
 
 ## Database Setup
 
-Before using the authentication system, set up the database schema in the Supabase project:
+Before using the authentication system, you need to set up the database schema in your Supabase project:
 
-1. Go to the Supabase project dashboard
+1. Go to your Supabase project dashboard
 2. Navigate to the SQL Editor
 3. Run the SQL schema from `database/schema.sql`
 
@@ -205,17 +205,17 @@ router.get('/users/:userId/profile', requireOwnership('userId'), (req, res) => {
 
 ## Environment Variables
 
-Set these environment variables in the `.env` file:
+Make sure to set these environment variables in your `.env` file:
 
 ```env
 # Supabase Configuration
-SUPABASE_URL=  # add supabase project URL
-SUPABASE_ANON_KEY=  # add supabase anonymous key
-SUPABASE_SERVICE_KEY=  # add supabase service role key
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_KEY=your_supabase_service_key
 
 # JWT Configuration
-JWT_SECRET=  # add JWT secret key
-JWT_EXPIRE_TIME=  # add JWT expiration time (e.g., 24h)
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRE_TIME=24h
 ```
 
 ## Error Handling
@@ -239,7 +239,7 @@ All errors follow a consistent format:
 
 ## Testing
 
-Test the authentication system using:
+You can test the authentication system using:
 
 1. **Swagger UI**: Interactive API documentation at `/api-docs`
 2. **cURL commands**: As shown in the examples above
@@ -247,7 +247,7 @@ Test the authentication system using:
 
 ## Next Steps
 
-With the authentication system in place, the following can be implemented:
+With the authentication system in place, you can now:
 
 1. Create protected API endpoints
 2. Implement user profile management
