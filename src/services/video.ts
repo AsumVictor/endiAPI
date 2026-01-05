@@ -1,7 +1,6 @@
 // Video service
 import { supabase } from '../config/database.ts';
 import { AppError } from '../utils/errors.ts';
-import { kafkaProducer } from './kafka-producer.ts';
 import logger from '../utils/logger.ts';
 import type {
   VideoProgress,
@@ -69,26 +68,6 @@ export class VideoService {
 
       if (error) {
         throw new AppError(`Failed to create video: ${error.message}`, 400);
-      }
-
-      // Send video for transcription via Kafka
-      try {
-        await kafkaProducer.sendTranscriptionRequest({
-          video_id: video.id,
-          video_url: video.camera_video_url,
-          metadata: {
-            title: video.title,
-            courseId: courseId,
-            userId: userId,
-          },
-        });
-        logger.info('Video sent for transcription', { videoId: video.id });
-      } catch (kafkaError) {
-        // Log error but don't fail video creation
-        logger.error('Failed to send video for transcription', {
-          videoId: video.id,
-          error: kafkaError,
-        });
       }
 
       return {
