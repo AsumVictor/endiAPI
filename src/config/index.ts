@@ -60,6 +60,14 @@ export interface Config {
     baseUrl: string;
     timeout: number;
   };
+  serviceBus: {
+    connectionString: string;
+    namespace: string;
+    jobResultsTopic: string;
+    jobResultsSubscription: string;
+    transcriptionJobsQueue: string;
+    videoCompressionJobsQueue: string;
+  };
 }
 
 const config: Config = {
@@ -134,6 +142,16 @@ const config: Config = {
   ai: {
     baseUrl: process.env['AI_SERVER_URL'] || '',
     timeout: Number(process.env['AI_SERVER_TIMEOUT']) || 30000, // 30 seconds default
+  },
+
+  // Azure Service Bus Configuration
+  serviceBus: {
+    connectionString: process.env['AZURE_SERVICE_BUS_CONNECTION_STRING'] || '',
+    namespace: process.env['AZURE_SERVICE_BUS_NAMESPACE'] || '',
+    jobResultsTopic: process.env['AZURE_SERVICE_BUS_JOB_RESULTS_TOPIC'] || 'job-results',
+    jobResultsSubscription: process.env['AZURE_SERVICE_BUS_JOB_RESULTS_SUBSCRIPTION'] || 'server-b-results',
+    transcriptionJobsQueue: process.env['AZURE_SERVICE_BUS_TRANSCRIPTION_JOBS_QUEUE'] || 'transcription-jobs',
+    videoCompressionJobsQueue: process.env['AZURE_SERVICE_BUS_VIDEO_COMPRESSION_JOBS_QUEUE'] || 'video-compression-jobs',
   },
 };
 

@@ -14,7 +14,8 @@
     "kafka:test-video": "tsx src/scripts/test-kafka-video.ts",
     "kafka:check-messages": "tsx src/scripts/check-kafka-messages.ts",
     "kafka:consumer": "tsx src/scripts/kafka-consumer-worker.ts",
-    "create-beta-users": "tsx src/scripts/create-beta-users.ts"
+    "create-beta-users": "tsx src/scripts/create-beta-users.ts",
+    "servicebus:test": "tsx src/scripts/test-azure-service-bus.ts"
   },
   "repository": {
     "type": "git",
@@ -47,7 +48,8 @@
     "express-validator": "^7.2.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
-    "kafkajs": "^2.2.4",
+    "@azure/service-bus": "^7.9.5",
+    "@azure/identity": "^4.13.0",
     "morgan": "^1.10.0",
     "nodemailer": "^7.0.10",
     "swagger-jsdoc": "^6.2.8",

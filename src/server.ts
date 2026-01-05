@@ -3,8 +3,8 @@ import app from './app.ts';
 import config from './config/index.ts';
 import logger from './utils/logger.ts';
 import { EmailService } from './utils/email.ts';
-import { kafkaConsumer } from './services/kafka-consumer.ts';
-import { kafkaCompressionConsumer } from './services/kafka-compression-consumer.ts';
+import { azureServiceBusConsumer } from './services/azure-service-bus-consumer.ts';
+import { azureServiceBusProducer } from './services/azure-service-bus-producer.ts';
 
 // Start server
 const server = app.listen(config.port, config.host, async () => {
@@ -31,28 +31,14 @@ const server = app.listen(config.port, config.host, async () => {
     logger.warn('Server will continue running, but emails will not be sent');
   }
 
-  // Start Kafka consumer for transcription
+  // Start Azure Service Bus consumer for job results
   try {
-    logger.info('Starting Kafka consumer...');
-    await kafkaConsumer.connect();
-    await kafkaConsumer.subscribe();
-    await kafkaConsumer.start();
-    logger.info('✅ Kafka consumer started successfully and listening for transcription results');
+    logger.info('Starting Azure Service Bus consumer...');
+    await azureServiceBusConsumer.start();
+    logger.info('✅ Azure Service Bus consumer started successfully and listening for job results');
   } catch (error) {
-    logger.error('❌ Failed to start Kafka consumer', { error });
-    logger.warn('Server will continue running, but transcription results will not be processed');
-  }
-
-  // Start Kafka compression consumer
-  try {
-    logger.info('Starting Kafka compression consumer...');
-    await kafkaCompressionConsumer.connect();
-    await kafkaCompressionConsumer.subscribe();
-    await kafkaCompressionConsumer.start();
-    logger.info('✅ Kafka compression consumer started successfully and listening for compression results');
-  } catch (error) {
-    logger.error('❌ Failed to start Kafka compression consumer', { error });
-    logger.warn('Server will continue running, but compression results will not be processed');
+    logger.error('❌ Failed to start Azure Service Bus consumer', { error });
+    logger.warn('Server will continue running, but job results will not be processed');
   }
 });
 
@@ -60,17 +46,18 @@ const server = app.listen(config.port, config.host, async () => {
 process.on('unhandledRejection', async (err: Error, _promise: Promise<any>) => {
   logger.error(`Unhandled Promise Rejection: ${err.message}`);
 
-  // Disconnect Kafka consumers
+  // Stop Azure Service Bus consumer
   try {
-    await kafkaConsumer.disconnect();
+    await azureServiceBusConsumer.stop();
   } catch (error) {
-    logger.error('Error disconnecting Kafka consumer during shutdown', { error });
+    logger.error('Error stopping Azure Service Bus consumer during shutdown', { error });
   }
 
+  // Close Azure Service Bus producer
   try {
-    await kafkaCompressionConsumer.disconnect();
+    await azureServiceBusProducer.close();
   } catch (error) {
-    logger.error('Error disconnecting Kafka compression consumer during shutdown', { error });
+    logger.error('Error closing Azure Service Bus producer during shutdown', { error });
   }
 
   // Close server & exit process
@@ -97,19 +84,20 @@ process.on('SIGTERM', async () => {
     logger.error('Error closing email service', { error });
   }
 
-  // Disconnect Kafka consumers
+  // Stop Azure Service Bus consumer
   try {
-    await kafkaConsumer.disconnect();
-    logger.info('Kafka consumer disconnected');
+    await azureServiceBusConsumer.stop();
+    logger.info('Azure Service Bus consumer stopped');
   } catch (error) {
-    logger.error('Error disconnecting Kafka consumer', { error });
+    logger.error('Error stopping Azure Service Bus consumer', { error });
   }
 
+  // Close Azure Service Bus producer
   try {
-    await kafkaCompressionConsumer.disconnect();
-    logger.info('Kafka compression consumer disconnected');
+    await azureServiceBusProducer.close();
+    logger.info('Azure Service Bus producer closed');
   } catch (error) {
-    logger.error('Error disconnecting Kafka compression consumer', { error });
+    logger.error('Error closing Azure Service Bus producer', { error });
   }
 
   server.close(() => {
