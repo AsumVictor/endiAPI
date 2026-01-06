@@ -314,3 +314,141 @@ COMMENT ON COLUMN video_progress.video_id IS 'Foreign key reference to videos ta
 COMMENT ON COLUMN video_progress.student_id IS 'Foreign key reference to students table';
 COMMENT ON COLUMN video_progress.completed IS 'Whether the student has completed the video';
 COMMENT ON COLUMN video_progress.completed_at IS 'Timestamp when the student completed the video';
+
+-- Discussion threads table
+CREATE TABLE IF NOT EXISTS discussion_threads (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    video_id UUID NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+    video_timestamp_seconds INTEGER,
+    student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    lecturer_id UUID NOT NULL REFERENCES lecturers(id) ON DELETE CASCADE,
+    code_snippet TEXT,
+    question_text TEXT NOT NULL,
+    student_unread BOOLEAN DEFAULT false,
+    lecturer_unread BOOLEAN DEFAULT true,
+    status TEXT DEFAULT 'open' CHECK (status IN ('open', 'resolved')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Discussion messages table
+CREATE TABLE IF NOT EXISTS discussion_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    thread_id UUID NOT NULL REFERENCES discussion_threads(id) ON DELETE CASCADE,
+    author_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for discussion_threads table
+CREATE INDEX IF NOT EXISTS idx_discussion_threads_video_id ON discussion_threads(video_id);
+CREATE INDEX IF NOT EXISTS idx_discussion_threads_student_id ON discussion_threads(student_id);
+CREATE INDEX IF NOT EXISTS idx_discussion_threads_lecturer_id ON discussion_threads(lecturer_id);
+CREATE INDEX IF NOT EXISTS idx_discussion_threads_status ON discussion_threads(status);
+CREATE INDEX IF NOT EXISTS idx_discussion_threads_student_unread ON discussion_threads(student_unread);
+CREATE INDEX IF NOT EXISTS idx_discussion_threads_lecturer_unread ON discussion_threads(lecturer_unread);
+CREATE INDEX IF NOT EXISTS idx_discussion_threads_updated_at ON discussion_threads(updated_at);
+CREATE INDEX IF NOT EXISTS idx_discussion_threads_created_at ON discussion_threads(created_at);
+
+-- Create indexes for discussion_messages table
+CREATE INDEX IF NOT EXISTS idx_discussion_messages_thread_id ON discussion_messages(thread_id);
+CREATE INDEX IF NOT EXISTS idx_discussion_messages_author_user_id ON discussion_messages(author_user_id);
+CREATE INDEX IF NOT EXISTS idx_discussion_messages_created_at ON discussion_messages(created_at);
+
+-- Enable Row Level Security for discussion tables
+ALTER TABLE discussion_threads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE discussion_messages ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for discussion_threads table
+-- Students can view threads where they are the student participant
+CREATE POLICY "Students can view their own threads" ON discussion_threads
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM students s
+            WHERE s.id = student_id AND s.user_id = auth.uid()
+        )
+    );
+
+-- Lecturers can view threads where they are the lecturer participant
+CREATE POLICY "Lecturers can view their own threads" ON discussion_threads
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM lecturers l
+            WHERE l.id = lecturer_id AND l.user_id = auth.uid()
+        )
+    );
+
+-- Students can create threads (as the student participant)
+CREATE POLICY "Students can create threads" ON discussion_threads
+    FOR INSERT WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM students s
+            WHERE s.id = student_id AND s.user_id = auth.uid()
+        )
+    );
+
+-- Students can update their own threads (e.g., mark as resolved, update unread status)
+CREATE POLICY "Students can update their own threads" ON discussion_threads
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM students s
+            WHERE s.id = student_id AND s.user_id = auth.uid()
+        )
+    );
+
+-- Lecturers can update threads where they are the lecturer (e.g., mark as resolved, update unread status)
+CREATE POLICY "Lecturers can update their threads" ON discussion_threads
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM lecturers l
+            WHERE l.id = lecturer_id AND l.user_id = auth.uid()
+        )
+    );
+
+-- RLS Policies for discussion_messages table
+-- Users can view messages in threads they participate in
+CREATE POLICY "Participants can view messages in their threads" ON discussion_messages
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM discussion_threads dt
+            LEFT JOIN students s ON dt.student_id = s.id
+            LEFT JOIN lecturers l ON dt.lecturer_id = l.id
+            WHERE dt.id = thread_id 
+            AND (s.user_id = auth.uid() OR l.user_id = auth.uid())
+        )
+    );
+
+-- Users can create messages in threads they participate in
+CREATE POLICY "Participants can create messages in their threads" ON discussion_messages
+    FOR INSERT WITH CHECK (
+        author_user_id = auth.uid()
+        AND EXISTS (
+            SELECT 1 FROM discussion_threads dt
+            LEFT JOIN students s ON dt.student_id = s.id
+            LEFT JOIN lecturers l ON dt.lecturer_id = l.id
+            WHERE dt.id = thread_id 
+            AND (s.user_id = auth.uid() OR l.user_id = auth.uid())
+        )
+    );
+
+-- Trigger to update updated_at timestamp on discussion_threads
+CREATE TRIGGER update_discussion_threads_updated_at
+    BEFORE UPDATE ON discussion_threads
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Comments for discussion tables
+COMMENT ON TABLE discussion_threads IS 'Discussion threads for student-lecturer Q&A about videos';
+COMMENT ON TABLE discussion_messages IS 'Messages within discussion threads';
+COMMENT ON COLUMN discussion_threads.video_id IS 'Foreign key reference to videos table';
+COMMENT ON COLUMN discussion_threads.video_timestamp_seconds IS 'Optional timestamp in the video where the question is about';
+COMMENT ON COLUMN discussion_threads.student_id IS 'Foreign key reference to students table - who asked the question';
+COMMENT ON COLUMN discussion_threads.lecturer_id IS 'Foreign key reference to lecturers table - who will answer';
+COMMENT ON COLUMN discussion_threads.code_snippet IS 'Optional code snippet highlighted by the student';
+COMMENT ON COLUMN discussion_threads.question_text IS 'The initial question text from the student';
+COMMENT ON COLUMN discussion_threads.student_unread IS 'True if lecturer replied and student has not seen it';
+COMMENT ON COLUMN discussion_threads.lecturer_unread IS 'True if student asked and lecturer has not seen it';
+COMMENT ON COLUMN discussion_threads.status IS 'Thread status: open or resolved';
+COMMENT ON COLUMN discussion_messages.thread_id IS 'Foreign key reference to discussion_threads table';
+COMMENT ON COLUMN discussion_messages.author_user_id IS 'Foreign key reference to users table - who sent the message';
+COMMENT ON COLUMN discussion_messages.content IS 'The message content/text';

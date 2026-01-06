@@ -5,6 +5,7 @@ import logger from './utils/logger.ts';
 import { EmailService } from './utils/email.ts';
 import { azureServiceBusConsumer } from './services/azure-service-bus-consumer.ts';
 import { azureServiceBusProducer } from './services/azure-service-bus-producer.ts';
+import { webSocketService } from './services/websocket.ts';
 
 // Start server
 const server = app.listen(config.port, config.host, async () => {
@@ -37,9 +38,19 @@ const server = app.listen(config.port, config.host, async () => {
     await azureServiceBusConsumer.start();
     logger.info('✅ Azure Service Bus consumer started successfully and listening for job results');
   } catch (error) {
-    logger.error('❌ Failed to start Azure Service Bus consumer', { error });
-    logger.warn('Server will continue running, but job results will not be processed');
-  }
+      logger.error('❌ Failed to start Azure Service Bus consumer', { error });
+      logger.warn('Server will continue running, but job results will not be processed');
+    }
+
+    // Initialize WebSocket server for real-time notifications
+    try {
+      logger.info('Initializing WebSocket server...');
+      webSocketService.initialize(server);
+      logger.info('✅ WebSocket server initialized successfully');
+    } catch (error) {
+      logger.error('❌ Failed to initialize WebSocket server', { error });
+      logger.warn('Server will continue running, but real-time notifications will not work');
+    }
 });
 
 // Handle unhandled promise rejections
@@ -98,6 +109,14 @@ process.on('SIGTERM', async () => {
     logger.info('Azure Service Bus producer closed');
   } catch (error) {
     logger.error('Error closing Azure Service Bus producer', { error });
+  }
+
+  // Close WebSocket server
+  try {
+    webSocketService.close();
+    logger.info('WebSocket server closed');
+  } catch (error) {
+    logger.error('Error closing WebSocket server', { error });
   }
 
   server.close(() => {

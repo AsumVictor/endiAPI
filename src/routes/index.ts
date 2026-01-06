@@ -9,6 +9,7 @@ import videoRoutes from './video.ts';
 import lecturerRoutes from './lecturer.ts';
 import studentRoutes from './student.ts';
 import aiRoutes from './ai.ts';
+import discussionRoutes from './discussion.ts';
 
 const router = Router();
 
@@ -119,5 +120,8 @@ router.use('/students', studentRoutes);
 
 // Mount AI routes
 router.use('/ai', aiRoutes);
+
+// Mount discussion routes
+router.use('/discussions', discussionRoutes);
 
 export default router;

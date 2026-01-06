@@ -6,6 +6,7 @@ const { body, validationResult } = expressValidator as any;
 import { asyncHandler, AppError } from '../utils/errors.ts';
 import { AuthService } from '../services/auth.ts';
 import { authenticateToken } from '../middleware/auth.ts';
+import { JWTService } from '../utils/jwt.ts';
 import { supabase, supabaseAuth } from '../config/database.ts';
 import type { LoginRequest, RegisterRequest, RefreshTokenRequest } from '../models/user.ts';
 
@@ -375,7 +376,7 @@ router.post('/refresh',
  * /api/auth/me:
  *   get:
  *     summary: Get current user profile
- *     description: Get the authenticated user's profile information
+ *     description: Get the authenticated user's profile information and access token
  *     tags: [Authentication]
  *     security:
  *       - bearerAuth: []
@@ -392,9 +393,20 @@ router.post('/refresh',
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: "User profile retrieved"
+ *                   example: "User retrieved successfully"
  *                 data:
- *                   $ref: '#/components/schemas/User'
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ *                     profile:
+ *                       oneOf:
+ *                         - $ref: '#/components/schemas/Student'
+ *                         - $ref: '#/components/schemas/Lecturer'
+ *                     access_token:
+ *                       type: string
+ *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                       description: "JWT access token for API and WebSocket authentication"
  *       401:
  *         description: Unauthorized
  *         content:
@@ -445,12 +457,16 @@ router.get('/me',
         };
       }
 
-    res.status(200).json({
-      success: true,
+      // Generate new access token for the response
+      const accessToken = JWTService.generateAccessToken(user);
+
+      res.status(200).json({
+        success: true,
         message: 'User retrieved successfully',
         data: {
           user,
-          profile
+          profile,
+          access_token: accessToken,
         },
       });
     } catch (error) {
