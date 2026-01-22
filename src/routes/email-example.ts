@@ -7,16 +7,16 @@
  * 2. Secure them with authentication middleware
  * 3. Move email sending to appropriate service methods
  * 
- * To use these routes, mount them in src/routes/index.ts:
- * import emailExampleRoutes from './email-example.ts';
+ * To use these routes, mount them in src/routes/index:
+ * import emailExampleRoutes from './email-example';
  * router.use('/email', emailExampleRoutes);
  */
 import { Router, Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
-import { EmailService } from '../utils/email.ts';
-import { asyncHandler } from '../middleware/index.ts';
-import { AppError } from '../utils/errors.ts';
-import config from '../config/index.ts';
+import expressValidator from 'express-validator';
+const { body, validationResult } = expressValidator as any;
+import { EmailService } from '../utils/email.js';
+import { asyncHandler, AppError } from '../utils/errors.js';
+import config from '../config/index.js';
 
 const router = Router();
 
@@ -40,7 +40,7 @@ router.post('/test',
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      throw new AppError(`Validation failed: ${errors.array().map(e => e.msg).join(', ')}`, 400);
+      throw new AppError(`Validation failed: ${errors.array().map((e: any) => e.msg).join(', ')}`, 400);
     }
 
     const { to, subject, message } = req.body;
@@ -86,7 +86,7 @@ router.post('/welcome',
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      throw new AppError(`Validation failed: ${errors.array().map(e => e.msg).join(', ')}`, 400);
+      throw new AppError(`Validation failed: ${errors.array().map((e: any) => e.msg).join(', ')}`, 400);
     }
 
     const { to, name } = req.body;

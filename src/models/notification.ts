@@ -9,7 +9,8 @@ export type NotificationType =
   | 'user/created'
   | 'user/deleted'
   | 'course/created'
-  | 'video/uploaded';
+  | 'video/uploaded'
+  | 'assignment/ready_for_review';
 
 /**
  * Thread/Discussion notification payload
@@ -70,6 +71,16 @@ export interface VideoUploadedPayload {
 }
 
 /**
+ * Assignment ready-for-review notification payload
+ */
+export interface AssignmentReadyForReviewPayload {
+  assignmentId: string;
+  assignmentTitle?: string;
+  courseId?: string;
+  timestamp: string;
+}
+
+/**
  * Union of all notification payload types
  */
 export type NotificationPayload = 
@@ -77,7 +88,8 @@ export type NotificationPayload =
   | { type: 'user/created'; payload: UserCreatedPayload }
   | { type: 'user/deleted'; payload: UserDeletedPayload }
   | { type: 'course/created'; payload: CourseCreatedPayload }
-  | { type: 'video/uploaded'; payload: VideoUploadedPayload };
+  | { type: 'video/uploaded'; payload: VideoUploadedPayload }
+  | { type: 'assignment/ready_for_review'; payload: AssignmentReadyForReviewPayload };
 
 /**
  * Base notification interface
@@ -90,7 +102,8 @@ export interface Notification {
     | UserCreatedPayload 
     | UserDeletedPayload 
     | CourseCreatedPayload 
-    | VideoUploadedPayload;
+    | VideoUploadedPayload
+    | AssignmentReadyForReviewPayload;
   timestamp: string;
   read?: boolean;
 }

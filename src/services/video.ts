@@ -1,7 +1,7 @@
 // Video service
-import { supabase } from '../config/database.ts';
-import { AppError } from '../utils/errors.ts';
-import logger from '../utils/logger.ts';
+import { supabase } from '../config/database.js';
+import { AppError } from '../utils/errors.js';
+import logger from '../utils/logger.js';
 import type {
   VideoProgress,
   CreateVideoRequest,
@@ -11,7 +11,7 @@ import type {
   VideoWithProgress,
   VideoWithStats,
   CourseVideoCompletions
-} from '../models/video.ts';
+} from '../models/video.js';
 
 export class VideoService {
   /**

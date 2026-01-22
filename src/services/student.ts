@@ -1,8 +1,8 @@
 // Student service for student-related operations
-import { supabase } from '../config/database.ts';
-import { AppError } from '../utils/errors.ts';
-import type { DashboardResponse, StudentDashboard } from '../models/user.ts';
-import type { VideoProgressResponse } from '../models/video.ts';
+import { supabase } from '../config/database.js';
+import { AppError } from '../utils/errors.js';
+import type { DashboardResponse, StudentDashboard } from '../models/user.js';
+import type { VideoProgressResponse } from '../models/video.js';
 
 export interface UpdateStreakResponse {
   success: boolean;

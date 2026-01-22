@@ -1,6 +1,6 @@
 // Supabase configuration
 import { createClient } from '@supabase/supabase-js';
-import config from './index.ts';
+import config from './index.js';
 
 // Supabase client configuration
 const supabaseConfig = {

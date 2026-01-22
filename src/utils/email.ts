@@ -1,8 +1,8 @@
 // Email service using nodemailer
 import nodemailer from 'nodemailer';
-import config from '../config/index.ts';
-import { AppError } from './errors.ts';
-import { loadEmailTemplate } from './email/template-loader.ts';
+import config from '../config/index.js';
+import { AppError } from './errors.js';
+import { loadEmailTemplate } from './email/template-loader.js';
 
 // Types extracted from nodemailer
 type Transporter = ReturnType<typeof nodemailer.createTransport>;

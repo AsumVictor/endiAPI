@@ -1,8 +1,8 @@
 // Azure Service Bus configuration
 import { ServiceBusClient } from '@azure/service-bus';
 import { DefaultAzureCredential } from '@azure/identity';
-import config from './index.ts';
-import logger from '../utils/logger.ts';
+import config from './index.js';
+import logger from '../utils/logger.js';
 
 let _serviceBusClient: ServiceBusClient | null = null;
 

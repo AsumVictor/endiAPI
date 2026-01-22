@@ -1,9 +1,9 @@
 // Authentication middleware
 import type { Request, Response, NextFunction } from 'express';
-import { JWTService } from '../utils/jwt.ts';
-import { AuthService } from '../services/auth.ts';
-import { AppError } from '../utils/errors.ts';
-import type { User } from '../models/user.ts';
+import { JWTService } from '../utils/jwt.js';
+import { AuthService } from '../services/auth.js';
+import { AppError } from '../utils/errors.js';
+import type { User } from '../models/user.js';
 
 // Extend Express Request interface to include user
 declare global {

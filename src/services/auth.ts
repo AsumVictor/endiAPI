@@ -1,8 +1,8 @@
 // Authentication service
-import { supabase, supabaseAuth } from '../config/database.ts';
-import { JWTService } from '../utils/jwt.ts';
-import { AppError } from '../utils/errors.ts';
-import { CookieService } from '../utils/cookies.ts';
+import { supabase, supabaseAuth } from '../config/database.js';
+import { JWTService } from '../utils/jwt.js';
+import { AppError } from '../utils/errors.js';
+import { CookieService } from '../utils/cookies.js';
 import type { 
   User, 
   Student,
@@ -12,7 +12,7 @@ import type {
   RefreshTokenRequest, 
   AuthResponse, 
   AuthTokens 
-} from '../models/user.ts';
+} from '../models/user.js';
 import type { Request, Response } from 'express';
 
 export class AuthService {

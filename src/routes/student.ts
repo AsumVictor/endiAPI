@@ -1,9 +1,9 @@
 // Student routes
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { asyncHandler, AppError } from '../utils/errors.ts';
-import { StudentService } from '../services/student.ts';
-import { authenticateToken, requireRole } from '../middleware/auth.ts';
+import { asyncHandler, AppError } from '../utils/errors.js';
+import { StudentService } from '../services/student.js';
+import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 

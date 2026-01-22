@@ -3,10 +3,10 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import expressValidator from 'express-validator';
 const { body, validationResult } = expressValidator as any;
-import { asyncHandler, AppError } from '../utils/errors.ts';
-import { VideoService } from '../services/video.ts';
-import { authenticateToken, requireRole } from '../middleware/auth.ts';
-import type { CreateVideoRequest, UpdateVideoRequest } from '../models/video.ts';
+import { asyncHandler, AppError } from '../utils/errors.js';
+import { VideoService } from '../services/video.js';
+import { authenticateToken, requireRole } from '../middleware/auth.js';
+import type { CreateVideoRequest, UpdateVideoRequest } from '../models/video.js';
 
 const router = Router();
 

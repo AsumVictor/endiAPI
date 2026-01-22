@@ -1,9 +1,9 @@
 // Test script for Azure Service Bus connectivity
 import { ServiceBusClient } from '@azure/service-bus';
 import { DefaultAzureCredential } from '@azure/identity';
-import config from '../config/index.ts';
-import logger from '../utils/logger.ts';
-import { azureServiceBusProducer } from '../services/azure-service-bus-producer.ts';
+import config from '../config/index.js';
+import logger from '../utils/logger.js';
+import { azureServiceBusProducer } from '../services/azure-service-bus-producer.js';
 
 async function testAzureServiceBus() {
   logger.info('=== Starting Azure Service Bus Connectivity Test ===');

@@ -1,9 +1,9 @@
 // Discussion service
-import { supabase } from '../config/database.ts';
-import { AppError } from '../utils/errors.ts';
-import logger from '../utils/logger.ts';
-import { webSocketService } from './websocket.ts';
-import { createThreadDiscussionNotification } from './notification-helper.ts';
+import { supabase } from '../config/database.js';
+import { AppError } from '../utils/errors.js';
+import logger from '../utils/logger.js';
+import { webSocketService } from './websocket.js';
+import { createThreadDiscussionNotification } from './notification-helper.js';
 import type {
   CreateThreadRequest,
   CreateMessageRequest,
@@ -12,7 +12,7 @@ import type {
   ThreadsListResponse,
   MessageResponse,
   ThreadWithMessages,
-} from '../models/discussion.ts';
+} from '../models/discussion.js';
 
 export class DiscussionService {
   /**

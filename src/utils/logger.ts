@@ -1,6 +1,6 @@
 // Logging configuration
 import winston from 'winston';
-import config from '../config/index.ts';
+import config from '../config/index.js';
 
 // Define log format
 const logFormat = winston.format.combine(

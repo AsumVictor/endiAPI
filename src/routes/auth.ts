@@ -3,12 +3,12 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import expressValidator from 'express-validator';
 const { body, validationResult } = expressValidator as any;
-import { asyncHandler, AppError } from '../utils/errors.ts';
-import { AuthService } from '../services/auth.ts';
-import { authenticateToken } from '../middleware/auth.ts';
-import { JWTService } from '../utils/jwt.ts';
-import { supabase, supabaseAuth } from '../config/database.ts';
-import type { LoginRequest, RegisterRequest, RefreshTokenRequest } from '../models/user.ts';
+import { asyncHandler, AppError } from '../utils/errors.js';
+import { AuthService } from '../services/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { JWTService } from '../utils/jwt.js';
+import { supabase, supabaseAuth } from '../config/database.js';
+import type { LoginRequest, RegisterRequest, RefreshTokenRequest } from '../models/user.js';
 
 const router = Router();
 

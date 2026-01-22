@@ -1,4 +1,4 @@
 // Utility functions
-export * from './logger.ts';
-export * from './errors.ts';
-export * from './email.ts';
+export * from './logger.js';
+export * from './errors.js';
+export * from './email.js';

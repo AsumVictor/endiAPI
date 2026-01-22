@@ -1,6 +1,6 @@
 // Course service
-import { supabase } from '../config/database.ts';
-import { AppError } from '../utils/errors.ts';
+import { supabase } from '../config/database.js';
+import { AppError } from '../utils/errors.js';
 import type {
   CreateCourseRequest,
   UpdateCourseRequest,
@@ -12,7 +12,7 @@ import type {
   CourseDetailsResponse,
   CourseDetails,
   LecturerCourseDetails
-} from '../models/course.ts';
+} from '../models/course.js';
 
 export class CourseService {
   /**

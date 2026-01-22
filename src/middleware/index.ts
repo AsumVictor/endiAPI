@@ -4,8 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import type { Request, Response } from 'express';
-import config from '../config/index.ts';
-import logger from '../utils/logger.ts';
+import config from '../config/index.js';
+import logger from '../utils/logger.js';
 
 // CORS middleware
 const corsOptions = {

@@ -1,6 +1,5 @@
 // Secure cookie utilities for token management
 import type { Request, Response } from 'express';
-import config from '../config/index.ts';
 
 export interface CookieOptions {
   httpOnly: boolean;

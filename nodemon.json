@@ -1,9 +1,6 @@
 {
   "watch": ["src"],
   "ext": "ts",
-  "ignore": ["src/**/*.spec.ts"],
-  "exec": "ts-node --project tsconfig.dev.json src/server.ts",
-  "env": {
-    "NODE_ENV": "development"
-  }
+  "ignore": ["dist"],
+  "exec": "ts-node --project tsconfig.json src/server.ts"
 }

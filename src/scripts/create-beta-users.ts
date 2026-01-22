@@ -2,17 +2,17 @@
  * Script to create beta users and send welcome emails
  * 
  * Usage:
- *   tsx src/scripts/create-beta-users.ts
+ *   tsx src/scripts/create-beta-users
  * 
  * Or import and use programmatically:
- *   import { createBetaUsers } from './scripts/create-beta-users.ts';
+ *   import { createBetaUsers } from './scripts/create-beta-users';
  *   await createBetaUsers(users);
  */
 
-import { AuthService } from '../services/auth.ts';
-import { EmailService } from '../utils/email.ts';
-import config from '../config/index.ts';
-import logger from '../utils/logger.ts';
+import { AuthService } from '../services/auth.js';
+import { EmailService } from '../utils/email.js';
+import config from '../config/index.js';
+import logger from '../utils/logger.js';
 
 export interface BetaUserData {
   first_name: string;
@@ -356,7 +356,7 @@ async function main() {
 }
 
 // Run if executed directly
-// This works when the script is run with: tsx src/scripts/create-beta-users.ts
+// This works when the script is run with: tsx src/scripts/create-beta-users
 // const scriptName = process.argv[1] || '';
 // if (scriptName.includes('create-beta-users')) {
 //   main().catch(error => {

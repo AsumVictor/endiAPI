@@ -67,6 +67,7 @@ export interface Config {
     jobResultsSubscription: string;
     transcriptionJobsQueue: string;
     videoCompressionJobsQueue: string;
+    questionGenerationJobsQueue: string;
   };
 }
 
@@ -152,6 +153,7 @@ const config: Config = {
     jobResultsSubscription: process.env['AZURE_SERVICE_BUS_JOB_RESULTS_SUBSCRIPTION'] || 'server-b-results',
     transcriptionJobsQueue: process.env['AZURE_SERVICE_BUS_TRANSCRIPTION_JOBS_QUEUE'] || 'transcription-jobs',
     videoCompressionJobsQueue: process.env['AZURE_SERVICE_BUS_VIDEO_COMPRESSION_JOBS_QUEUE'] || 'video-compression-jobs',
+    questionGenerationJobsQueue: process.env['AZURE_SERVICE_BUS_QUESTION_GENERATION_JOBS_QUEUE'] || 'question-generation-jobs',
   },
 };
 

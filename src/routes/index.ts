@@ -1,15 +1,19 @@
 // Main routes configuration
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { asyncHandler } from '../utils/errors.ts';
-import config from '../config/index.ts';
-import authRoutes from './auth.ts';
-import courseRoutes from './course.ts';
-import videoRoutes from './video.ts';
-import lecturerRoutes from './lecturer.ts';
-import studentRoutes from './student.ts';
-import aiRoutes from './ai.ts';
-import discussionRoutes from './discussion.ts';
+import { asyncHandler } from '../utils/errors.js';
+import config from '../config/index.js';
+import authRoutes from './auth.js';
+import courseRoutes from './course.js';
+import videoRoutes from './video.js';
+import lecturerRoutes from './lecturer.js';
+import studentRoutes from './student.js';
+import aiRoutes from './ai.js';
+import discussionRoutes from './discussion.js';
+import assignmentRoutes from './assignment.js';
+import questionRoutes from './question.js';
+import studentSessionRoutes from './student-session.js';
+import studentAnswerRoutes from './student-answer.js';
 
 const router = Router();
 
@@ -123,5 +127,17 @@ router.use('/ai', aiRoutes);
 
 // Mount discussion routes
 router.use('/discussions', discussionRoutes);
+
+// Mount assignment routes
+router.use('/assignments', assignmentRoutes);
+
+// Mount question routes
+router.use('/questions', questionRoutes);
+
+// Mount student session routes
+router.use('/student-sessions', studentSessionRoutes);
+
+// Mount student answer routes
+router.use('/student-answers', studentAnswerRoutes);
 
 export default router;

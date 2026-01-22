@@ -1,7 +1,7 @@
 // Swagger configuration for API documentation
 import swaggerJsdoc from 'swagger-jsdoc';
 import type { Application } from 'express';
-import config from './index.ts';
+import config from './index.js';
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -70,7 +70,7 @@ const options: swaggerJsdoc.Options = {
       },
     },
   },
-  apis: ['./src/routes/**/*.ts'],
+  apis: ['./src/routes/**/*'],
 };
 
 const specs = swaggerJsdoc(options);

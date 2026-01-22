@@ -4,18 +4,12 @@
   "description": "Node.js + Express + TypeScript API Server with Supabase",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "start": "tsx src/server.ts",
-    "dev": "nodemon src/server.ts",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc && mkdir -p dist/public dist/views && cpx 'src/public/**/*' dist/public && cpx 'src/views/**/*' dist/views",
+    "start": "node dist/server.js",
     "dev:build": "tsc --watch -p tsconfig.build.json",
     "clean": "rm -rf dist",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "kafka:test": "tsx src/scripts/test-kafka.ts",
-    "kafka:test-video": "tsx src/scripts/test-kafka-video.ts",
-    "kafka:check-messages": "tsx src/scripts/check-kafka-messages.ts",
-    "kafka:consumer": "tsx src/scripts/kafka-consumer-worker.ts",
-    "create-beta-users": "tsx src/scripts/create-beta-users.ts",
-    "servicebus:test": "tsx src/scripts/test-azure-service-bus.ts"
+    "create-user": "tsx src/scripts/create-user.ts"
   },
   "repository": {
     "type": "git",
@@ -70,6 +64,7 @@
     "@types/nodemailer": "^7.0.4",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "cpx": "^1.5.0",
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.2"

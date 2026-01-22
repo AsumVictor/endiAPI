@@ -1,5 +1,5 @@
 // Helper functions for creating different notification types
-import type { NotificationPayload } from '../models/notification.ts';
+import type { NotificationPayload } from '../models/notification.js';
 
 /**
  * Create a thread/discussion notification payload
@@ -146,3 +146,30 @@ export function createVideoUploadedNotification(
   };
 }
 
+/**
+ * Create an assignment ready-for-review notification payload
+ */
+export function createAssignmentReadyForReviewNotification(
+  assignmentId: string,
+  options?: {
+    assignmentTitle?: string;
+    courseId?: string;
+  }
+): NotificationPayload {
+  const payload: any = {
+    assignmentId,
+    timestamp: new Date().toISOString(),
+  };
+
+  if (options?.assignmentTitle !== undefined) {
+    payload.assignmentTitle = options.assignmentTitle;
+  }
+  if (options?.courseId !== undefined) {
+    payload.courseId = options.courseId;
+  }
+
+  return {
+    type: 'assignment/ready_for_review',
+    payload,
+  };
+}

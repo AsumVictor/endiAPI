@@ -1,9 +1,10 @@
 // Azure Service Bus Consumer Service
-import { serviceBusClient } from '../config/azure-service-bus.ts';
-import config from '../config/index.ts';
-import logger from '../utils/logger.ts';
-import { VideoService } from './video.ts';
-import { supabase } from '../config/database.ts';
+import { serviceBusClient } from '../config/azure-service-bus.js';
+import config from '../config/index.js';
+import logger from '../utils/logger.js';
+import { VideoService } from './video.js';
+import { supabase } from '../config/database.js';
+import { QuestionGenerationResultService } from './question-generation-result.js';
 
 export interface TranscriptionResult {
   video_id: string;
@@ -38,11 +39,11 @@ export interface TranscriptionPayload {
 }
 
 // Union type for all possible payloads
-export type JobResultPayload = VideoCompressionPayload | TranscriptionPayload;
+export type JobResultPayload = VideoCompressionPayload | TranscriptionPayload | Record<string, any>;
 
 export interface JobResultMessage {
   jobId: string;
-  job_type: 'video_compression' | 'transcription' | string;
+  job_type: 'video_compression' | 'transcription' | 'question_generation' | string;
   payload: JobResultPayload;
   status: string;
   completionTimestamp: string;
@@ -169,25 +170,29 @@ class AzureServiceBusConsumerService {
    */
   private async processJobResult(result: JobResultMessage): Promise<void> {
     const jobType = result.job_type;
-    const videoId = result.jobId;
+    const jobTypeNormalized = (jobType || '').trim();
+    const _id = result.jobId;
 
     logger.info('Processing job result', {
-      job_type: jobType,
-      jobId: videoId,
+      job_type: jobTypeNormalized,
+      jobId: _id,
       status: result.status,
     });
 
-    if (jobType === 'video_compression') {
+    if (jobTypeNormalized === 'video_compression') {
       await this.processVideoCompressionResult(result);
-    } else if (jobType === 'transcription') {
+    } else if (jobTypeNormalized === 'transcription') {
       await this.processTranscriptionResult(result);
+    } else if (jobTypeNormalized === 'question_generation') {
+      await this.processQuestionGenerationResult(result);
     } else {
       logger.warn('Unknown or unhandled job result type', {
-        job_type: jobType,
-        jobId: videoId,
+        job_type: jobTypeNormalized,
+        jobId: _id,
       });
     }
   }
+
 
   /**
    * Process transcription result
@@ -356,6 +361,13 @@ class AzureServiceBusConsumerService {
       });
       throw error;
     }
+  }
+
+  /**
+   * Process question generation result
+   */
+  private async processQuestionGenerationResult(result: JobResultMessage): Promise<void> {
+    await QuestionGenerationResultService.process(result);
   }
 
   /**

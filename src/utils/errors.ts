@@ -1,6 +1,6 @@
 // Error handling utilities
 import type { Request, Response, NextFunction } from 'express';
-import logger from './logger.ts';
+import logger from './logger.js';
 
 // Custom error class
 export class AppError extends Error {

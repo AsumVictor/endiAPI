@@ -1,7 +1,7 @@
 // Azure Service Bus Producer Service
-import { serviceBusClient } from '../config/azure-service-bus.ts';
-import config from '../config/index.ts';
-import logger from '../utils/logger.ts';
+import { serviceBusClient } from '../config/azure-service-bus.js';
+import config from '../config/index.js';
+import logger from '../utils/logger.js';
 
 export interface TranscriptionJobRequest {
   video_id: string;
@@ -20,6 +20,28 @@ export interface VideoCompressionJobRequest {
     title?: string;
     courseId?: string;
   };
+}
+
+export interface QuestionGenerationJobRequest {
+  assignment_id: string;
+  total_questions: number;
+  question_types: Array<{
+    type: string;
+    count: number;
+    range: {
+      start: number;
+      end: number;
+    };
+  }>;
+  code_programs?: Array<{
+    prompt: string;
+    language: string;
+  }>;
+  prompt?: string;
+  files?: Array<{
+    name: string;
+    url: string;
+  }>;
 }
 
 class AzureServiceBusProducerService {
@@ -78,6 +100,36 @@ class AzureServiceBusProducerService {
         error,
       });
       throw new Error(`Failed to send video compression job: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      await sender.close();
+    }
+  }
+
+  /**
+   * Send question generation job to Azure Service Bus
+   */
+  async sendQuestionGenerationJob(request: QuestionGenerationJobRequest): Promise<void> {
+    const sender = serviceBusClient.createSender(config.serviceBus.questionGenerationJobsQueue);
+    
+    try {
+      await sender.sendMessages({
+        body: request,
+        contentType: 'application/json',
+        messageId: `question-generation-${request.assignment_id}-${Date.now()}`,
+        subject: 'question-generation-job',
+      });
+
+      logger.info('Question generation job sent to Azure Service Bus', {
+        assignment_id: request.assignment_id,
+        total_questions: request.total_questions,
+        queue: config.serviceBus.questionGenerationJobsQueue,
+      });
+    } catch (error) {
+      logger.error('Failed to send question generation job', {
+        assignment_id: request.assignment_id,
+        error,
+      });
+      throw new Error(`Failed to send question generation job: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       await sender.close();
     }

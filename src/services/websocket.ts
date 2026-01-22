@@ -2,9 +2,9 @@
 import { Server as HttpServer } from 'http';
 // @ts-ignore - socket.io types will be available after npm install socket.io @types/socket.io
 import { Server as SocketServer, Socket } from 'socket.io';
-import logger from '../utils/logger.ts';
-import { JWTService } from '../utils/jwt.ts';
-import type { Notification, NotificationPayload, NotificationMetadata } from '../models/notification.ts';
+import logger from '../utils/logger.js';
+import { JWTService } from '../utils/jwt.js';
+import type { Notification, NotificationPayload, NotificationMetadata } from '../models/notification.js';
 
 // TypeScript types for socket.io (will be available after npm install socket.io @types/socket.io)
 // @ts-ignore - Socket type will be properly defined after package installation

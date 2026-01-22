@@ -1,11 +1,11 @@
 // Server startup file
-import app from './app.ts';
-import config from './config/index.ts';
-import logger from './utils/logger.ts';
-import { EmailService } from './utils/email.ts';
-import { azureServiceBusConsumer } from './services/azure-service-bus-consumer.ts';
-import { azureServiceBusProducer } from './services/azure-service-bus-producer.ts';
-import { webSocketService } from './services/websocket.ts';
+import app from './app.js';
+import config from './config/index.js';
+import logger from './utils/logger.js';
+import { EmailService } from './utils/email.js';
+import { azureServiceBusConsumer } from './services/azure-service-bus-consumer.js';
+import { azureServiceBusProducer } from './services/azure-service-bus-producer.js';
+import { webSocketService } from './services/websocket.js';
 
 // Start server
 const server = app.listen(config.port, config.host, async () => {

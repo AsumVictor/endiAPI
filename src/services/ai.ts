@@ -1,7 +1,7 @@
 // AI service to communicate with external AI server
-import config from '../config/index.ts';
-import { AppError } from '../utils/errors.ts';
-import logger from '../utils/logger.ts';
+import config from '../config/index.js';
+import { AppError } from '../utils/errors.js';
+import logger from '../utils/logger.js';
 
 export interface FileInfo {
   id: string;

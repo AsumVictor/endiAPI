@@ -1,7 +1,7 @@
 // JWT utilities for token management
 import jwt from 'jsonwebtoken';
-import config from '../config/index.ts';
-import type { User } from '../models/user.ts';
+import config from '../config/index.js';
+import type { User } from '../models/user.js';
 
 export interface JWTPayload {
   sub: string; // user id

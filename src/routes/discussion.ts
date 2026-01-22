@@ -3,10 +3,10 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import expressValidator from 'express-validator';
 const { body, validationResult } = expressValidator as any;
-import { asyncHandler } from '../utils/errors.ts';
-import { DiscussionService } from '../services/discussion.ts';
-import { authenticateToken } from '../middleware/auth.ts';
-import type { CreateThreadRequest, CreateMessageRequest, UpdateThreadStatusRequest } from '../models/discussion.ts';
+import { asyncHandler } from '../utils/errors.js';
+import { DiscussionService } from '../services/discussion.js';
+import { authenticateToken } from '../middleware/auth.js';
+import type { CreateThreadRequest, CreateMessageRequest, UpdateThreadStatusRequest } from '../models/discussion.js';
 
 const router = Router();
 

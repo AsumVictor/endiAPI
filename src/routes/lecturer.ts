@@ -1,11 +1,11 @@
 // Lecturer routes
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { asyncHandler, AppError } from '../utils/errors.ts';
-import { CourseService } from '../services/course.ts';
-import { VideoService } from '../services/video.ts';
-import { authenticateToken, requireRole } from '../middleware/auth.ts';
-import { supabase } from '../config/database.ts';
+import { asyncHandler, AppError } from '../utils/errors.js';
+import { CourseService } from '../services/course.js';
+import { VideoService } from '../services/video.js';
+import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { supabase } from '../config/database.js';
 
 const router = Router();
 

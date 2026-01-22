@@ -3,9 +3,9 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import expressValidator from 'express-validator';
 const { body, validationResult } = expressValidator as any;
-import { asyncHandler, AppError } from '../utils/errors.ts';
-import { AIService } from '../services/ai.ts';
-import { authenticateToken } from '../middleware/auth.ts';
+import { asyncHandler, AppError } from '../utils/errors.js';
+import { AIService } from '../services/ai.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = Router();
 

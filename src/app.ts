@@ -4,10 +4,10 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import type { Application, Request, Response } from 'express';
-import { errorHandler } from './utils/errors.ts';
-import { corsMiddleware, limiter, requestLogger, securityMiddleware } from './middleware/index.ts';
-import routes from './routes/index.ts';
-import { setupSwagger } from './config/swagger.ts';
+import { errorHandler } from './utils/errors.js';
+import { corsMiddleware, limiter, requestLogger, securityMiddleware } from './middleware/index.js';
+import routes from './routes/index.js';
+import { setupSwagger } from './config/swagger.js';
 
 // Get directory paths for ES modules
 const __filename = fileURLToPath(import.meta.url);
