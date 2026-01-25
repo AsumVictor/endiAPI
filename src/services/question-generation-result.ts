@@ -63,6 +63,75 @@ function extractAssignmentIdFromJobId(jobId: string): string | null {
   return match ? match[0] : null;
 }
 
+/**
+ * Find the next available order_index by checking the database
+ * This handles concurrent replicas processing different batches
+ */
+async function findNextAvailableOrderIndex(
+  assignmentId: string,
+  isCodeQuestion: boolean,
+  startFrom: number,
+  usedInBatch: Set<number>
+): Promise<number> {
+  let candidate = startFrom + 1;
+  const maxAttempts = 1000; // Safety limit
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    // Skip if already used in this batch
+    if (usedInBatch.has(candidate)) {
+      candidate++;
+      attempts++;
+      continue;
+    }
+
+    // Check if this order_index exists in database
+    let checkQuery = supabase
+      .from('questions')
+      .select('id')
+      .eq('assignment_id', assignmentId)
+      .eq('order_index', candidate);
+
+    if (isCodeQuestion) {
+      checkQuery = checkQuery.eq('type', 'Code');
+    } else {
+      checkQuery = checkQuery.in('type', ['MCQ', 'Fill_in', 'Essay']);
+    }
+
+    const { data: existing, error } = await checkQuery.limit(1);
+
+    if (error) {
+      logger.error('Error checking order_index availability', {
+        assignmentId,
+        candidate,
+        error: error.message,
+      });
+      // On error, increment and try next (safer than reusing)
+      candidate++;
+      attempts++;
+      continue;
+    }
+
+    if (!existing || existing.length === 0) {
+      // Available!
+      return candidate;
+    }
+
+    // Conflict found, try next
+    candidate++;
+    attempts++;
+  }
+
+  // Fallback: if we exhausted attempts, return the candidate anyway
+  // (shouldn't happen in practice, but better than infinite loop)
+  logger.warn('Exceeded max attempts finding available order_index, using candidate', {
+    assignmentId,
+    candidate,
+    isCodeQuestion,
+  });
+  return candidate;
+}
+
 export class QuestionGenerationResultService {
   static async process(result: JobResultMessageLike): Promise<void> {
     try {
@@ -122,19 +191,70 @@ export class QuestionGenerationResultService {
       status: result.status,
     });
 
-    // Insert questions (idempotent by (assignment_id, order_index) check)
+    // Get the maximum order_index for this assignment
+    // IMPORTANT: MCQ, FILLIN, ESSAY share the same sequence (1..n) - they're "non-code" questions
+    // CODE questions have their own separate sequence (1..n)
+    const { data: existingQuestions, error: maxOrderError } = await supabase
+      .from('questions')
+      .select('type, order_index')
+      .eq('assignment_id', assignmentId);
+
+    if (maxOrderError) {
+      logger.warn('Failed to fetch existing questions for order_index calculation', {
+        assignmentId,
+        error: maxOrderError.message,
+      });
+    }
+
+    // Calculate max order_index for non-code questions (MCQ, FILLIN, ESSAY share sequence)
+    // and for code questions (CODE has separate sequence)
+    let maxOrderIndexNonCode = 0; // For MCQ, FILLIN, ESSAY
+    let maxOrderIndexCode = 0;    // For CODE
+    
+    if (existingQuestions && existingQuestions.length > 0) {
+      for (const q of existingQuestions) {
+        const dbType = q.type as DbQuestionType;
+        const orderIndex = (q as any).order_index || 0;
+        
+        if (dbType === 'Code') {
+          // CODE questions have their own sequence
+          if (orderIndex > maxOrderIndexCode) {
+            maxOrderIndexCode = orderIndex;
+          }
+        } else {
+          // MCQ, Fill_in, Essay share the same sequence
+          if (orderIndex > maxOrderIndexNonCode) {
+            maxOrderIndexNonCode = orderIndex;
+          }
+        }
+      }
+    }
+
+    logger.debug('Starting order_index calculation', {
+      assignmentId,
+      maxOrderIndexNonCode, // For MCQ, FILLIN, ESSAY
+      maxOrderIndexCode,    // For CODE
+      questionCount: questions.length,
+    });
+
+    // Insert questions (idempotent by prompt_markdown content check, not just order_index)
     let insertedCount = 0;
     let skippedCount = 0;
     let errorCount = 0;
     
+    // Track used order_indices in this batch
+    // Non-code questions (MCQ, FILLIN, ESSAY) share the same set
+    // Code questions have their own set
+    const usedOrderIndicesNonCode = new Set<number>();
+    const usedOrderIndicesCode = new Set<number>();
+    
     for (const [i, q] of questions.entries()) {
-      const orderIndex = typeof q?.order_index === 'number' ? q.order_index : i + 1;
       const promptMarkdown = q?.prompt_markdown || '';
 
       if (!promptMarkdown) {
         logger.warn('Skipping generated question with missing prompt_markdown', {
           assignmentId,
-          orderIndex,
+          index: i,
           questionType: q?.type,
         });
         skippedCount++;
@@ -143,49 +263,190 @@ export class QuestionGenerationResultService {
 
       const apiType = normalizeQuestionType(q?.type);
       const dbType = toDbQuestionType(apiType);
+      const isCodeQuestion = dbType === 'Code';
+
+      // Get max order_index and used indices for this question category
+      // NOTE: maxOrderIndex is just a starting point - we must check DB for each assignment
+      // to handle concurrent replicas processing different batches
+      const maxOrderIndex = isCodeQuestion ? maxOrderIndexCode : maxOrderIndexNonCode;
+      const usedOrderIndices = isCodeQuestion ? usedOrderIndicesCode : usedOrderIndicesNonCode;
+
+      // Determine order_index: use provided if valid and unique, otherwise assign sequentially
+      // CRITICAL: For concurrent safety, we check the database for each assignment
+      let orderIndex: number | null = null;
+      const providedOrderIndex = typeof q?.order_index === 'number' ? q.order_index : null;
+      
+      if (providedOrderIndex !== null && providedOrderIndex > 0) {
+        // Check if this order_index conflicts with what we've already assigned in this batch
+        const conflictsInBatch = usedOrderIndices.has(providedOrderIndex);
+        
+        if (!conflictsInBatch) {
+          // Check database to see if this order_index is available (handles concurrent replicas)
+          let checkQuery = supabase
+            .from('questions')
+            .select('id')
+            .eq('assignment_id', assignmentId)
+            .eq('order_index', providedOrderIndex);
+          
+          if (isCodeQuestion) {
+            checkQuery = checkQuery.eq('type', 'Code');
+          } else {
+            checkQuery = checkQuery.in('type', ['MCQ', 'Fill_in', 'Essay']);
+          }
+          
+          const { data: existingCheck, error: checkError } = await checkQuery.limit(1);
+          
+          if (checkError) {
+            logger.error('Failed to check order_index availability in DB', {
+              assignmentId,
+              orderIndex: providedOrderIndex,
+              type: dbType,
+              error: checkError.message,
+            });
+            // Fall through to auto-assign
+            orderIndex = null;
+          } else if (existingCheck && existingCheck.length > 0) {
+            // Conflict in DB - will fall through to auto-assign
+            logger.debug('Provided order_index conflicts with existing question in DB', {
+              assignmentId,
+              providedOrderIndex,
+              type: dbType,
+            });
+            orderIndex = null;
+          } else {
+            // Available - use provided order_index
+            orderIndex = providedOrderIndex;
+          }
+        } else {
+          // Conflict in batch - will auto-assign
+          orderIndex = null;
+        }
+      }
+      
+      // If we didn't set orderIndex above (due to conflict or no provided), assign next available
+      if (!orderIndex) {
+        // Find next available order_index by checking database
+        orderIndex = await findNextAvailableOrderIndex(
+          assignmentId,
+          isCodeQuestion,
+          maxOrderIndex,
+          usedOrderIndices
+        );
+        if (providedOrderIndex) {
+          logger.debug('Order index conflict detected, using next available from DB', {
+            assignmentId,
+            type: dbType,
+            category: isCodeQuestion ? 'code' : 'non-code',
+            providedOrderIndex,
+            assignedOrderIndex: orderIndex,
+            maxOrderIndex,
+            index: i,
+          });
+        }
+      }
+
+      // Mark this order_index as used in this batch
+      usedOrderIndices.add(orderIndex);
+      
+      // Update the max for this category (for next questions in batch)
+      if (isCodeQuestion) {
+        if (orderIndex > maxOrderIndexCode) {
+          maxOrderIndexCode = orderIndex;
+        }
+      } else {
+        if (orderIndex > maxOrderIndexNonCode) {
+          maxOrderIndexNonCode = orderIndex;
+        }
+      }
 
       logger.debug('Processing question for insert', {
         assignmentId,
         orderIndex,
+        providedOrderIndex,
         apiType,
         dbType,
         hasContentJson: !!q?.content_json,
         hasAnswers: !!q?.answers,
         hasExplanation: !!q?.explanation,
+        index: i,
       });
 
       const mergedContentJson: Record<string, unknown> = {
         ...((q?.content_json as Record<string, unknown> | undefined) || {}),
       };
 
-      const { data: existing, error: existingError } = await supabase
+      // Check for duplicate by prompt_markdown content (more reliable than just order_index)
+      // This prevents inserting the same question multiple times even if order_index differs
+      const { data: existingByContent, error: existingByContentError } = await supabase
         .from('questions')
-        .select('id, type')
+        .select('id, type, order_index')
         .eq('assignment_id', assignmentId)
-        .eq('order_index', orderIndex)
-        .eq('type', dbType)
+        .eq('prompt_markdown', promptMarkdown)
         .limit(1);
 
-      if (existingError) {
-        logger.error('Failed to check for existing question', {
+      if (existingByContentError) {
+        logger.error('Failed to check for existing question by content', {
           assignmentId,
           orderIndex,
           type: dbType,
-          error: existingError.message,
-          errorCode: existingError.code,
-          errorDetails: existingError.details,
+          error: existingByContentError.message,
         });
         errorCount++;
-        // Continue processing other questions instead of throwing
         continue;
       }
 
-      if (existing && existing.length > 0) {
-        logger.info('Question already exists, skipping insert', {
+      if (existingByContent && existingByContent.length > 0) {
+        logger.info('Question with same prompt_markdown already exists, skipping insert', {
+          assignmentId,
+          orderIndex,
+          providedOrderIndex,
+          type: dbType,
+          existingQuestionId: (existingByContent as any)[0]?.id,
+          existingOrderIndex: (existingByContent as any)[0]?.order_index,
+        });
+        skippedCount++;
+        continue;
+      }
+
+      // Check if this order_index already exists
+      // For non-code questions (MCQ, FILLIN, ESSAY): check if ANY non-code question has this order_index
+      // For code questions (CODE): check if ANY code question has this order_index
+      let existingByOrderQuery = supabase
+        .from('questions')
+        .select('id, type')
+        .eq('assignment_id', assignmentId)
+        .eq('order_index', orderIndex);
+
+      if (isCodeQuestion) {
+        // CODE questions: check only CODE type
+        existingByOrderQuery = existingByOrderQuery.eq('type', 'Code');
+      } else {
+        // Non-code questions: check MCQ, Fill_in, and Essay (they share the same sequence)
+        existingByOrderQuery = existingByOrderQuery.in('type', ['MCQ', 'Fill_in', 'Essay']);
+      }
+
+      const { data: existingByOrder, error: existingByOrderError } = await existingByOrderQuery.limit(1);
+
+      if (existingByOrderError) {
+        logger.error('Failed to check for existing question by order_index', {
           assignmentId,
           orderIndex,
           type: dbType,
-          existingQuestionId: (existing as any)[0]?.id,
+          category: isCodeQuestion ? 'code' : 'non-code',
+          error: existingByOrderError.message,
+        });
+        errorCount++;
+        continue;
+      }
+
+      if (existingByOrder && existingByOrder.length > 0) {
+        logger.info('Question with same order_index already exists in shared sequence, skipping insert', {
+          assignmentId,
+          orderIndex,
+          type: dbType,
+          category: isCodeQuestion ? 'code' : 'non-code',
+          existingQuestionId: (existingByOrder as any)[0]?.id,
+          existingQuestionType: (existingByOrder as any)[0]?.type,
         });
         skippedCount++;
         continue;

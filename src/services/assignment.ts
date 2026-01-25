@@ -1345,8 +1345,8 @@ export class AssignmentService {
       }
 
       // Group questions into code_programs and non_code
-      // IMPORTANT: For student-facing exam view, we NEVER return answers or explanations
-      // Only prompt_markdown, content_json, points, and metadata are exposed.
+      // IMPORTANT: For student-facing exam view, we NEVER return answers, explanations, or points
+      // Only prompt_markdown, content_json, and metadata are exposed.
       const codePrograms: any[] = [];
       const nonCode: any[] = [];
 
@@ -1363,8 +1363,7 @@ export class AssignmentService {
           type: apiType,
           prompt_markdown: q.prompt_markdown,
           content_json: q.content_json,
-          // answers and explanation are intentionally omitted for students
-          points: q.points,
+          // answers, explanation, and points are intentionally omitted for students
           order_index: q.order_index,
           created_at: q.created_at,
         };
@@ -1808,6 +1807,8 @@ export class AssignmentService {
       });
 
       // Group questions into code_programs and non_code
+      // IMPORTANT: For student-facing exam view, we NEVER return answers, explanations, or points
+      // Only prompt_markdown, content_json, and metadata are exposed.
       const codePrograms: any[] = [];
       const nonCode: any[] = [];
 
@@ -1824,9 +1825,7 @@ export class AssignmentService {
           type: apiType,
           prompt_markdown: q.prompt_markdown,
           content_json: q.content_json,
-          explanation: q.explanation,
-          answers: q.answers,
-          points: q.points,
+          // answers, explanation, and points are intentionally omitted for students
           order_index: q.order_index,
           created_at: q.created_at,
         };
