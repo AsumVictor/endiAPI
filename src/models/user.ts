@@ -120,6 +120,31 @@ export interface StudentDashboard {
     title: string;
     timestamp: string;
   }[];
+  // Assignment metrics
+  assignment_metrics: {
+    total_assignments: number;
+    completed_assignments: number;
+    in_progress_assignments: number;
+    upcoming_assignments: number;
+  };
+  // Recent assignment activity
+  recent_assignment_activity: {
+    id: string;
+    title: string;
+    type: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
+    course_title: string;
+    action: 'started' | 'submitted';
+    timestamp: string;
+  }[];
+  // Upcoming assignments (deadline within 7 days)
+  upcoming_assignments: {
+    id: string;
+    title: string;
+    type: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
+    course_title: string;
+    deadline: string | null;
+    days_until_deadline: number | null;
+  }[];
 }
 
 export interface DashboardResponse {

@@ -18,11 +18,34 @@ const corsOptions = {
 
 export const corsMiddleware = cors(corsOptions);
 
-// Rate limiting middleware
-const limiter = rateLimit({
+// Rate limiting middleware - General API limiter
+// More lenient in development, stricter in production
+export const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: config.nodeEnv === 'development' ? 1000 : 500, // Higher limit for development
   message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (_req: Request) => {
+    // Skip rate limiting for health checks and static files
+    return _req.path === '/' || _req.path.startsWith('/static');
+  },
+});
+
+// Stricter rate limiter for authentication endpoints
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Limit auth attempts to prevent brute force
+  message: 'Too many authentication attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Lenient rate limiter for heartbeat and answer endpoints (exam-taking)
+export const examLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute window
+  max: config.nodeEnv === 'development' ? 300 : 120, // More lenient in dev, 120 requests/min in prod (2 per second)
+  message: 'Too many requests, please slow down.',
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -64,7 +87,6 @@ export const authenticateToken = (req: Request, res: Response, next: Function): 
 };
 
 export {
-  limiter,
   requestLogger,
   securityMiddleware
 };

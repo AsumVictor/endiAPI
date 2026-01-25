@@ -607,7 +607,11 @@ router.get('/students/:studentId/courses',
  * /api/courses/{courseId}/details:
  *   get:
  *     summary: Get detailed course information
- *     description: Fetch comprehensive course details including lecturer info, statistics, and public videos with user progress
+ *     description: |
+ *       Fetch comprehensive course details including lecturer info, statistics, public videos with user progress,
+ *       and assignments (if user is enrolled in the course).
+ *       
+ *       **Assignments are only included if the user is enrolled in the course.**
  *     tags: [Courses]
  *     security:
  *       - bearerAuth: []
@@ -621,6 +625,58 @@ router.get('/students/:studentId/courses',
  *     responses:
  *       200:
  *         description: Course details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     title:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     assignments:
+ *                       type: array
+ *                       description: Only included if user is enrolled
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           title:
+ *                             type: string
+ *                           type:
+ *                             type: string
+ *                             enum: [CAPSTONE, EXERCISE, MID_SEM, FINAL_EXAM]
+ *                           deadline:
+ *                             type: string
+ *                             nullable: true
+ *                           start_time:
+ *                             type: string
+ *                             nullable: true
+ *                           duration_minutes:
+ *                             type: integer
+ *                             nullable: true
+ *                           status:
+ *                             type: string
+ *                           time_status:
+ *                             type: string
+ *                             enum: [not_started, started, ended]
+ *                           session_id:
+ *                             type: string
+ *                             nullable: true
+ *                           session_status:
+ *                             type: string
+ *                             nullable: true
+ *                             enum: [in_progress, submitted, expired]
  *       401:
  *         description: Unauthorized
  *       404:

@@ -6,6 +6,7 @@ const { body, validationResult } = expressValidator as any;
 import { asyncHandler } from '../utils/errors.js';
 import { StudentSessionService } from '../services/student-session.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { examLimiter } from '../middleware/index.js';
 import type { CreateSessionRequest, UpdateSessionRequest } from '../models/assignment.js';
 
 const router = Router();
@@ -498,6 +499,158 @@ router.delete('/:sessionId',
     const userId = req.user!.id;
 
     const result = await StudentSessionService.deleteSession(sessionId, userId);
+    res.status(200).json(result);
+  })
+);
+
+/**
+ * @swagger
+ * /api/student-sessions/{sessionId}/heartbeat:
+ *   post:
+ *     summary: Send heartbeat to update session time tracking
+ *     description: |
+ *       Updates the session's time_used_seconds based on active time since last_resumed_at.
+ *       This should be called periodically (e.g., every 30-60 seconds) by the frontend
+ *       while the student is actively working on the assignment.
+ *       
+ *       **How it works:**
+ *       - If session is paused (no last_resumed_at), returns without updating
+ *       - If session is active, calculates time used and updates time_used_seconds
+ *       - Checks duration limit and expires session if exceeded
+ *       - Keeps last_resumed_at unchanged to indicate session is still active
+ *       
+ *       **Use Cases:**
+ *       - Periodic time tracking during active exam
+ *       - Auto-save mechanism can call this
+ *       - Frontend timer can sync with server time
+ *     tags: [Student Sessions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: sessionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Student assignment session ID
+ *     responses:
+ *       200:
+ *         description: Heartbeat updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Heartbeat updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/StudentAssignmentSession'
+ *       403:
+ *         description: Session is paused, expired, or duration exceeded
+ *       404:
+ *         description: Session not found
+ */
+router.post('/:sessionId/heartbeat',
+  examLimiter,
+  authenticateToken,
+  requireRole(['student']),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { sessionId } = req.params;
+    if (!sessionId || typeof sessionId !== 'string') {
+      res.status(400).json({
+        success: false,
+        error: 'Session ID is required',
+      });
+      return;
+    }
+
+    const userId = req.user!.id;
+
+    const result = await StudentSessionService.heartbeat(sessionId, userId);
+    res.status(200).json(result);
+  })
+);
+
+/**
+ * @swagger
+ * /api/student-sessions/{sessionId}/submit:
+ *   post:
+ *     summary: Submit assignment (student only)
+ *     description: |
+ *       Students can submit their assignment session. This will:
+ *       - Finalize the time_used_seconds (stops the timer)
+ *       - Set status to 'submitted'
+ *       - Set submitted_at to current timestamp
+ *       - Prevent further modifications to answers
+ *       
+ *       **If already submitted:**
+ *       - Updates submitted_at to current timestamp (idempotent operation)
+ *       
+ *       **Validation:**
+ *       - Session must belong to the student
+ *       - Session must not be expired
+ *       - Assignment deadline must not have passed (if deadline is set)
+ *       - Assignment must not be graded
+ *       
+ *       **Note:** This endpoint takes no body parameters - only the sessionId in the path.
+ *     tags: [Student Sessions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: sessionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Student assignment session ID
+ *         example: "aa0e8400-e29b-41d4-a716-446655440005"
+ *     responses:
+ *       200:
+ *         description: Assignment submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Assignment submitted successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/StudentAssignmentSession'
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - not session owner, session expired, deadline passed, or assignment graded
+ *       404:
+ *         description: Session or assignment not found
+ */
+router.post('/:sessionId/submit',
+  authenticateToken,
+  requireRole(['student']),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { sessionId } = req.params;
+    if (!sessionId || typeof sessionId !== 'string') {
+      res.status(400).json({
+        success: false,
+        error: 'Session ID is required',
+      });
+      return;
+    }
+
+    const userId = req.user!.id;
+
+    const result = await StudentSessionService.submitSession(sessionId, userId);
     res.status(200).json(result);
   })
 );

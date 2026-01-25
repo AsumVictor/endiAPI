@@ -9,6 +9,7 @@ import type {
 
 export class StudentSessionService {
   private static readonly DURATION_GRACE_SECONDS = 45;
+  // If no activity for more than 2 minutes, consider session inactive and auto-pause
 
   private static computeEffectiveUsedSeconds(session: any, now: Date): number {
     const base = Number(session.time_used_seconds || 0);
@@ -259,10 +260,23 @@ export class StudentSessionService {
       return { success: true, message: 'Session resumed successfully', data: session };
     }
 
+    // Fetch fresh session data to ensure we have the latest time_used_seconds (from auto-pause)
+    const { data: freshSession, error: freshError } = await supabase
+      .from('student_assignment_sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single();
+
+    if (freshError || !freshSession) {
+      throw new AppError('Failed to fetch session data', 500);
+    }
+
+    // Update last_resumed_at only (preserve time_used_seconds that was committed during auto-pause)
     const { data: updatedSession, error } = await supabase
       .from('student_assignment_sessions')
       .update({
         last_resumed_at: now.toISOString(),
+        // Don't touch time_used_seconds - it was already committed during auto-pause
       })
       .eq('id', sessionId)
       .select()
@@ -497,6 +511,123 @@ export class StudentSessionService {
   }
 
   /**
+   * Submit assignment session
+   * Finalizes the session, stops time tracking, and marks as submitted
+   */
+  static async submitSession(sessionId: string, userId: string): Promise<SessionResponse> {
+    try {
+      // Get student record
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (studentError || !student) {
+        throw new AppError('Student profile not found', 404);
+      }
+
+      // Verify session exists and belongs to student
+      const { data: session, error: sessionError } = await supabase
+        .from('student_assignment_sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .single();
+
+      if (sessionError || !session) {
+        throw new AppError('Session not found', 404);
+      }
+
+      if (session.student_id !== student.id) {
+        throw new AppError('You can only submit your own sessions', 403);
+      }
+
+      // Check if expired
+      if (session.status === 'expired') {
+        throw new AppError('Cannot submit an expired session', 403);
+      }
+
+      const now = new Date();
+
+      // If already submitted, just update submitted_at timestamp
+      if (session.status === 'submitted') {
+        const { data: updatedSession, error: updateError } = await supabase
+          .from('student_assignment_sessions')
+          .update({
+            submitted_at: now.toISOString(),
+          })
+          .eq('id', sessionId)
+          .select()
+          .single();
+
+        if (updateError || !updatedSession) {
+          throw new AppError(`Failed to update submission time: ${updateError?.message || 'Unknown error'}`, 400);
+        }
+
+        return {
+          success: true,
+          message: 'Submission time updated successfully',
+          data: updatedSession,
+        };
+      }
+
+      // Get assignment to check deadline
+      const { data: assignment, error: assignmentError } = await supabase
+        .from('assignments')
+        .select('deadline, status')
+        .eq('id', session.assignment_id)
+        .single();
+
+      if (assignmentError || !assignment) {
+        throw new AppError('Assignment not found', 404);
+      }
+
+      // Check if assignment deadline has passed
+      if (assignment.deadline) {
+        const deadlineDate = new Date(assignment.deadline);
+        if (deadlineDate < now) {
+          throw new AppError('Assignment deadline has passed. Cannot submit.', 403);
+        }
+      }
+
+      // Check if assignment is graded (ended)
+      if (assignment.status === 'graded') {
+        throw new AppError('Assignment has been graded and is no longer available for submission', 403);
+      }
+
+      // Finalize time_used_seconds and submit
+      const finalTimeUsed = this.computeEffectiveUsedSeconds(session, now);
+      
+      const { data: submittedSession, error: updateError } = await supabase
+        .from('student_assignment_sessions')
+        .update({
+          status: 'submitted',
+          submitted_at: now.toISOString(),
+          time_used_seconds: finalTimeUsed,
+          last_resumed_at: null, // Stop timer
+        })
+        .eq('id', sessionId)
+        .select()
+        .single();
+
+      if (updateError || !submittedSession) {
+        throw new AppError(`Failed to submit session: ${updateError?.message || 'Unknown error'}`, 400);
+      }
+
+      return {
+        success: true,
+        message: 'Assignment submitted successfully',
+        data: submittedSession,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError('Failed to submit session', 500);
+    }
+  }
+
+  /**
    * Delete session (students can delete their own sessions)
    */
   static async deleteSession(sessionId: string, userId: string): Promise<SessionResponse> {
@@ -545,6 +676,272 @@ export class StudentSessionService {
         throw error;
       }
       throw new AppError('Failed to delete session', 500);
+    }
+  }
+
+  /**
+   * Heartbeat - Update session activity timestamp and time used
+   * Called periodically by frontend to track active time
+   */
+  static async heartbeat(sessionId: string, userId: string): Promise<SessionResponse> {
+    try {
+      // Get student record
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (studentError || !student) {
+        throw new AppError('Student profile not found', 404);
+      }
+
+      // Get session
+      let { data: session, error: sessionError } = await supabase
+        .from('student_assignment_sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .single();
+
+      if (sessionError || !session) {
+        throw new AppError('Session not found', 404);
+      }
+
+      if (session.student_id !== student.id) {
+        throw new AppError('You can only update your own sessions', 403);
+      }
+
+      // If session is already expired, return success with expired status
+      if (session.status === 'expired') {
+        return {
+          success: true,
+          message: 'Session has expired',
+          data: session,
+        };
+      }
+
+      if (session.status !== 'in_progress') {
+        throw new AppError('Can only send heartbeat for in-progress sessions', 403);
+      }
+
+      // Check if session is paused (no last_resumed_at)
+      // If heartbeat is called, it means student is actively working, so auto-resume
+      if (!session.last_resumed_at) {
+        const now = new Date();
+        
+        // Fetch fresh session data to ensure we have the latest time_used_seconds (from auto-pause)
+        const { data: freshSession, error: freshError } = await supabase
+          .from('student_assignment_sessions')
+          .select('*')
+          .eq('id', sessionId)
+          .single();
+        
+        if (freshError || !freshSession) {
+          throw new AppError('Session not found', 404);
+        }
+        
+        // Auto-resume: student is sending heartbeat, so they're actively working
+        // Only update last_resumed_at (preserve time_used_seconds that was committed during auto-pause)
+        const { data: resumedSession, error: resumeError } = await supabase
+          .from('student_assignment_sessions')
+          .update({
+            last_resumed_at: now.toISOString(),
+            // Don't touch time_used_seconds - it was already committed during auto-pause
+          })
+          .eq('id', sessionId)
+          .select()
+          .single();
+        
+        if (resumeError || !resumedSession) {
+          throw new AppError('Failed to resume session', 500);
+        }
+        
+        // Continue with normal heartbeat logic using the resumed session
+        session = resumedSession;
+      }
+
+      const now = new Date();
+      
+      // Simple logic: If inactive, use current time_used_seconds (already committed)
+      // If active, calculate normally from last_resumed_at
+      let usedSeconds: number;
+      
+      if (!session.last_resumed_at) {
+        // Session is paused - time_used_seconds is already the committed value
+        usedSeconds = Number(session.time_used_seconds || 0);
+        
+        // Auto-resume since heartbeat indicates active work
+        const { data: resumedSession, error: resumeError } = await supabase
+          .from('student_assignment_sessions')
+          .update({
+            last_resumed_at: now.toISOString(),
+          })
+          .eq('id', sessionId)
+          .select()
+          .single();
+        
+        if (resumeError || !resumedSession) {
+          throw new AppError('Failed to resume session', 500);
+        }
+        
+        session = resumedSession;
+      } else {
+        // Session is active - check if it's been inactive
+        const lastResumedAt = new Date(session.last_resumed_at);
+        const inactivitySeconds = Math.floor((now.getTime() - lastResumedAt.getTime()) / 1000);
+        const INACTIVITY_THRESHOLD = 120; // 2 minutes
+        
+        if (inactivitySeconds > INACTIVITY_THRESHOLD) {
+          // Been inactive - use current time_used_seconds (already committed from last activity)
+          // Auto-pause and then resume
+          const currentTimeUsed = Number(session.time_used_seconds || 0);
+          
+          const { data: pausedSession, error: pauseError } = await supabase
+            .from('student_assignment_sessions')
+            .update({
+              time_used_seconds: currentTimeUsed,
+              last_resumed_at: null, // Pause
+            })
+            .eq('id', sessionId)
+            .eq('last_resumed_at', session.last_resumed_at)
+            .select()
+            .single();
+          
+          if (pauseError || !pausedSession) {
+            // Race condition - fetch fresh
+            const { data: freshSession } = await supabase
+              .from('student_assignment_sessions')
+              .select('*')
+              .eq('id', sessionId)
+              .single();
+            if (freshSession) {
+              session = freshSession;
+              usedSeconds = Number(session.time_used_seconds || 0);
+            } else {
+              throw new AppError('Failed to pause session', 409);
+            }
+          } else {
+            session = pausedSession;
+            usedSeconds = currentTimeUsed;
+          }
+          
+          // Auto-resume
+          const { data: resumedSession, error: resumeError } = await supabase
+            .from('student_assignment_sessions')
+            .update({
+              last_resumed_at: now.toISOString(),
+            })
+            .eq('id', sessionId)
+            .select()
+            .single();
+          
+          if (resumeError || !resumedSession) {
+            throw new AppError('Failed to resume session', 500);
+          }
+          
+          session = resumedSession;
+        } else {
+          // Still active - calculate normally
+          usedSeconds = this.computeEffectiveUsedSeconds(session, now);
+        }
+      }
+
+      // Get assignment to check duration limit and deadline
+      const { data: assignment, error: assignmentError } = await supabase
+        .from('assignments')
+        .select('duration_minutes, deadline')
+        .eq('id', session.assignment_id)
+        .single();
+
+      if (assignmentError || !assignment) {
+        throw new AppError('Assignment not found', 404);
+      }
+
+      // Check if assignment deadline has passed
+      if (assignment.deadline) {
+        const deadlineDate = new Date(assignment.deadline);
+        if (deadlineDate < now) {
+          // Deadline has passed - expire session and return success response
+          const { data: expiredSession, error: expireError } = await supabase
+            .from('student_assignment_sessions')
+            .update({
+              status: 'expired',
+              last_resumed_at: null,
+              time_used_seconds: usedSeconds,
+            })
+            .eq('id', sessionId)
+            .select()
+            .single();
+
+          if (expireError || !expiredSession) {
+            throw new AppError('Failed to expire session', 500);
+          }
+
+          return {
+            success: true,
+            message: 'Session has expired - assignment deadline has passed',
+            data: expiredSession,
+          };
+        }
+      }
+
+      // Check duration limit
+      if (assignment.duration_minutes !== null && assignment.duration_minutes !== undefined) {
+        const limitSeconds = assignment.duration_minutes * 60;
+        const graceSeconds = this.DURATION_GRACE_SECONDS;
+        
+        if (usedSeconds > limitSeconds + graceSeconds) {
+          // Expire session and return success response with expired status
+          const { data: expiredSession, error: expireError } = await supabase
+            .from('student_assignment_sessions')
+            .update({
+              status: 'expired',
+              last_resumed_at: null,
+              time_used_seconds: usedSeconds,
+            })
+            .eq('id', sessionId)
+            .select()
+            .single();
+
+          if (expireError || !expiredSession) {
+            throw new AppError('Failed to expire session', 500);
+          }
+
+          return {
+            success: true,
+            message: 'Session has expired - time limit exceeded',
+            data: expiredSession,
+          };
+        }
+      }
+
+      // Update time_used_seconds and reset last_resumed_at to now
+      // This "commits" the elapsed time since last_resumed_at into time_used_seconds
+      // and starts a new active period from now
+      const { data: updatedSession, error: updateError } = await supabase
+        .from('student_assignment_sessions')
+        .update({
+          time_used_seconds: usedSeconds,
+          last_resumed_at: now.toISOString(), // Reset to now to start fresh period
+        })
+        .eq('id', sessionId)
+        .select()
+        .single();
+
+      if (updateError) {
+        throw new AppError(`Failed to update session: ${updateError.message}`, 400);
+      }
+
+      return {
+        success: true,
+        message: 'Heartbeat updated successfully',
+        data: updatedSession,
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError('Failed to update heartbeat', 500);
     }
   }
 }

@@ -15,6 +15,7 @@ CREATE TABLE public.assignments (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   course_id uuid NOT NULL,
   lecturer_id uuid NOT NULL,
+  type text NOT NULL DEFAULT 'EXERCISE'::text CHECK (type = ANY (ARRAY['CAPSTONE'::text, 'EXERCISE'::text, 'MID_SEM'::text, 'FINAL_EXAM'::text])),
   title text NOT NULL,
   description text,
   start_time timestamp with time zone,
@@ -154,7 +155,7 @@ CREATE TABLE public.users (
   role character varying DEFAULT 'student'::character varying CHECK (role::text = ANY (ARRAY['student'::character varying, 'lecturer'::character varying]::text[])),
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT users_pkey PRIMARY KEY (id)
-);
+    );
 CREATE TABLE public.video_progress (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   video_id uuid NOT NULL,

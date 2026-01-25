@@ -373,6 +373,139 @@ export class StudentService {
         })
         .filter(v => v !== null);
 
+      // Get assignment data
+      const enrolledCourseIds = enrolledCourses.map((e: any) => e.courses?.id).filter(Boolean);
+      
+      let assignmentMetrics = {
+        total_assignments: 0,
+        completed_assignments: 0,
+        in_progress_assignments: 0,
+        upcoming_assignments: 0,
+      };
+      let recentAssignmentActivity: any[] = [];
+      let upcomingAssignments: any[] = [];
+
+      if (enrolledCourseIds.length > 0) {
+        // Get all published/graded assignments from enrolled courses
+        const { data: allAssignments, error: assignmentsError } = await supabase
+          .from('assignments')
+          .select(`
+            id,
+            title,
+            type,
+            deadline,
+            start_time,
+            status,
+            course_id,
+            courses!assignments_course_id_fkey(title)
+          `)
+          .in('course_id', enrolledCourseIds)
+          .in('status', ['published', 'graded'])
+          .order('created_at', { ascending: false });
+
+        if (!assignmentsError && allAssignments) {
+          // Get all sessions for these assignments
+          const assignmentIds = allAssignments.map(a => a.id);
+          const { data: allSessions } = await supabase
+            .from('student_assignment_sessions')
+            .select('id, assignment_id, status, started_at, submitted_at')
+            .eq('student_id', studentId)
+            .in('assignment_id', assignmentIds);
+
+          const sessionMap = new Map((allSessions || []).map((s: any) => [s.assignment_id, s]));
+
+          const now = new Date();
+          const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+          // Process assignments
+          allAssignments.forEach((assignment: any) => {
+            const session = sessionMap.get(assignment.id);
+            const courseTitle = Array.isArray(assignment.courses) 
+              ? assignment.courses[0]?.title 
+              : assignment.courses?.title || 'Unknown Course';
+
+            // Calculate time_status
+            let timeStatus: 'not_started' | 'started' | 'ended' = 'not_started';
+            if (assignment.start_time) {
+              const startTime = new Date(assignment.start_time);
+              if (startTime > now) {
+                timeStatus = 'not_started';
+              } else {
+                if (assignment.deadline) {
+                  const deadlineDate = new Date(assignment.deadline);
+                  timeStatus = deadlineDate < now ? 'ended' : 'started';
+                } else {
+                  timeStatus = assignment.status === 'graded' ? 'ended' : 'started';
+                }
+              }
+            } else {
+              if (assignment.deadline) {
+                const deadlineDate = new Date(assignment.deadline);
+                timeStatus = deadlineDate < now ? 'ended' : 'started';
+              } else {
+                timeStatus = assignment.status === 'graded' ? 'ended' : 'started';
+              }
+            }
+
+            // Update metrics
+            assignmentMetrics.total_assignments++;
+            
+            if (session?.status === 'submitted') {
+              assignmentMetrics.completed_assignments++;
+            } else if (session?.status === 'in_progress') {
+              assignmentMetrics.in_progress_assignments++;
+            } else if (timeStatus === 'not_started' || (timeStatus === 'started' && !session)) {
+              assignmentMetrics.upcoming_assignments++;
+            }
+
+            // Recent activity: started or submitted
+            if (session) {
+              const activityTimestamp = session.submitted_at || session.started_at;
+              if (activityTimestamp) {
+                recentAssignmentActivity.push({
+                  id: assignment.id,
+                  title: assignment.title,
+                  type: assignment.type,
+                  course_title: courseTitle,
+                  action: session.status === 'submitted' ? 'submitted' : 'started',
+                  timestamp: activityTimestamp,
+                });
+              }
+            }
+
+            // Upcoming assignments: deadline within 7 days and not submitted
+            if (assignment.deadline && timeStatus !== 'ended' && session?.status !== 'submitted') {
+              const deadlineDate = new Date(assignment.deadline);
+              if (deadlineDate <= sevenDaysFromNow && deadlineDate > now) {
+                const daysUntil = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                upcomingAssignments.push({
+                  id: assignment.id,
+                  title: assignment.title,
+                  type: assignment.type,
+                  course_title: courseTitle,
+                  deadline: assignment.deadline,
+                  days_until_deadline: daysUntil,
+                });
+              }
+            }
+          });
+
+          // Sort and limit recent activity (most recent first)
+          recentAssignmentActivity = recentAssignmentActivity
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .slice(0, 10);
+
+          // Sort upcoming assignments by deadline (soonest first)
+          upcomingAssignments = upcomingAssignments
+            .sort((a, b) => {
+              const deadlineA = a.deadline ? new Date(a.deadline).getTime() : 0;
+              const deadlineB = b.deadline ? new Date(b.deadline).getTime() : 0;
+              return deadlineA - deadlineB;
+            })
+            .slice(0, 10);
+        }
+      }
+
       const dashboard: StudentDashboard = {
         total_courses_enrolled: totalCoursesEnrolled,
         completed_courses_count: completedCourses.length,
@@ -382,6 +515,9 @@ export class StudentService {
         recent_enrolled_courses: recentEnrolledCourses,
         recent_watched_videos: recentWatchedVideos,
         recent_completed_videos: recentCompletedVideos,
+        assignment_metrics: assignmentMetrics,
+        recent_assignment_activity: recentAssignmentActivity,
+        upcoming_assignments: upcomingAssignments,
       };
 
       return {

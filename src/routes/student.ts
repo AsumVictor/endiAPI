@@ -245,6 +245,72 @@ router.put('/streak',
  *                             type: string
  *                             format: date-time
  *                             example: "2024-01-15T10:30:00Z"
+ *                     assignment_metrics:
+ *                       type: object
+ *                       properties:
+ *                         total_assignments:
+ *                           type: integer
+ *                           example: 15
+ *                         completed_assignments:
+ *                           type: integer
+ *                           example: 5
+ *                         in_progress_assignments:
+ *                           type: integer
+ *                           example: 2
+ *                         upcoming_assignments:
+ *                           type: integer
+ *                           example: 8
+ *                     recent_assignment_activity:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "assignment-uuid"
+ *                           title:
+ *                             type: string
+ *                             example: "Midterm Exam"
+ *                           type:
+ *                             type: string
+ *                             enum: [CAPSTONE, EXERCISE, MID_SEM, FINAL_EXAM]
+ *                           course_title:
+ *                             type: string
+ *                             example: "Introduction to Machine Learning"
+ *                           action:
+ *                             type: string
+ *                             enum: [started, submitted]
+ *                           timestamp:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2024-01-15T10:30:00Z"
+ *                     upcoming_assignments:
+ *                       type: array
+ *                       description: Assignments with deadlines within 7 days
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "assignment-uuid"
+ *                           title:
+ *                             type: string
+ *                             example: "Final Project"
+ *                           type:
+ *                             type: string
+ *                             enum: [CAPSTONE, EXERCISE, MID_SEM, FINAL_EXAM]
+ *                           course_title:
+ *                             type: string
+ *                             example: "Introduction to Machine Learning"
+ *                           deadline:
+ *                             type: string
+ *                             nullable: true
+ *                             format: date-time
+ *                             example: "2024-01-20T23:59:59Z"
+ *                           days_until_deadline:
+ *                             type: integer
+ *                             nullable: true
+ *                             example: 5
  *       401:
  *         description: Unauthorized
  *       403:

@@ -3,6 +3,7 @@ export interface Assignment {
   id: string; // uuid PK
   course_id: string; // FK to courses.id
   lecturer_id: string; // FK to lecturers.id
+  type: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
   title: string;
   description: string | null;
   start_time: string | null; // timestamptz
@@ -27,6 +28,7 @@ export interface AssignmentResource {
 
 // Request/Response interfaces
 export interface CreateAssignmentRequest {
+  type?: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
   title: string;
   description?: string;
   start_time?: string; // ISO timestamp
@@ -40,6 +42,24 @@ export interface CreateAssignmentRequest {
   files?: Array<{ name: string; url: string }>; // array of file objects - not in schema, will log
   resources?: Array<{ type: 'pdf' | 'file' | 'link'; url: string; description?: string }>; // maps to assignment_resources
   total_questions?: number; // not in schema, will log
+}
+
+export interface UpdateAssignmentRequest {
+  // Allow updating any assignment field (except immutable ones like id, created_at, lecturer_id, course_id)
+  [key: string]: any;
+  // Explicitly typed fields for better TypeScript support
+  title?: string;
+  description?: string;
+  start_time?: string | null;
+  duration_minutes?: number | null;
+  deadline?: string | null;
+  status?: 'draft' | 'processing' | 'ready_for_review' | 'published' | 'graded';
+  ai_allowed?: boolean;
+  type?: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
+  // Note: duration can be passed as 'duration' (will map to duration_minutes)
+  duration?: number | null;
+  // Note: is_ai_allowed can be passed (will map to ai_allowed)
+  is_ai_allowed?: boolean;
 }
 
 export interface AssignmentResponse {
@@ -59,6 +79,184 @@ export interface StudentAssignmentView {
   start_time: string | null;
   duration_minutes: number | null;
   session_id: string | null;
+}
+
+export interface StudentAssignmentListItem {
+  id: string;
+  title: string;
+  type: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
+  course_name: string;
+  course_id: string;
+  deadline: string | null;
+  status: 'published' | 'graded';
+  time_status: 'not_started' | 'started' | 'ended';
+  start_time: string | null;
+  duration_minutes: number | null;
+  has_session: boolean;
+  session_status?: 'in_progress' | 'submitted' | 'expired';
+  created_at: string;
+}
+
+export interface StudentAssignmentsListResponse {
+  success: boolean;
+  message: string;
+  data: {
+    assignments: StudentAssignmentListItem[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      total_pages: number;
+    };
+  };
+}
+
+export interface StudentAssignmentDetails {
+  id: string;
+  title: string;
+  description: string | null;
+  type: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
+  course_id: string;
+  course_name: string;
+  start_time: string | null;
+  duration_minutes: number | null;
+  deadline: string | null;
+  ai_allowed: boolean;
+  status: 'published' | 'graded';
+  time_status: 'not_started' | 'started' | 'ended';
+  session_id: string | null;
+  session_status?: 'in_progress' | 'submitted' | 'expired';
+  time_used_seconds?: number;
+  resources: AssignmentResource[];
+  questions: {
+    code_programs: Question[];
+    non_code: Question[];
+  };
+  user_answers?: {
+    code_programs: StudentAnswer[]; // Answers for CODE type questions
+    non_code: StudentAnswer[];      // Answers for MCQ, FILLIN, ESSAY type questions
+  };
+  created_at: string;
+}
+
+export interface StudentAssignmentDetailsResponse {
+  success: boolean;
+  message: string;
+  data: StudentAssignmentDetails;
+}
+
+export interface LecturerAssignmentListItem {
+  id: string;
+  title: string;
+  type: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
+  course_name: string;
+  course_id: string;
+  deadline: string | null;
+  status: 'draft' | 'processing' | 'ready_for_review' | 'published' | 'graded';
+  time_status: 'ongoing' | 'ended';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LecturerAssignmentsListResponse {
+  success: boolean;
+  message: string;
+  data: {
+    assignments: LecturerAssignmentListItem[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      total_pages: number;
+    };
+  };
+}
+
+export interface AssignmentDetailsStatistics {
+  total_enrolled_students: number;
+  total_submissions: number; // sessions with status='submitted'
+  total_in_progress: number; // sessions with status='in_progress'
+  total_expired: number; // sessions with status='expired'
+  total_sessions: number; // all sessions
+  submission_rate: number; // percentage of enrolled students who submitted
+  total_questions: number;
+  average_score: number | null; // average of submitted sessions with scores
+  questions_by_type: {
+    MCQ: number;
+    FILLIN: number;
+    ESSAY: number;
+    CODE: number;
+  };
+}
+
+export interface AssignmentDetails {
+  // Basic assignment info
+  id: string;
+  title: string;
+  description: string | null;
+  type: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
+  status: 'draft' | 'processing' | 'ready_for_review' | 'published' | 'graded';
+  ai_allowed: boolean;
+  
+  // Course info
+  course_id: string;
+  course_name: string;
+  course_description: string | null;
+  
+  // Time information
+  start_time: string | null;
+  duration_minutes: number | null;
+  deadline: string | null;
+  time_status: 'ongoing' | 'ended';
+  
+  // Question generation
+  total_types: number;
+  generated_types: number;
+  
+  // Resources
+  resources: AssignmentResource[];
+  
+  // Statistics
+  statistics: AssignmentDetailsStatistics;
+  
+  // Timestamps
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssignmentDetailsResponse {
+  success: boolean;
+  message: string;
+  data: AssignmentDetails;
+}
+
+// Submission with student info for lecturer view
+export interface SubmissionWithStudent {
+  id: string; // session id
+  student_id: string;
+  student_name: string; // first_name + last_name
+  student_email: string;
+  started_at: string;
+  submitted_at: string | null;
+  status: 'in_progress' | 'submitted' | 'expired';
+  score: number | null;
+  time_used_seconds: number;
+  created_at: string;
+}
+
+export interface SubmissionsListResponse {
+  success: boolean;
+  message: string;
+  data: SubmissionWithStudent[];
+}
+
+export interface QuestionsListResponse {
+  success: boolean;
+  message: string;
+  data: {
+    code_programs: Question[]; // CODE type questions
+    non_code: Question[];      // MCQ, FILLIN, ESSAY type questions
+  };
 }
 
 // Question models
@@ -137,7 +335,7 @@ export interface StudentAnswer {
   question_id: string; // FK to questions.id
   answer_text: string | null;
   selected_option: string | null;
-  code_submission: string | null;
+  code_submission: Record<string, any> | null; // JSON object, not text
   language: string | null;
   created_at: string;
 }
@@ -147,14 +345,14 @@ export interface CreateAnswerRequest {
   question_id: string;
   answer_text?: string | null;
   selected_option?: string | null;
-  code_submission?: string | null;
+  code_submission?: Record<string, any> | null; // JSON object, not text
   language?: string | null;
 }
 
 export interface UpdateAnswerRequest {
   answer_text?: string | null;
   selected_option?: string | null;
-  code_submission?: string | null;
+  code_submission?: Record<string, any> | null; // JSON object, not text
   language?: string | null;
 }
 

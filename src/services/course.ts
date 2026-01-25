@@ -873,6 +873,82 @@ export class CourseService {
         is_enrolled = !!enrollment;
       }
 
+      // Fetch assignments for this course (only if student is enrolled)
+      let assignments: any[] = [];
+      if (is_enrolled && studentId) {
+        // Get all published/graded assignments for this course
+        const { data: courseAssignments, error: assignmentsError } = await supabase
+          .from('assignments')
+          .select(`
+            id,
+            title,
+            type,
+            deadline,
+            start_time,
+            duration_minutes,
+            status,
+            created_at
+          `)
+          .eq('course_id', courseId)
+          .in('status', ['published', 'graded'])
+          .order('created_at', { ascending: false });
+
+        if (!assignmentsError && courseAssignments) {
+          // Get all sessions for these assignments
+          const assignmentIds = courseAssignments.map(a => a.id);
+          const { data: sessions } = await supabase
+            .from('student_assignment_sessions')
+            .select('id, assignment_id, status')
+            .eq('student_id', studentId)
+            .in('assignment_id', assignmentIds);
+
+          const sessionMap = new Map((sessions || []).map((s: any) => [s.assignment_id, s]));
+
+          // Process assignments with session info and time_status
+          const now = new Date();
+          assignments = courseAssignments.map(assignment => {
+            const session = sessionMap.get(assignment.id);
+            let timeStatus: 'not_started' | 'started' | 'ended' = 'not_started';
+
+            // Calculate time_status
+            if (assignment.start_time) {
+              const startTime = new Date(assignment.start_time);
+              if (startTime > now) {
+                timeStatus = 'not_started';
+              } else {
+                if (assignment.deadline) {
+                  const deadlineDate = new Date(assignment.deadline);
+                  timeStatus = deadlineDate < now ? 'ended' : 'started';
+                } else {
+                  timeStatus = assignment.status === 'graded' ? 'ended' : 'started';
+                }
+              }
+            } else {
+              if (assignment.deadline) {
+                const deadlineDate = new Date(assignment.deadline);
+                timeStatus = deadlineDate < now ? 'ended' : 'started';
+              } else {
+                timeStatus = assignment.status === 'graded' ? 'ended' : 'started';
+              }
+            }
+
+            return {
+              id: assignment.id,
+              title: assignment.title,
+              type: assignment.type,
+              deadline: assignment.deadline,
+              start_time: assignment.start_time,
+              duration_minutes: assignment.duration_minutes,
+              status: assignment.status,
+              time_status: timeStatus,
+              session_id: session?.id || null,
+              session_status: session?.status || null,
+              created_at: assignment.created_at,
+            };
+          });
+        }
+      }
+
       const courseDetails: CourseDetails = {
         id: course.id,
         title: course.title,
@@ -889,6 +965,7 @@ export class CourseService {
         total_enrollments: totalEnrollments || 0,
         is_enrolled,
         videos: videosWithProgress,
+        ...(assignments.length > 0 && { assignments }),
       };
 
       return {

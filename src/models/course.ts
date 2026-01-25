@@ -115,6 +115,21 @@ export interface CourseDetails {
     is_watched: boolean; // Whether the requesting user has watched this video
     completed_at?: string; // When the user completed the video (if watched)
   }[];
+  
+  // Assignments information (only if user is enrolled)
+  assignments?: {
+    id: string;
+    title: string;
+    type: 'CAPSTONE' | 'EXERCISE' | 'MID_SEM' | 'FINAL_EXAM';
+    deadline: string | null;
+    start_time: string | null;
+    duration_minutes: number | null;
+    status: 'draft' | 'processing' | 'ready_for_review' | 'published' | 'graded';
+    time_status: 'not_started' | 'started' | 'ended';
+    session_id: string | null;
+    session_status: 'in_progress' | 'submitted' | 'expired' | null;
+    created_at: string;
+  }[];
 }
 
 // Course details response

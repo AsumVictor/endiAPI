@@ -65,9 +65,10 @@ function extractAssignmentIdFromJobId(jobId: string): string | null {
 
 export class QuestionGenerationResultService {
   static async process(result: JobResultMessageLike): Promise<void> {
-    const runId = result.jobId;
-    const rawPayload: any = result.payload as any;
-    const questions = extractGeneratedQuestions(rawPayload);
+    try {
+      const runId = result.jobId;
+      const rawPayload: any = result.payload as any;
+      const questions = extractGeneratedQuestions(rawPayload);
 
     if (!runId) {
       logger.error('Question generation result missing jobId', { result });
@@ -123,6 +124,9 @@ export class QuestionGenerationResultService {
 
     // Insert questions (idempotent by (assignment_id, order_index) check)
     let insertedCount = 0;
+    let skippedCount = 0;
+    let errorCount = 0;
+    
     for (const [i, q] of questions.entries()) {
       const orderIndex = typeof q?.order_index === 'number' ? q.order_index : i + 1;
       const promptMarkdown = q?.prompt_markdown || '';
@@ -131,12 +135,24 @@ export class QuestionGenerationResultService {
         logger.warn('Skipping generated question with missing prompt_markdown', {
           assignmentId,
           orderIndex,
+          questionType: q?.type,
         });
+        skippedCount++;
         continue;
       }
 
       const apiType = normalizeQuestionType(q?.type);
       const dbType = toDbQuestionType(apiType);
+
+      logger.debug('Processing question for insert', {
+        assignmentId,
+        orderIndex,
+        apiType,
+        dbType,
+        hasContentJson: !!q?.content_json,
+        hasAnswers: !!q?.answers,
+        hasExplanation: !!q?.explanation,
+      });
 
       const mergedContentJson: Record<string, unknown> = {
         ...((q?.content_json as Record<string, unknown> | undefined) || {}),
@@ -144,26 +160,34 @@ export class QuestionGenerationResultService {
 
       const { data: existing, error: existingError } = await supabase
         .from('questions')
-        .select('id')
+        .select('id, type')
         .eq('assignment_id', assignmentId)
         .eq('order_index', orderIndex)
+        .eq('type', dbType)
         .limit(1);
 
       if (existingError) {
         logger.error('Failed to check for existing question', {
           assignmentId,
           orderIndex,
+          type: dbType,
           error: existingError.message,
+          errorCode: existingError.code,
+          errorDetails: existingError.details,
         });
-        throw existingError;
+        errorCount++;
+        // Continue processing other questions instead of throwing
+        continue;
       }
 
       if (existing && existing.length > 0) {
         logger.info('Question already exists, skipping insert', {
           assignmentId,
           orderIndex,
+          type: dbType,
           existingQuestionId: (existing as any)[0]?.id,
         });
+        skippedCount++;
         continue;
       }
 
@@ -180,27 +204,72 @@ export class QuestionGenerationResultService {
         created_at: new Date().toISOString(),
       };
 
-      const { error: insertError } = await supabase.from('questions').insert([questionRow]);
+      logger.debug('Attempting to insert question', {
+        assignmentId,
+        orderIndex,
+        type: dbType,
+        questionRowKeys: Object.keys(questionRow),
+        contentJsonKeys: Object.keys(mergedContentJson),
+        answersType: Array.isArray(q?.answers) ? 'array' : typeof q?.answers,
+      });
+
+      const { error: insertError, data: insertedData } = await supabase
+        .from('questions')
+        .insert([questionRow])
+        .select('id');
 
       if (insertError) {
         logger.error('Failed to insert generated question', {
           assignmentId,
           orderIndex,
           type: apiType,
+          dbType,
           error: insertError.message,
+          errorCode: insertError.code,
+          errorDetails: insertError.details,
+          errorHint: insertError.hint,
+          questionRow: JSON.stringify(questionRow, null, 2),
         });
-        throw insertError;
+        errorCount++;
+        // Continue processing other questions instead of throwing
+        continue;
       }
 
-      insertedCount++;
+      if (insertedData && insertedData.length > 0) {
+        logger.info('Successfully inserted question', {
+          assignmentId,
+          orderIndex,
+          questionId: insertedData[0]?.id,
+          type: dbType,
+        });
+        insertedCount++;
+      } else {
+        logger.warn('Insert returned no data but no error', {
+          assignmentId,
+          orderIndex,
+          type: dbType,
+        });
+        errorCount++;
+      }
     }
 
-    logger.info('Inserted generated questions', {
+    logger.info('Question insertion summary', {
       assignmentId,
       runId,
       insertedCount,
+      skippedCount,
+      errorCount,
       receivedCount: questions.length,
     });
+
+    if (errorCount > 0) {
+      logger.error('Some questions failed to insert', {
+        assignmentId,
+        runId,
+        errorCount,
+        totalQuestions: questions.length,
+      });
+    }
 
     // If nothing new was inserted, treat this as a retry/duplicate and do NOT advance generated_types.
     if (insertedCount === 0) {
@@ -296,6 +365,16 @@ export class QuestionGenerationResultService {
         assignmentId,
         lecturerUserId,
       });
+    }
+    } catch (error) {
+      logger.error('Error in QuestionGenerationResultService.process', {
+        runId: result.jobId,
+        error: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined,
+        payload: result.payload,
+      });
+      // Re-throw to let consumer handle retry logic
+      throw error;
     }
   }
 }

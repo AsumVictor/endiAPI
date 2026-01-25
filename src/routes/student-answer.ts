@@ -6,6 +6,7 @@ const { body, validationResult } = expressValidator as any;
 import { asyncHandler } from '../utils/errors.js';
 import { StudentAnswerService } from '../services/student-answer.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { examLimiter } from '../middleware/index.js';
 import type { CreateAnswerRequest, UpdateAnswerRequest } from '../models/assignment.js';
 
 const router = Router();
@@ -16,14 +17,14 @@ const validateCreateAnswer = [
   body('question_id').isUUID().withMessage('Question ID must be a valid UUID'),
   body('answer_text').optional().isString().withMessage('Answer text must be a string'),
   body('selected_option').optional().isString().withMessage('Selected option must be a string'),
-  body('code_submission').optional().isString().withMessage('Code submission must be a string'),
+  body('code_submission').optional().isObject().withMessage('Code submission must be a JSON object'),
   body('language').optional().isString().withMessage('Language must be a string'),
 ];
 
 const validateUpdateAnswer = [
   body('answer_text').optional().isString().withMessage('Answer text must be a string'),
   body('selected_option').optional().isString().withMessage('Selected option must be a string'),
-  body('code_submission').optional().isString().withMessage('Code submission must be a string'),
+  body('code_submission').optional().isObject().withMessage('Code submission must be a JSON object'),
   body('language').optional().isString().withMessage('Language must be a string'),
 ];
 
@@ -77,10 +78,10 @@ const validateUpdateAnswer = [
  *                 example: "B"
  *                 description: "For MCQ question type (option letter/identifier)"
  *               code_submission:
- *                 type: string
+ *                 type: object
  *                 nullable: true
- *                 example: "def binary_search(arr, target):\n    left, right = 0, len(arr) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1"
- *                 description: "For CODE question type"
+ *                 example: {"binary_search_twisted.py": "def search_rotated_array(arr, target):\n    # implementation\n    pass"}
+ *                 description: "For CODE question type - JSON object with filename as key and code as value"
  *               language:
  *                 type: string
  *                 nullable: true
@@ -114,6 +115,7 @@ const validateUpdateAnswer = [
  *         description: Answer already exists for this question
  */
 router.post('/',
+  examLimiter,
   authenticateToken,
   requireRole(['student', 'admin']),
   validateCreateAnswer,
@@ -334,6 +336,7 @@ router.get('/:answerId',
  *         description: Answer not found
  */
 router.put('/:answerId',
+  examLimiter,
   authenticateToken,
   requireRole(['student', 'admin']),
   validateUpdateAnswer,
@@ -425,6 +428,123 @@ router.delete('/:answerId',
     const userId = req.user!.id;
 
     const result = await StudentAnswerService.deleteAnswer(answerId, userId);
+    res.status(200).json(result);
+  })
+);
+
+/**
+ * @swagger
+ * /api/student-answers/upsert:
+ *   post:
+ *     summary: Create or update an answer (upsert)
+ *     description: |
+ *       Students can submit an answer for a question. If an answer already exists for the question in this session, it will be updated. Otherwise, a new answer will be created.
+ *       
+ *       **This is the recommended endpoint for auto-save functionality** - you can call it repeatedly without worrying about whether the answer exists.
+ *       
+ *       **Validation:**
+ *       - Session must belong to the student
+ *       - Session must not be submitted or expired
+ *       - Assignment must have started and deadline must not have passed (if deadline is set)
+ *       - Session will be auto-resumed if paused
+ *       
+ *       **Answer Fields:**
+ *       - `answer_text`: For FILLIN and ESSAY question types
+ *       - `selected_option`: For MCQ question type (e.g., "A", "B", "C", "D")
+ *       - `code_submission` + `language`: For CODE question type
+ *       
+ *       **Behavior:**
+ *       - If answer exists: Updates the existing answer with new values
+ *       - If answer doesn't exist: Creates a new answer
+ *       - Returns 200 status for both create and update operations
+ *     tags: [Student Answers]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - session_id
+ *               - question_id
+ *             properties:
+ *               session_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "aa0e8400-e29b-41d4-a716-446655440005"
+ *                 description: The student assignment session ID
+ *               question_id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "990e8400-e29b-41d4-a716-446655440004"
+ *                 description: The question ID to answer
+ *               answer_text:
+ *                 type: string
+ *                 nullable: true
+ *                 example: "O(log n)"
+ *                 description: "For FILLIN and ESSAY question types"
+ *               selected_option:
+ *                 type: string
+ *                 nullable: true
+ *                 example: "B"
+ *                 description: "For MCQ question type (option letter/identifier like 'A', 'B', 'C', 'D')"
+ *               code_submission:
+ *                 type: object
+ *                 nullable: true
+ *                 example: {"binary_search_twisted.py": "def search_rotated_array(arr, target):\n    # implementation\n    pass"}
+ *                 description: "For CODE question type - JSON object with filename as key and code as value"
+ *               language:
+ *                 type: string
+ *                 nullable: true
+ *                 example: "python"
+ *                 description: "Programming language for CODE question type (e.g., 'python', 'javascript', 'java')"
+ *     responses:
+ *       200:
+ *         description: Answer created or updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Answer created successfully" or "Answer updated successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/StudentAnswer'
+ *       400:
+ *         description: Validation error or operation failed
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - not session owner, session submitted/expired, assignment timing invalid, or duration exceeded
+ *       404:
+ *         description: Session or question not found
+ */
+router.post('/upsert',
+  examLimiter,
+  authenticateToken,
+  requireRole(['student', 'admin']),
+  validateCreateAnswer,
+  asyncHandler(async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array(),
+      });
+      return;
+    }
+
+    const answerData: CreateAnswerRequest = req.body;
+    const userId = req.user!.id;
+
+    const result = await StudentAnswerService.upsertAnswer(answerData, userId);
     res.status(200).json(result);
   })
 );

@@ -6,6 +6,7 @@ const { body, validationResult } = expressValidator as any;
 import { asyncHandler, AppError } from '../utils/errors.js';
 import { AuthService } from '../services/auth.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { authLimiter } from '../middleware/index.js';
 import { JWTService } from '../utils/jwt.js';
 import { supabase, supabaseAuth } from '../config/database.js';
 import type { LoginRequest, RegisterRequest, RefreshTokenRequest } from '../models/user.js';
@@ -255,6 +256,7 @@ const validateRefreshToken = [
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/register', 
+  authLimiter, 
   validateRegistration,
   asyncHandler(async (req: Request, res: Response) => {
     // Check validation results
@@ -303,6 +305,7 @@ router.post('/register',
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/login',
+  authLimiter,
   validateLogin,
   asyncHandler(async (req: Request, res: Response) => {
     // Check validation results
@@ -460,8 +463,8 @@ router.get('/me',
       // Generate new access token for the response
       const accessToken = JWTService.generateAccessToken(user);
 
-      res.status(200).json({
-        success: true,
+    res.status(200).json({
+      success: true,
         message: 'User retrieved successfully',
         data: {
           user,
